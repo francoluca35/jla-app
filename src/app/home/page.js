@@ -8,6 +8,7 @@ import {
   Users,
   ReceiptText,
   Power,
+  ChartNoAxesCombined,
 } from "lucide-react";
 
 export default function Home() {
@@ -36,8 +37,8 @@ export default function Home() {
       icono: <CalendarPlus className="w-6 h-6 mb-1" />,
     },
     {
-      texto: "Agregar Gastos y Ganancias",
-      ruta: "/mensajes",
+      texto: "Ingreso de Gastos",
+      ruta: "/gastos",
       icono: <PiggyBank className="w-6 h-6 mb-1" />,
     },
     {
@@ -47,8 +48,13 @@ export default function Home() {
     },
     {
       texto: "Historial de Gastos",
-      ruta: "/checkpass",
+      ruta: "/hgastos",
       icono: <ReceiptText className="w-6 h-6 mb-1" />,
+    },
+    {
+      texto: "Historial de Ingresos",
+      ruta: "/hingresos",
+      icono: <ChartNoAxesCombined className="w-6 h-6 mb-1" />,
     },
   ];
 
