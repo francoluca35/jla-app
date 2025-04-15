@@ -2,7 +2,6 @@
 import BackArrow from "@/app/components/BackArrow";
 import { useState, useEffect } from "react";
 import useAddClient from "@/hooks/useAddClient";
-import Swal from "sweetalert2"; // Importar SweetAlert2
 
 const FormClient = () => {
   const [date, setDate] = useState("");
@@ -17,7 +16,12 @@ const FormClient = () => {
 
   useEffect(() => {
     const now = new Date();
-    setDate(now.toISOString()); // Fecha correcta para Mongo
+    const formattedDate = now.toLocaleDateString("es-AR"); // Ej: 14/04/2025
+    const formattedTime = now.toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }); // Ej: 18:32
+    setDate(`${formattedDate} ${formattedTime}`);
   }, []);
 
   const resetForm = () => {
@@ -32,46 +36,19 @@ const FormClient = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let sertec = [];
-
-    if (problemType === "arreglo") {
-      sertec.push({ tipo: "arreglo", monto: parseFloat(amount) || 0 });
-    } else if (problemType === "presupuesto" && paymentOption) {
-      sertec.push({ tipo: paymentOption, monto: parseFloat(amount) || 0 });
-    }
-
     const formData = {
       clientName,
       branch,
       date,
       problemType,
       paymentOption,
-      amount: parseFloat(amount) || 0,
+      amount,
       description,
-      sertec,
     };
 
     await addClient(formData);
 
-    if (success) {
-      // Mostrar alerta moderna
-      Swal.fire({
-        title: "¡Éxito!",
-        text: "Cliente guardado con éxito.",
-        icon: "success",
-        confirmButtonText: "Aceptar",
-      }).then(() => {
-        resetForm(); // Limpiar el formulario después de que el usuario presione "Aceptar"
-      });
-    } else {
-      // En caso de error
-      Swal.fire({
-        title: "Error",
-        text: error || "Hubo un problema al guardar el cliente.",
-        icon: "error",
-        confirmButtonText: "Aceptar",
-      });
-    }
+    if (success) resetForm();
   };
 
   return (
@@ -205,6 +182,17 @@ const FormClient = () => {
       >
         {loading ? "Guardando..." : "GUARDAR"}
       </button>
+
+      {success && (
+        <p className="text-green-400 text-center font-semibold">
+          ✅ Cliente guardado con éxito
+        </p>
+      )}
+      {error && (
+        <p className="text-red-400 text-center font-semibold">
+          ❌ Error: {error}
+        </p>
+      )}
     </form>
   );
 };

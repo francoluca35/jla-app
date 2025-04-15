@@ -1,8 +1,7 @@
 "use client";
 import BackArrow from "@/app/components/BackArrow";
+// FormClient.jsx
 import { useState, useEffect } from "react";
-import useAddClient from "@/hooks/useAddClient";
-import Swal from "sweetalert2"; // Importar SweetAlert2
 
 const FormClient = () => {
   const [date, setDate] = useState("");
@@ -10,68 +9,23 @@ const FormClient = () => {
   const [paymentOption, setPaymentOption] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [branch, setBranch] = useState("");
-
-  const { addClient, loading, error, success } = useAddClient();
 
   useEffect(() => {
-    const now = new Date();
-    setDate(now.toISOString()); // Fecha correcta para Mongo
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0]; // yyyy-mm-dd
+    setDate(formattedDate);
   }, []);
 
-  const resetForm = () => {
-    setProblemType("");
-    setPaymentOption("");
-    setAmount("");
-    setDescription("");
-    setClientName("");
-    setBranch("");
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    let sertec = [];
-
-    if (problemType === "arreglo") {
-      sertec.push({ tipo: "arreglo", monto: parseFloat(amount) || 0 });
-    } else if (problemType === "presupuesto" && paymentOption) {
-      sertec.push({ tipo: paymentOption, monto: parseFloat(amount) || 0 });
-    }
-
     const formData = {
-      clientName,
-      branch,
-      date,
       problemType,
       paymentOption,
-      amount: parseFloat(amount) || 0,
+      amount,
       description,
-      sertec,
+      date,
     };
-
-    await addClient(formData);
-
-    if (success) {
-      // Mostrar alerta moderna
-      Swal.fire({
-        title: "¡Éxito!",
-        text: "Cliente guardado con éxito.",
-        icon: "success",
-        confirmButtonText: "Aceptar",
-      }).then(() => {
-        resetForm(); // Limpiar el formulario después de que el usuario presione "Aceptar"
-      });
-    } else {
-      // En caso de error
-      Swal.fire({
-        title: "Error",
-        text: error || "Hubo un problema al guardar el cliente.",
-        icon: "error",
-        confirmButtonText: "Aceptar",
-      });
-    }
+    console.log("Guardar cliente:", formData);
   };
 
   return (
@@ -85,24 +39,18 @@ const FormClient = () => {
       <label>Nombre cliente</label>
       <input
         type="text"
-        value={clientName}
-        onChange={(e) => setClientName(e.target.value)}
         className="rounded-full px-4 py-2 bg-gray-300 text-black"
         placeholder="Nombre del cliente"
         required
       />
-
       <label>
-        Sucursal <span className="text-sm">(no requerido)</span>
+        Sucursal <span className="text-lm">no requerido</span>
       </label>
       <input
         type="text"
-        value={branch}
-        onChange={(e) => setBranch(e.target.value)}
         className="rounded-full px-4 py-2 bg-gray-300 text-black"
         placeholder="Sucursal"
       />
-
       <label>Fecha</label>
       <input
         type="text"
@@ -153,6 +101,7 @@ const FormClient = () => {
         />
       )}
 
+      {/* Si es PRESUPUESTO → mostrar radios + input */}
       {problemType === "presupuesto" && (
         <>
           <div className="bg-gray-300 text-black p-2 rounded-md flex gap-4 justify-around">
@@ -200,10 +149,9 @@ const FormClient = () => {
 
       <button
         type="submit"
-        disabled={loading}
         className="bg-green-500 text-black font-bold rounded-full py-2"
       >
-        {loading ? "Guardando..." : "GUARDAR"}
+        GUARDAR
       </button>
     </form>
   );
