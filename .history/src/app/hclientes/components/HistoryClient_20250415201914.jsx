@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import useClientes from "@/hooks/useClient";
 
 function hingresos() {
-  const { clientes, loading, error } = useClientes();
-
+  const clientes = useClientes();
+  const [state, setState] = useState(0);
   const [filtros, setFiltros] = useState({
     nombre: "",
     desde: "",
