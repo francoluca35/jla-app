@@ -41,21 +41,12 @@ const TabsGasto = () => {
     .reduce((acc, g) => acc + Number(g.precio), 0);
 
   return (
-    <div
-      className="min-h-screen p-6 text-white space-y-4"
-      style={{
-        backgroundImage: "url('/Assets/formclient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <h2 className="text-3xl font-bold mb-4 text-center tracking-wider">
-        VISUALIZAR GASTOS
-      </h2>
+    <div className="p-4 bg-verdefluor text-white rounded-xl space-y-4">
+      <h2 className="text-lg font-bold">Visualizar Gastos</h2>
 
       <div className="space-y-2">
         <select
-          className="p-2 w-full bg-black rounded"
+          className="p-2 w-full bg-white rounded"
           value={tipoSeleccionado}
           onChange={(e) => setTipoSeleccionado(e.target.value)}
         >
@@ -66,7 +57,7 @@ const TabsGasto = () => {
 
         <input
           type="date"
-          className="p-2 w-full bg-black rounded"
+          className="p-2 w-full bg-gray-700 rounded"
           value={fechaFiltro}
           onChange={(e) => setFechaFiltro(e.target.value)}
         />
@@ -75,14 +66,14 @@ const TabsGasto = () => {
           <input
             type="number"
             placeholder="Precio mín"
-            className="p-2 w-full bg-black rounded"
+            className="p-2 w-full bg-gray-700 rounded"
             value={minPrecio}
             onChange={(e) => setMinPrecio(e.target.value)}
           />
           <input
             type="number"
             placeholder="Precio máx"
-            className="p-2 w-full bg-black rounded"
+            className="p-2 w-full bg-gray-700 rounded"
             value={maxPrecio}
             onChange={(e) => setMaxPrecio(e.target.value)}
           />
@@ -106,7 +97,7 @@ const TabsGasto = () => {
           gastos.map((gasto) => (
             <div
               key={gasto._id}
-              className="p-3 bg-black bg-opacity-60 rounded cursor-pointer hover:bg-gray-600"
+              className="p-3 bg-gray-700 rounded cursor-pointer hover:bg-gray-600"
               onClick={() => setGastoSeleccionado(gasto)}
             >
               <p className="font-bold">{gasto.descripcion}</p>

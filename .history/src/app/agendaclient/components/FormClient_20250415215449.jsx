@@ -17,7 +17,7 @@ const FormClient = () => {
 
   useEffect(() => {
     const now = new Date();
-    setDate(now.toISOString());
+    setDate(now.toISOString()); // Fecha correcta para Mongo
   }, []);
 
   const resetForm = () => {
@@ -54,15 +54,17 @@ const FormClient = () => {
     await addClient(formData);
 
     if (success) {
+      // Mostrar alerta moderna
       Swal.fire({
         title: "¡Éxito!",
         text: "Cliente guardado con éxito.",
         icon: "success",
         confirmButtonText: "Aceptar",
       }).then(() => {
-        resetForm();
+        resetForm(); // Limpiar el formulario después de que el usuario presione "Aceptar"
       });
     } else {
+      // En caso de error
       Swal.fire({
         title: "Error",
         text: error || "Hubo un problema al guardar el cliente.",
@@ -74,16 +76,16 @@ const FormClient = () => {
 
   return (
     <div
-      className="min-h-screen p-6 text-white"
+      className="text-white p-4 flex flex-col gap-4 w-full max-w-md mx-auto rounded-md"
       style={{
-        backgroundImage: "url('/Assets/formclient.png')",
+        backgroundImage: 'url("/Assets/formclient.png")',
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       <form
         onSubmit={handleSubmit}
-        className="bg-black bg-opacity-70 p-6 flex flex-col gap-4 w-full max-w-md mx-auto rounded-xl"
+        className="bg-[#1f1f22] text-white p-4 flex flex-col gap-4 w-full max-w-md mx-auto rounded-md"
       >
         <BackArrow />
         <h2 className="text-center text-2xl font-bold">Cliente Nuevo</h2>
@@ -99,7 +101,7 @@ const FormClient = () => {
         />
 
         <label>
-          Sucursal <span className="text-sm">(opcional)</span>
+          Sucursal <span className="text-sm">(no requerido)</span>
         </label>
         <input
           type="text"
@@ -209,7 +211,7 @@ const FormClient = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-verdefluor hover:bg-verdefluort text-black font-bold rounded-full py-2"
+          className="bg-green-500 text-black font-bold rounded-full py-2"
         >
           {loading ? "Guardando..." : "GUARDAR"}
         </button>
