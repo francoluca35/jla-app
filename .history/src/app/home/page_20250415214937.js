@@ -64,7 +64,7 @@ export default function Home() {
     <div
       className="min-h-screen bg-white p-4 flex flex-col items-center gap-6"
       style={{
-        backgroundImage: "url('/Assets/home.jpg')",
+        backgroundImage: "url('/Assets/home.jpeg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
