@@ -5,9 +5,7 @@ module.exports = {
     extend: {
       colors: {
         verdefluor: "#10db00",
-        verdefluort: "#10db0090",
-        verdepanel: "#108f45",
-        tabla: "#1f2c26",
+        verdepanel: "##108f4580",
       },
     },
   },
