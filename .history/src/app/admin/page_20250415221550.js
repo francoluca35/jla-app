@@ -28,9 +28,16 @@ export default function AdminAuth() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-gray-200 bg-center flex justify-center items-center">
+    <div
+      className="min-h-screen bg-cover bg-center flex justify-center items-center"
+      style={{
+        backgroundImage: "url('/Assets/h.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="bg-black bg-opacity-80 p-8 rounded-xl w-80 flex flex-col items-center shadow-lg backdrop-blur-sm">
-        <img src="/Assets/logo.jpg" alt="Rapiflex Logo" className="w-32 mb-4" />
+        <img src="/Assets/logo.png" alt="Rapiflex Logo" className="w-32 mb-4" />
         <h2 className="text-xl font-bold text-white mb-6">Iniciar Sesión</h2>
 
         {(authError || error) && (
