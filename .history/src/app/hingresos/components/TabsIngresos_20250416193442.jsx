@@ -11,7 +11,7 @@ function TabsIngresos() {
     subFiltro,
     setSubFiltro,
     eliminarIngreso,
-    editarIngreso,
+    editarIngreso, // <-- agregalo en tu hook
   } = useIngresos();
 
   const datos = obtenerFiltrados();

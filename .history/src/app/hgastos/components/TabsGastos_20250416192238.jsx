@@ -12,6 +12,8 @@ const TabsGasto = () => {
   const [maxPrecio, setMaxPrecio] = useState("");
   const [gastoSeleccionado, setGastoSeleccionado] = useState(null);
 
+  const [rangoDesde, setRangoDesde] = useState(null);
+  const [rangoHasta, setRangoHasta] = useState(null);
   const [modoEliminar, setModoEliminar] = useState(false);
   const [seleccionados, setSeleccionados] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -48,6 +50,14 @@ const TabsGasto = () => {
     .filter((g) => esMismoMes(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
 
+  const gastosSemana = gastos.filter((g) => {
+    const fecha = new Date(g.fecha);
+    return (
+      (!rangoDesde || fecha >= rangoDesde) &&
+      (!rangoHasta || fecha <= rangoHasta)
+    );
+  });
+
   const toggleSeleccionado = (id) => {
     setSeleccionados((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -58,7 +68,7 @@ const TabsGasto = () => {
     if (selectAll) {
       setSeleccionados([]);
     } else {
-      const todosIDs = gastos.map((g) => g._id);
+      const todosIDs = gastosSemana.map((g) => g._id);
       setSeleccionados(todosIDs);
     }
     setSelectAll(!selectAll);
@@ -142,13 +152,8 @@ const TabsGasto = () => {
               onChange={(e) => setMaxPrecio(e.target.value)}
             />
           </div>
-
           <button
-            onClick={() => {
-              setModoEliminar(!modoEliminar);
-              setSeleccionados([]);
-              setSelectAll(false);
-            }}
+            onClick={() => setModoEliminar(!modoEliminar)}
             className="bg-red-500 text-white px-4 py-2 rounded"
           >
             {modoEliminar ? "Cancelar selección" : "Seleccionar para eliminar"}
@@ -168,51 +173,90 @@ const TabsGasto = () => {
         ) : gastos.length === 0 ? (
           <p>No hay gastos para mostrar.</p>
         ) : (
-          <>
-            {modoEliminar && (
-              <div className="flex items-center gap-2 mb-2">
-                <button
-                  onClick={toggleSelectAll}
-                  className="bg-red-700 text-white px-4 py-1 rounded"
-                >
-                  {selectAll ? "Desmarcar todo" : "Seleccionar todo"}
-                </button>
-                <button
-                  onClick={eliminarSeleccionados}
-                  className="bg-red-600 text-white px-4 py-1 rounded"
-                >
-                  Eliminar seleccionados ({seleccionados.length})
-                </button>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {gastos.map((gasto) => (
-                <div
-                  key={gasto._id}
-                  className={`p-3 rounded cursor-pointer transition-colors ${
-                    modoEliminar && seleccionados.includes(gasto._id)
-                      ? "bg-red-800"
-                      : "bg-black bg-opacity-60 hover:bg-gray-600"
-                  }`}
-                  onClick={() =>
-                    modoEliminar
-                      ? toggleSeleccionado(gasto._id)
-                      : setGastoSeleccionado(gasto)
-                  }
-                >
-                  <p className="font-bold">{gasto.descripcion}</p>
-                  <p className="text-sm">{gasto.lugar}</p>
-                  <p className="text-sm">Precio: ${gasto.precio}</p>
-                  <p className="text-sm">
-                    Fecha: {new Date(gasto.fecha).toLocaleDateString("es-AR")}
-                  </p>
-                </div>
-              ))}
+          gastos.map((gasto) => (
+            <div
+              key={gasto._id}
+              className="p-3 bg-black bg-opacity-60 rounded cursor-pointer hover:bg-gray-600"
+              onClick={() => setGastoSeleccionado(gasto)}
+            >
+              <p className="font-bold">{gasto.descripcion}</p>
+              <p className="text-sm">{gasto.lugar}</p>
+              <p className="text-sm">Precio: ${gasto.precio}</p>
+              <p className="text-sm">
+                Fecha: {new Date(gasto.fecha).toLocaleDateString("es-AR")}
+              </p>
             </div>
-          </>
+          ))
         )}
       </div>
+
+      <hr className="my-4 border-white/30" />
+
+      <h3 className="text-xl font-bold">Eliminar por semana</h3>
+
+      <div className="flex flex-col md:flex-row gap-2 mb-2">
+        <DatePicker
+          selected={rangoDesde}
+          onChange={(date) => setRangoDesde(date)}
+          dateFormat="d/M/yyyy"
+          placeholderText="Desde"
+          className="p-2 w-full bg-black text-white rounded"
+          wrapperClassName="w-full"
+        />
+        <DatePicker
+          selected={rangoHasta}
+          onChange={(date) => setRangoHasta(date)}
+          dateFormat="d/M/yyyy"
+          placeholderText="Hasta"
+          className="p-2 w-full bg-black text-white rounded"
+          wrapperClassName="w-full"
+        />
+      </div>
+
+      {gastosSemana.length > 0 && (
+        <>
+          {modoEliminar && (
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={toggleSelectAll}
+                className="bg-red-700 text-white px-4 py-1 rounded"
+              >
+                {selectAll ? "Desmarcar todo" : "Seleccionar todo"}
+              </button>
+            </div>
+          )}
+
+          {modoEliminar && (
+            <button
+              onClick={eliminarSeleccionados}
+              className="bg-red-600 text-white w-full py-2 rounded mb-2"
+            >
+              Eliminar seleccionados ({seleccionados.length})
+            </button>
+          )}
+
+          <div className="space-y-2">
+            {gastosSemana.map((gasto) => (
+              <div
+                key={gasto._id}
+                className={`p-3 rounded cursor-pointer ${
+                  seleccionados.includes(gasto._id)
+                    ? "bg-red-800"
+                    : "bg-black bg-opacity-60"
+                }`}
+                onClick={() => modoEliminar && toggleSeleccionado(gasto._id)}
+              >
+                <p className="font-bold">{gasto.descripcion}</p>
+                <p className="text-sm">{gasto.lugar}</p>
+                <p className="text-sm">Precio: ${gasto.precio}</p>
+                <p className="text-sm">
+                  Fecha: {new Date(gasto.fecha).toLocaleDateString("es-AR")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {gastoSeleccionado && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
