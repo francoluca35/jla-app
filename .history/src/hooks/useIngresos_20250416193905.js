@@ -56,17 +56,8 @@ function useIngresos() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
       });
-
-      if (!res.ok) throw new Error("Error al eliminar");
-
-      // ✅ Solo intenta parsear si hay contenido
-      const text = await res.text();
-      if (text) {
-        const json = JSON.parse(text);
-        console.log("Respuesta eliminación:", json);
-      }
-
-      fetchData(); // actualiza la data
+      const json = await res.json();
+      if (res.ok) fetchData(); // actualiza datos
     } catch (error) {
       console.error("Error al eliminar ingresos:", error);
     }

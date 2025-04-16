@@ -39,12 +39,13 @@ export default function useClientes() {
     }
   };
 
-  return {
-    clientes,
-    loading,
-    error,
-    refetch: fetchClientes,
-    eliminarCliente,
-    editarCliente,
-  };
-}
+
+return {
+  clientes,
+  loading,
+  error,
+  refetch: fetchClientes,
+  eliminarCliente,
+  editarCliente, // 👈 importante
+};
+

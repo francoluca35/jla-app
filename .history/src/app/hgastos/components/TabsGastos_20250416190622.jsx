@@ -12,14 +12,19 @@ const TabsGasto = () => {
   const [maxPrecio, setMaxPrecio] = useState("");
   const [gastoSeleccionado, setGastoSeleccionado] = useState(null);
 
-  const [modoEliminar, setModoEliminar] = useState(false);
-  const [seleccionados, setSeleccionados] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
-
   const { gastos, loading } = useGastos({
     tipo: tipoSeleccionado,
     min: minPrecio,
     max: maxPrecio,
+  });
+
+  // Filtrar por rango
+  const gastosFiltrados = gastos.filter((g) => {
+    const fechaGasto = new Date(g.fecha);
+    const dentroDeRango =
+      (!fechaDesde || fechaGasto >= fechaDesde) &&
+      (!fechaHasta || fechaGasto <= fechaHasta);
+    return dentroDeRango;
   });
 
   const hoy = new Date();
@@ -28,7 +33,6 @@ const TabsGasto = () => {
     const diff = fecha - start;
     return Math.ceil((diff / (1000 * 60 * 60 * 24) + start.getDay() + 1) / 7);
   };
-
   const esMismoDia = (fecha) => fecha.toDateString() === hoy.toDateString();
   const esMismaSemana = (fecha) =>
     getNumeroSemana(fecha) === getNumeroSemana(hoy);
@@ -36,51 +40,15 @@ const TabsGasto = () => {
     fecha.getMonth() === hoy.getMonth() &&
     fecha.getFullYear() === hoy.getFullYear();
 
-  const totalDia = gastos
+  const totalDia = gastosFiltrados
     .filter((g) => esMismoDia(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
-
-  const totalSemana = gastos
+  const totalSemana = gastosFiltrados
     .filter((g) => esMismaSemana(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
-
-  const totalMes = gastos
+  const totalMes = gastosFiltrados
     .filter((g) => esMismoMes(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
-
-  const toggleSeleccionado = (id) => {
-    setSeleccionados((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
-  const toggleSelectAll = () => {
-    if (selectAll) {
-      setSeleccionados([]);
-    } else {
-      const todosIDs = gastos.map((g) => g._id);
-      setSeleccionados(todosIDs);
-    }
-    setSelectAll(!selectAll);
-  };
-
-  const eliminarSeleccionados = async () => {
-    if (seleccionados.length === 0) return alert("Nada seleccionado");
-
-    const res = await fetch("/api/gastos", {
-      method: "DELETE",
-      body: JSON.stringify({ ids: seleccionados }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (res.ok) {
-      alert("Gastos eliminados");
-      setSeleccionados([]);
-      setSelectAll(false);
-    } else {
-      alert("Error al eliminar");
-    }
-  };
 
   return (
     <div
@@ -106,53 +74,38 @@ const TabsGasto = () => {
           <option value="gastoVario">Gastos Varios</option>
         </select>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center justify-center">
           <DatePicker
             selected={fechaDesde}
             onChange={(date) => setFechaDesde(date)}
             dateFormat="d/M/yyyy"
             placeholderText="Desde"
-            className="w-full p-2 bg-black text-white rounded"
-            wrapperClassName="w-full"
+            className="p-2 w-full bg-black text-white rounded"
           />
           <DatePicker
             selected={fechaHasta}
             onChange={(date) => setFechaHasta(date)}
             dateFormat="d/M/yyyy"
             placeholderText="Hasta"
-            className="w-full p-2 bg-black text-white rounded"
-            wrapperClassName="w-full"
+            className="p-2 w-full bg-black text-white rounded"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <input
-              type="number"
-              placeholder="Precio mín"
-              className="p-2 flex-1 bg-black text-white rounded"
-              value={minPrecio}
-              onChange={(e) => setMinPrecio(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Precio máx"
-              className="p-2 flex-1 bg-black text-white rounded"
-              value={maxPrecio}
-              onChange={(e) => setMaxPrecio(e.target.value)}
-            />
-          </div>
-
-          <button
-            onClick={() => {
-              setModoEliminar(!modoEliminar);
-              setSeleccionados([]);
-              setSelectAll(false);
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded"
-          >
-            {modoEliminar ? "Cancelar selección" : "Seleccionar para eliminar"}
-          </button>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            placeholder="Precio mín"
+            className="p-2 w-full bg-black rounded"
+            value={minPrecio}
+            onChange={(e) => setMinPrecio(e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="Precio máx"
+            className="p-2 w-full bg-black rounded"
+            value={maxPrecio}
+            onChange={(e) => setMaxPrecio(e.target.value)}
+          />
         </div>
       </div>
 
@@ -165,52 +118,23 @@ const TabsGasto = () => {
       <div className="mt-4 space-y-2">
         {loading ? (
           <p>Cargando...</p>
-        ) : gastos.length === 0 ? (
+        ) : gastosFiltrados.length === 0 ? (
           <p>No hay gastos para mostrar.</p>
         ) : (
-          <>
-            {modoEliminar && (
-              <div className="flex items-center gap-2 mb-2">
-                <button
-                  onClick={toggleSelectAll}
-                  className="bg-red-700 text-white px-4 py-1 rounded"
-                >
-                  {selectAll ? "Desmarcar todo" : "Seleccionar todo"}
-                </button>
-                <button
-                  onClick={eliminarSeleccionados}
-                  className="bg-red-600 text-white px-4 py-1 rounded"
-                >
-                  Eliminar seleccionados ({seleccionados.length})
-                </button>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {gastos.map((gasto) => (
-                <div
-                  key={gasto._id}
-                  className={`p-3 rounded cursor-pointer transition-colors ${
-                    modoEliminar && seleccionados.includes(gasto._id)
-                      ? "bg-red-800"
-                      : "bg-black bg-opacity-60 hover:bg-gray-600"
-                  }`}
-                  onClick={() =>
-                    modoEliminar
-                      ? toggleSeleccionado(gasto._id)
-                      : setGastoSeleccionado(gasto)
-                  }
-                >
-                  <p className="font-bold">{gasto.descripcion}</p>
-                  <p className="text-sm">{gasto.lugar}</p>
-                  <p className="text-sm">Precio: ${gasto.precio}</p>
-                  <p className="text-sm">
-                    Fecha: {new Date(gasto.fecha).toLocaleDateString("es-AR")}
-                  </p>
-                </div>
-              ))}
+          gastosFiltrados.map((gasto) => (
+            <div
+              key={gasto._id}
+              className="p-3 bg-black bg-opacity-60 rounded cursor-pointer hover:bg-gray-600"
+              onClick={() => setGastoSeleccionado(gasto)}
+            >
+              <p className="font-bold">{gasto.descripcion}</p>
+              <p className="text-sm">{gasto.lugar}</p>
+              <p className="text-sm">Precio: ${gasto.precio}</p>
+              <p className="text-sm">
+                Fecha: {new Date(gasto.fecha).toLocaleDateString("es-AR")}
+              </p>
             </div>
-          </>
+          ))
         )}
       </div>
 

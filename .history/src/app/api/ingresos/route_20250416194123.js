@@ -83,31 +83,3 @@ export async function DELETE(req) {
     );
   }
 }
-
-export async function PUT(req) {
-  try {
-    const { id, data } = await req.json();
-
-    if (!id || !data) {
-      return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
-    }
-
-    await client.connect();
-    const db = client.db(dbName);
-
-    const result = await db
-      .collection("clientes")
-      .updateOne({ _id: new ObjectId(id) }, { $set: data });
-
-    return NextResponse.json({
-      message: "Ingreso actualizado correctamente",
-      modifiedCount: result.modifiedCount,
-    });
-  } catch (error) {
-    console.error("Error al actualizar ingreso:", error);
-    return NextResponse.json(
-      { error: "Error al actualizar ingreso" },
-      { status: 500 }
-    );
-  }
-}

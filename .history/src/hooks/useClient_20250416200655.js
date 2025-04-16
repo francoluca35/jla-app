@@ -31,20 +31,5 @@ export default function useClientes() {
     fetchClientes();
   }, []);
 
-  const editarCliente = async (cliente) => {
-    try {
-      await axios.put("/api/clientes", cliente);
-    } catch (err) {
-      console.error("Error editando cliente:", err);
-    }
-  };
-
-  return {
-    clientes,
-    loading,
-    error,
-    refetch: fetchClientes,
-    eliminarCliente,
-    editarCliente,
-  };
+  return { clientes, loading, error, refetch: fetchClientes, eliminarCliente };
 }

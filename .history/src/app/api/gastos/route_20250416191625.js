@@ -1,6 +1,6 @@
 // app/api/gastos/route.js
 import { NextResponse } from "next/server";
-import { MongoClient, ObjectId } from "mongodb";
+import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);

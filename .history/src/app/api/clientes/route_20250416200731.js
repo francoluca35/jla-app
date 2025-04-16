@@ -41,25 +41,3 @@ export async function DELETE(req) {
     );
   }
 }
-
-export async function PUT(req) {
-  try {
-    const body = await req.json();
-    const { _id, ...rest } = body;
-
-    const client = await clientPromise;
-    const db = client.db("jlapp");
-
-    const result = await db
-      .collection("clientes")
-      .updateOne({ _id: new ObjectId(_id) }, { $set: rest });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error editando cliente:", error);
-    return NextResponse.json(
-      { success: false, error: "Error editando cliente" },
-      { status: 500 }
-    );
-  }
-}
