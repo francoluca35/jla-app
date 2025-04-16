@@ -41,17 +41,8 @@ const TabsGasto = () => {
     .reduce((acc, g) => acc + Number(g.precio), 0);
 
   return (
-    <div
-      className="min-h-screen p-6 text-white space-y-4"
-      style={{
-        backgroundImage: "url('/Assets/formclient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <h2 className="text-3xl font-bold mb-4 text-center tracking-wider">
-        VISUALIZAR GASTOS
-      </h2>
+    <div className="p-4 bg-verdefluor text-white rounded-xl space-y-4">
+      <h2 className="text-lg font-bold">Visualizar Gastos</h2>
 
       <div className="space-y-2">
         <select
@@ -106,7 +97,7 @@ const TabsGasto = () => {
           gastos.map((gasto) => (
             <div
               key={gasto._id}
-              className="p-3 bg-black bg-opacity-60 rounded cursor-pointer hover:bg-gray-600"
+              className="p-3 bg-tabla rounded cursor-pointer hover:bg-gray-600"
               onClick={() => setGastoSeleccionado(gasto)}
             >
               <p className="font-bold">{gasto.descripcion}</p>
