@@ -13,27 +13,8 @@ const FormClient = () => {
   const [clientName, setClientName] = useState("");
   const [branch, setBranch] = useState("");
   const [totalTrabajo, setTotalTrabajo] = useState("");
-  const [showList, setShowList] = useState(false);
 
   const { addClient, loading } = useAddClient();
-
-  const [clientList, setClientList] = useState([]);
-  useEffect(() => {
-    const now = new Date();
-    setDate(now.toISOString());
-
-    // Obtener nombres de clientes existentes
-    fetch("/api/nombres")
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Error al obtener nombres");
-        return res.json();
-      })
-      .then((data) => setClientList(data))
-      .catch((err) => {
-        console.error("Error al cargar nombres:", err);
-        setClientList([]);
-      });
-  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -59,10 +40,6 @@ const FormClient = () => {
       sertec.push({
         tipo: "% del total abonado",
         monto: parseFloat(amount) || 0,
-      });
-      sertec.push({
-        tipo: "pago total del trabajo",
-        monto: parseFloat(totalTrabajo) || 0,
       });
     } else if (problemType === "presupuesto") {
       if (paymentOption === "seña") {
@@ -132,52 +109,14 @@ const FormClient = () => {
         <h2 className="text-center text-2xl font-bold">Cliente Nuevo</h2>
 
         <label>Nombre cliente</label>
-        <div className="relative">
-          <input
-            type="text"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            className="rounded-full px-4 py-2 bg-gray-300 text-black w-full"
-            placeholder="Escribí o seleccioná un cliente existente"
-            required
-          />
-
-          <div className="flex justify-end mt-1">
-            <button
-              type="button"
-              onClick={() => setShowList((prev) => !prev)}
-              className={`px-3 py-1 text-sm rounded-full border transition-all duration-200 ${
-                showList
-                  ? "bg-red-100 text-red-600 border-red-400 hover:bg-red-200"
-                  : "bg-blue-100 text-blue-600 border-blue-400 hover:bg-blue-200"
-              }`}
-            >
-              {showList ? "Ocultar clientes" : "Ver lista de clientes"}
-            </button>
-          </div>
-
-          {showList && clientList.length > 0 && (
-            <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-xl w-full max-h-40 overflow-y-auto shadow-lg">
-              <p className="text-sm font-semibold p-2 text-gray-600 bg-gray-100 rounded-t-xl">
-                Clientes guardados:
-              </p>
-              <ul className="divide-y divide-gray-200">
-                {clientList.map((name, i) => (
-                  <li
-                    key={i}
-                    className="cursor-pointer px-4 py-2 hover:bg-green-100 transition text-black"
-                    onClick={() => {
-                      setClientName(name);
-                      setShowList(false);
-                    }}
-                  >
-                    {name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        <input
+          type="text"
+          value={clientName}
+          onChange={(e) => setClientName(e.target.value)}
+          className="rounded-full px-4 py-2 bg-gray-300 text-black"
+          placeholder="Nombre del cliente"
+          required
+        />
 
         <label>
           Sucursal <span className="text-sm">(opcional)</span>
@@ -235,22 +174,13 @@ const FormClient = () => {
         </div>
 
         {problemType === "arreglo" && (
-          <>
-            <input
-              type="number"
-              placeholder="% del total abonado"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
-            <input
-              type="number"
-              placeholder="Pago total del trabajo"
-              value={totalTrabajo}
-              onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
-          </>
+          <input
+            type="number"
+            placeholder="% del total abonado"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="rounded-full px-4 py-2 bg-gray-300 text-black"
+          />
         )}
 
         {problemType === "presupuesto" && (

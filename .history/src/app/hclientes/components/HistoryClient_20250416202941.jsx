@@ -11,6 +11,7 @@ export default function HistoryClient() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedClient, setEditedClient] = useState(null);
+  const [ocultarSena, setOcultarSena] = useState(false); // 👈 control visual
 
   if (loading) return <div className="text-white">Cargando...</div>;
   if (error) return <div className="text-red-500">Error cargando datos</div>;
@@ -49,19 +50,6 @@ export default function HistoryClient() {
     refetch();
   };
 
-  const anularServicio = async (index) => {
-    const actualizado = {
-      ...selectedClient,
-      sertec: selectedClient.sertec.map((item, idx) =>
-        idx === index ? { ...item, anulada: true } : item
-      ),
-    };
-
-    await editarCliente(actualizado);
-    setSelectedClient(actualizado);
-    refetch();
-  };
-
   return (
     <div
       className="min-h-screen flex flex-col items-center p-6"
@@ -75,6 +63,7 @@ export default function HistoryClient() {
         HISTORIAL DE INGRESOS
       </h1>
 
+      {/* Filtros */}
       <div className="flex gap-4 mb-6">
         {["Todos", "Servicio T.", "Presupuesto"].map((tipo) => (
           <button
@@ -112,6 +101,7 @@ export default function HistoryClient() {
               className="p-2 text-white hover:text-green-600 cursor-pointer"
               onClick={() => {
                 setSelectedClient(cliente);
+                setOcultarSena(false); // 👈 reinicia el estado de seña oculta
               }}
             >
               +
@@ -130,86 +120,47 @@ export default function HistoryClient() {
             <div className="space-y-4 text-left text-gray-800">
               {isEditing ? (
                 <>
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Nombre:
-                    </label>
-                    <input
-                      className="w-full border p-2 rounded"
-                      value={editedClient?.clientName || ""}
-                      onChange={(e) =>
-                        setEditedClient({
-                          ...editedClient,
-                          clientName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Sucursal:
-                    </label>
-                    <input
-                      className="w-full border p-2 rounded"
-                      value={editedClient?.branch || ""}
-                      onChange={(e) =>
-                        setEditedClient({
-                          ...editedClient,
-                          branch: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Monto (total del trabajo):
-                    </label>
-                    <input
-                      type="number"
-                      value={
-                        editedClient?.sertec?.find((s) =>
-                          [
-                            "pago total del trabajo",
-                            "totalidad del trabajo",
-                          ].includes(s.tipo)
-                        )?.monto || ""
-                      }
-                      onChange={(e) => {
-                        const newMonto = Number(e.target.value);
-                        const updatedSertec = editedClient.sertec.map((s) =>
-                          [
-                            "pago total del trabajo",
-                            "totalidad del trabajo",
-                          ].includes(s.tipo)
-                            ? { ...s, monto: newMonto }
-                            : s
-                        );
-                        setEditedClient({
-                          ...editedClient,
-                          sertec: updatedSertec,
-                        });
-                      }}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Descripción:
-                    </label>
-                    <textarea
-                      className="w-full border p-2 rounded"
-                      value={editedClient?.description || ""}
-                      onChange={(e) =>
-                        setEditedClient({
-                          ...editedClient,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
+                  <input
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.clientName || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        clientName: e.target.value,
+                      })
+                    }
+                  />
+                  <input
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.branch || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        branch: e.target.value,
+                      })
+                    }
+                  />
+                  <input
+                    type="number"
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.amount || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        amount: Number(e.target.value),
+                      })
+                    }
+                  />
+                  <textarea
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.description || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        description: e.target.value,
+                      })
+                    }
+                  />
                 </>
               ) : (
                 <>
@@ -226,21 +177,8 @@ export default function HistoryClient() {
                     {selectedClient.branch}
                   </p>
                   <p>
-                    <span className="font-semibold text-green-600">Tipo:</span>{" "}
-                    {selectedClient.problemType}
-                  </p>
-                  <p>
                     <span className="font-semibold text-green-600">Monto:</span>{" "}
-                    $
-                    {(() => {
-                      const totalTrabajo = selectedClient.sertec?.find((s) =>
-                        [
-                          "totalidad del trabajo",
-                          "pago total del trabajo",
-                        ].includes(s.tipo)
-                      );
-                      return totalTrabajo?.monto || selectedClient.amount || 0;
-                    })()}
+                    ${selectedClient.amount}
                   </p>
                   <p>
                     <span className="font-semibold text-green-600">
@@ -251,69 +189,31 @@ export default function HistoryClient() {
                 </>
               )}
 
+              {/* Servicios con botón para cancelar seña */}
               <div>
                 <span className="font-semibold text-green-600">Servicios:</span>
                 <ul className="list-disc pl-6 mt-1 text-gray-700">
-                  {(isEditing
-                    ? editedClient?.sertec || selectedClient.sertec
-                    : selectedClient.sertec
-                  )?.map((s, i) => {
-                    const fueAnulada = s.anulada === true;
-                    const anulables = [
-                      "seña",
-                      "arreglo",
-                      "% del total abonado",
-                    ];
-                    const esAnulable = anulables.includes(s.tipo);
-                    const esEditable =
-                      s.tipo === "totalidad del trabajo" ||
-                      s.tipo === "pago total del trabajo";
+                  {selectedClient.sertec?.map((s, i) => {
+                    if (s.tipo === "seña" && ocultarSena) return null;
 
                     return (
-                      <li
-                        key={i}
-                        className={`flex justify-between items-start gap-2 ${
-                          fueAnulada
-                            ? "line-through text-red-600 font-medium"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex-1">
-                          <span className="block font-semibold">{s.tipo}</span>
+                      <li key={i} className="flex justify-between items-center">
+                        <span>
+                          {s.tipo} —{" "}
+                          <span className="font-medium">${s.monto}</span>
+                        </span>
 
-                          {isEditing && esEditable ? (
-                            <input
-                              type="number"
-                              value={
-                                editedClient?.sertec?.[i]?.monto || s.monto
-                              }
-                              className="w-full border rounded px-2 py-1 mt-1"
-                              onChange={(e) => {
-                                const newSertec = [...editedClient.sertec];
-                                newSertec[i].monto = Number(e.target.value);
-                                setEditedClient({
-                                  ...editedClient,
-                                  sertec: newSertec,
-                                });
-                              }}
-                            />
-                          ) : (
-                            <span className="block">${s.monto}</span>
+                        {s.tipo === "seña" &&
+                          selectedClient.sertec.some(
+                            (item) => item.tipo === "totalidad del trabajo"
+                          ) && (
+                            <button
+                              onClick={() => setOcultarSena(true)}
+                              className="ml-4 text-sm text-red-600 hover:underline"
+                            >
+                              Cancelar seña
+                            </button>
                           )}
-
-                          {fueAnulada && (
-                            <span className="text-sm">(anulado)</span>
-                          )}
-                        </div>
-
-                        {!fueAnulada && esAnulable && !isEditing && (
-                          <button
-                            onClick={() => anularServicio(i)}
-                            className="text-sm text-red-600 hover:underline"
-                          >
-                            Cancelar {s.tipo}
-                          </button>
-                        )}
                       </li>
                     );
                   })}
@@ -350,10 +250,7 @@ export default function HistoryClient() {
                 <button
                   onClick={() => {
                     setIsEditing(true);
-                    setEditedClient({
-                      ...selectedClient,
-                      sertec: [...selectedClient.sertec],
-                    });
+                    setEditedClient(selectedClient);
                   }}
                   className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg"
                 >
@@ -367,6 +264,7 @@ export default function HistoryClient() {
                 setSelectedClient(null);
                 setIsEditing(false);
                 setEditedClient(null);
+                setOcultarSena(false);
               }}
               className="mt-4 w-full bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 rounded-lg"
             >

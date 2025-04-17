@@ -168,30 +168,14 @@ export default function HistoryClient() {
                     </label>
                     <input
                       type="number"
-                      value={
-                        editedClient?.sertec?.find((s) =>
-                          [
-                            "pago total del trabajo",
-                            "totalidad del trabajo",
-                          ].includes(s.tipo)
-                        )?.monto || ""
-                      }
-                      onChange={(e) => {
-                        const newMonto = Number(e.target.value);
-                        const updatedSertec = editedClient.sertec.map((s) =>
-                          [
-                            "pago total del trabajo",
-                            "totalidad del trabajo",
-                          ].includes(s.tipo)
-                            ? { ...s, monto: newMonto }
-                            : s
-                        );
+                      className="w-full border p-2 rounded"
+                      value={editedClient?.amount || ""}
+                      onChange={(e) =>
                         setEditedClient({
                           ...editedClient,
-                          sertec: updatedSertec,
-                        });
-                      }}
-                      className="w-full border p-2 rounded"
+                          amount: Number(e.target.value),
+                        })
+                      }
                     />
                   </div>
 
