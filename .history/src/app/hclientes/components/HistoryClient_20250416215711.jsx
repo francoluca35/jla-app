@@ -58,7 +58,7 @@ export default function HistoryClient() {
     };
 
     await editarCliente(actualizado);
-    setSelectedClient(actualizado);
+    setSelectedClient(actualizado); // ✅ Refresca vista automáticamente
     refetch();
   };
 
@@ -130,86 +130,47 @@ export default function HistoryClient() {
             <div className="space-y-4 text-left text-gray-800">
               {isEditing ? (
                 <>
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Nombre:
-                    </label>
-                    <input
-                      className="w-full border p-2 rounded"
-                      value={editedClient?.clientName || ""}
-                      onChange={(e) =>
-                        setEditedClient({
-                          ...editedClient,
-                          clientName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Sucursal:
-                    </label>
-                    <input
-                      className="w-full border p-2 rounded"
-                      value={editedClient?.branch || ""}
-                      onChange={(e) =>
-                        setEditedClient({
-                          ...editedClient,
-                          branch: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Monto (total del trabajo):
-                    </label>
-                    <input
-                      type="number"
-                      value={
-                        editedClient?.sertec?.find((s) =>
-                          [
-                            "pago total del trabajo",
-                            "totalidad del trabajo",
-                          ].includes(s.tipo)
-                        )?.monto || ""
-                      }
-                      onChange={(e) => {
-                        const newMonto = Number(e.target.value);
-                        const updatedSertec = editedClient.sertec.map((s) =>
-                          [
-                            "pago total del trabajo",
-                            "totalidad del trabajo",
-                          ].includes(s.tipo)
-                            ? { ...s, monto: newMonto }
-                            : s
-                        );
-                        setEditedClient({
-                          ...editedClient,
-                          sertec: updatedSertec,
-                        });
-                      }}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-green-700 mb-1">
-                      Descripción:
-                    </label>
-                    <textarea
-                      className="w-full border p-2 rounded"
-                      value={editedClient?.description || ""}
-                      onChange={(e) =>
-                        setEditedClient({
-                          ...editedClient,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
+                  <input
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.clientName || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        clientName: e.target.value,
+                      })
+                    }
+                  />
+                  <input
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.branch || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        branch: e.target.value,
+                      })
+                    }
+                  />
+                  <input
+                    type="number"
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.amount || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        amount: Number(e.target.value),
+                      })
+                    }
+                  />
+                  <textarea
+                    className="w-full border p-2 rounded"
+                    value={editedClient?.description || ""}
+                    onChange={(e) =>
+                      setEditedClient({
+                        ...editedClient,
+                        description: e.target.value,
+                      })
+                    }
+                  />
                 </>
               ) : (
                 <>
@@ -226,9 +187,12 @@ export default function HistoryClient() {
                     {selectedClient.branch}
                   </p>
                   <p>
-                    <span className="font-semibold text-green-600">Tipo:</span>{" "}
-                    {selectedClient.problemType}
+                    <span className="font-semibold text-green-600">
+                      Sucursal:
+                    </span>{" "}
+                    {selectedClient.branch}
                   </p>
+
                   <p>
                     <span className="font-semibold text-green-600">Monto:</span>{" "}
                     $
@@ -242,6 +206,7 @@ export default function HistoryClient() {
                       return totalTrabajo?.monto || selectedClient.amount || 0;
                     })()}
                   </p>
+
                   <p>
                     <span className="font-semibold text-green-600">
                       Descripción:
