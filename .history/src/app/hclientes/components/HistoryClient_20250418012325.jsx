@@ -12,18 +12,6 @@ export default function HistoryClient() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedClient, setEditedClient] = useState(null);
 
-  useEffect(() => {
-    if (selectedClient) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [selectedClient]);
-
   if (loading) return <div className="text-white">Cargando...</div>;
   if (error) return <div className="text-red-500">Error cargando datos</div>;
 
@@ -73,6 +61,17 @@ export default function HistoryClient() {
     setSelectedClient(actualizado);
     refetch();
   };
+  useEffect(() => {
+    if (selectedClient) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedClient]);
 
   return (
     <div
@@ -103,22 +102,18 @@ export default function HistoryClient() {
         ))}
       </div>
 
-      <div className="w-full px-2 sm:px-4 overflow-x-auto">
-        <div className="min-w-[650px] rounded-lg bg-verdefluort text-center font-semibold shadow-md">
-          <div className="grid grid-cols-5 border-b border-black">
-            <div className="p-3 text-black font-bold">Nombre</div>
-            <div className="p-3 text-black font-bold">Sucursal</div>
-            <div className="p-3 text-black font-bold">Fecha</div>
-            <div className="p-3 text-black font-bold">Tipo</div>
-            <div className="p-3 text-white font-bold">+</div>
-          </div>
+      {/* Tabla responsive */}
+      <div className="w-full overflow-x-auto rounded-lg">
+        <div className="grid grid-cols-5 min-w-[600px] text-center font-semibold bg-verdefluort">
+          <div className="p-2 text-black font-bold">Nombre</div>
+          <div className="p-2 text-black font-bold">Sucursal</div>
+          <div className="p-2 text-black font-bold">Fecha</div>
+          <div className="p-2 text-black font-bold">Tipo</div>
+          <div className="p-2 text-white font-bold">+</div>
 
           {filteredClientes.map((cliente, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-5 text-sm sm:text-base even:bg-[#aad1ba] odd:bg-[#84b89b]"
-            >
-              <div className="p-2 text-black break-words">
+            <React.Fragment key={index}>
+              <div className="p-2 bg-[#84b89b] text-black">
                 {cliente.clientName}
               </div>
               <div className="p-2 text-black">{cliente.branch}</div>
@@ -132,15 +127,15 @@ export default function HistoryClient() {
               >
                 +
               </div>
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>
 
-      {/* MODAL DETALLES */}
+      {/* Modal de detalles */}
       {selectedClient && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto px-2 sm:px-4 py-6 flex justify-center items-start">
-          <div className="bg-white w-full max-w-3xl mx-auto rounded-xl shadow-2xl px-4 py-6 sm:px-6 sm:py-8 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-2 sm:px-4">
+          <div className="bg-white w-full max-w-3xl mx-auto rounded-xl shadow-2xl px-4 py-6 sm:px-6 sm:py-8 max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
             <h2 className="text-2xl sm:text-3xl font-bold text-green-800 mb-6 text-center">
               Detalles del Cliente
             </h2>
@@ -177,8 +172,7 @@ export default function HistoryClient() {
                     </label>
                     {type === "textarea" ? (
                       <textarea
-                        rows={3}
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                        className="w-full border p-2 rounded"
                         value={editedClient?.[key] || ""}
                         onChange={(e) =>
                           setEditedClient({
@@ -190,7 +184,7 @@ export default function HistoryClient() {
                     ) : (
                       <input
                         type={type}
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                        className="w-full border p-2 rounded"
                         value={editedClient?.[key] || ""}
                         onChange={(e) =>
                           setEditedClient({
@@ -246,7 +240,7 @@ export default function HistoryClient() {
               </div>
             )}
 
-            {/* SERVICIOS */}
+            {/* Servicios */}
             <div className="mt-6">
               <span className="font-semibold text-green-600">Servicios:</span>
               <ul className="list-disc pl-6 mt-2 text-gray-700 space-y-2">
@@ -278,8 +272,8 @@ export default function HistoryClient() {
                         {isEditing ? (
                           <input
                             type="number"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm mt-1"
                             value={editedClient?.sertec?.[i]?.monto || s.monto}
+                            className="w-full border rounded px-2 py-1 mt-1"
                             onChange={(e) => {
                               const newSertec = [...editedClient.sertec];
                               newSertec[i].monto = Number(e.target.value);
@@ -298,20 +292,7 @@ export default function HistoryClient() {
                       </div>
                       {!fueAnulada && esAnulable && !isEditing && (
                         <button
-                          onClick={async () => {
-                            const confirm = await Swal.fire({
-                              title: `¿Cancelar ${s.tipo}?`,
-                              text: "Esta acción marcará el servicio como anulado.",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonText: "Sí, cancelar",
-                              cancelButtonText: "No, mantener",
-                            });
-
-                            if (confirm.isConfirmed) {
-                              anularServicio(i);
-                            }
-                          }}
+                          onClick={() => anularServicio(i)}
                           className="text-sm text-red-600 hover:underline"
                         >
                           Cancelar {s.tipo}
@@ -323,7 +304,7 @@ export default function HistoryClient() {
               </ul>
             </div>
 
-            {/* BOTONES */}
+            {/* Botones */}
             <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-3">
               {isEditing ? (
                 <>
@@ -363,24 +344,23 @@ export default function HistoryClient() {
                   >
                     Eliminar
                   </button>
-                  {selectedClient.estado !== "terminado" && (
-                    <button
-                      onClick={async () => {
-                        const actualizado = {
-                          ...selectedClient,
-                          estado: "terminado",
-                        };
-                        await editarCliente(actualizado);
-                        setSelectedClient(actualizado);
-                        refetch();
-                      }}
-                      className="w-full sm:w-auto flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
-                    >
-                      Marcar como terminado
-                    </button>
-                  )}
+                  <button
+                    onClick={async () => {
+                      const actualizado = {
+                        ...selectedClient,
+                        estado: "terminado",
+                      };
+                      await editarCliente(actualizado);
+                      setSelectedClient(actualizado);
+                      refetch();
+                    }}
+                    className="w-full sm:w-auto flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
+                  >
+                    Marcar como terminado
+                  </button>
                 </>
               )}
+
               <button
                 onClick={() => {
                   setSelectedClient(null);

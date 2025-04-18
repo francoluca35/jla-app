@@ -20,8 +20,8 @@ const FormClient = () => {
   const [transferencia, setTransferencia] = useState("");
 
   const { addClient, loading } = useAddClient();
-  const [clientList, setClientList] = useState([]);
 
+  const [clientList, setClientList] = useState([]);
   useEffect(() => {
     const now = new Date();
     setDate(now.toISOString());
@@ -41,12 +41,12 @@ const FormClient = () => {
   const resetForm = () => {
     setProblemType("");
     setPaymentOption("");
-    setPaymentMethod("");
     setAmount("");
     setTotalTrabajo("");
     setDescription("");
     setClientName("");
     setBranch("");
+    setPaymentMethod("");
     setEsSena(null);
     setEfectivo("");
     setTransferencia("");
@@ -56,18 +56,9 @@ const FormClient = () => {
     e.preventDefault();
 
     let sertec = [];
-    let option = "";
 
     if (esSena === "si") {
-      option = "seña";
-      if (paymentMethod === "efectivo") {
-        sertec.push({ tipo: "seña efectivo", monto: parseFloat(amount) || 0 });
-      } else if (paymentMethod === "transferencia") {
-        sertec.push({
-          tipo: "seña transferencia",
-          monto: parseFloat(amount) || 0,
-        });
-      } else if (paymentMethod === "ambos") {
+      if (paymentMethod === "ambos") {
         sertec.push({
           tipo: "seña efectivo",
           monto: parseFloat(efectivo) || 0,
@@ -76,39 +67,41 @@ const FormClient = () => {
           tipo: "seña transferencia",
           monto: parseFloat(transferencia) || 0,
         });
+      } else {
+        sertec.push({ tipo: "seña", monto: parseFloat(amount) || 0 });
       }
       sertec.push({
         tipo: "totalidad del trabajo",
         monto: parseFloat(totalTrabajo) || 0,
       });
-    }
-
-    if (esSena === "no") {
-      option = "pago total";
+    } else if (esSena === "no") {
       if (paymentMethod === "ambos") {
         sertec.push({ tipo: "efectivo", monto: parseFloat(efectivo) || 0 });
         sertec.push({
           tipo: "transferencia",
           monto: parseFloat(transferencia) || 0,
         });
+        sertec.push({
+          tipo: "pago total del trabajo",
+          monto: parseFloat(totalTrabajo) || 0,
+        });
+      } else {
+        sertec.push({
+          tipo: "pago total del trabajo",
+          monto: parseFloat(totalTrabajo) || 0,
+        });
       }
-      sertec.push({
-        tipo: "pago total del trabajo",
-        monto: parseFloat(totalTrabajo) || 0,
-      });
     }
-
-    const finalAmount = parseFloat(totalTrabajo) || 0;
 
     const formData = {
       clientName,
       branch,
       date,
       problemType,
-      paymentOption: option,
+      paymentOption,
       paymentMethod,
-      amount: finalAmount,
-      totalTrabajo: finalAmount,
+      amount: parseFloat(amount) || 0,
+      totalTrabajo: parseFloat(totalTrabajo) || 0,
       efectivo: parseFloat(efectivo) || 0,
       transferencia: parseFloat(transferencia) || 0,
       description,
@@ -151,7 +144,6 @@ const FormClient = () => {
         <BackArrow />
         <h2 className="text-center text-2xl font-bold">Cliente Nuevo</h2>
 
-        {/* Nombre Cliente */}
         <label>Nombre cliente</label>
         <div className="relative">
           <input
@@ -159,33 +151,28 @@ const FormClient = () => {
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
             className="rounded-full px-4 py-2 bg-gray-300 text-black w-full"
-            placeholder="Escribí o seleccioná un cliente existente"
             required
           />
           <div className="flex justify-end mt-1">
             <button
               type="button"
               onClick={() => setShowList((prev) => !prev)}
-              className={`px-3 py-1 text-sm rounded-full border transition-all duration-200 ${
+              className={`px-3 py-1 text-sm rounded-full border ${
                 showList
-                  ? "bg-red-100 text-red-600 border-red-400 hover:bg-red-200"
-                  : "bg-blue-100 text-blue-600 border-blue-400 hover:bg-blue-200"
+                  ? "bg-red-100 text-red-600 border-red-400"
+                  : "bg-blue-100 text-blue-600 border-blue-400"
               }`}
             >
               {showList ? "Ocultar clientes" : "Ver lista de clientes"}
             </button>
           </div>
-
           {showList && clientList.length > 0 && (
             <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-xl w-full max-h-40 overflow-y-auto shadow-lg">
-              <p className="text-sm font-semibold p-2 text-gray-600 bg-gray-100 rounded-t-xl">
-                Clientes guardados:
-              </p>
               <ul className="divide-y divide-gray-200">
                 {clientList.map((name, i) => (
                   <li
                     key={i}
-                    className="cursor-pointer px-4 py-2 hover:bg-green-100 transition text-black"
+                    className="cursor-pointer px-4 py-2 hover:bg-green-100 text-black"
                     onClick={() => {
                       setClientName(name);
                       setShowList(false);
@@ -199,19 +186,14 @@ const FormClient = () => {
           )}
         </div>
 
-        {/* Sucursal */}
-        <label>
-          Sucursal <span className="text-sm">(opcional)</span>
-        </label>
+        <label>Sucursal (opcional)</label>
         <input
           type="text"
           value={branch}
           onChange={(e) => setBranch(e.target.value)}
           className="rounded-full px-4 py-2 bg-gray-300 text-black"
-          placeholder="Sucursal"
         />
 
-        {/* Fecha */}
         <label>Fecha</label>
         <input
           type="text"
@@ -220,7 +202,6 @@ const FormClient = () => {
           className="rounded-full text-center px-4 py-2 bg-gray-300 text-black"
         />
 
-        {/* Tipo de problema */}
         <label>Tipo de problema</label>
         <div className="flex bg-gray-300 rounded-full p-1 justify-between">
           <button
@@ -229,6 +210,8 @@ const FormClient = () => {
               setProblemType("arreglo");
               setPaymentMethod("");
               setEsSena(null);
+              setAmount("");
+              setTotalTrabajo("");
             }}
             className={`px-4 py-2 rounded-full w-1/2 ${
               problemType === "arreglo"
@@ -244,6 +227,8 @@ const FormClient = () => {
               setProblemType("presupuesto");
               setPaymentMethod("");
               setEsSena(null);
+              setAmount("");
+              setTotalTrabajo("");
             }}
             className={`px-4 py-2 rounded-full w-1/2 ${
               problemType === "presupuesto"
@@ -255,58 +240,61 @@ const FormClient = () => {
           </button>
         </div>
 
-        {/* Método de pago */}
-        <label>Forma de pago</label>
-        <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-          {["efectivo", "transferencia", "ambos"].map((metodo) => (
-            <label key={metodo} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="metodo"
-                checked={paymentMethod === metodo}
-                onChange={() => {
-                  setPaymentMethod(metodo);
-                  setEsSena(null);
-                  setAmount("");
-                  setEfectivo("");
-                  setTransferencia("");
-                }}
-              />
-              {metodo.charAt(0).toUpperCase() + metodo.slice(1)}
-            </label>
-          ))}
-        </div>
-
-        {/* ¿Es seña? */}
-        {paymentMethod && (
+        {(problemType === "arreglo" || problemType === "presupuesto") && (
           <>
-            <label>¿Es seña?</label>
-            <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-              {["si", "no"].map((val) => (
-                <label key={val} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="sena"
-                    checked={esSena === val}
-                    onChange={() => {
-                      setEsSena(val);
-                      setAmount("");
-                      setEfectivo("");
-                      setTransferencia("");
-                      setTotalTrabajo("");
-                    }}
-                  />
-                  {val === "si" ? "Sí" : "No"}
-                </label>
-              ))}
+            <label>Forma de pago</label>
+            <div className="bg-gray-300 text-black p-2 rounded-md flex gap-4 justify-around">
+              <label>
+                <input
+                  type="radio"
+                  name="formaPago"
+                  onChange={() => setPaymentMethod("efectivo")}
+                />{" "}
+                Efectivo
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="formaPago"
+                  onChange={() => setPaymentMethod("transferencia")}
+                />{" "}
+                Transferencia
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="formaPago"
+                  onChange={() => setPaymentMethod("ambos")}
+                />{" "}
+                Ambos
+              </label>
             </div>
-          </>
-        )}
 
-        {/* Campos si es SEÑA */}
-        {esSena === "si" && (
-          <>
-            {paymentMethod === "ambos" && (
+            {paymentMethod && (
+              <>
+                <label>¿Es seña?</label>
+                <div className="bg-gray-300 text-black p-2 rounded-md flex gap-4 justify-around">
+                  <label>
+                    <input
+                      type="radio"
+                      name="esSena"
+                      onChange={() => setEsSena("si")}
+                    />{" "}
+                    Sí
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="esSena"
+                      onChange={() => setEsSena("no")}
+                    />{" "}
+                    No
+                  </label>
+                </div>
+              </>
+            )}
+
+            {esSena === "si" && paymentMethod === "ambos" && (
               <>
                 <input
                   type="number"
@@ -322,31 +310,46 @@ const FormClient = () => {
                   onChange={(e) => setTransferencia(e.target.value)}
                   className="rounded-full px-4 py-2 bg-gray-300 text-black"
                 />
+                <input
+                  type="number"
+                  placeholder="Total del trabajo"
+                  value={totalTrabajo}
+                  onChange={(e) => setTotalTrabajo(e.target.value)}
+                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                />
               </>
             )}
-            {paymentMethod !== "ambos" && (
+
+            {esSena === "si" && paymentMethod !== "ambos" && (
+              <>
+                <input
+                  type="number"
+                  placeholder="Seña"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                />
+                <input
+                  type="number"
+                  placeholder="Total del trabajo"
+                  value={totalTrabajo}
+                  onChange={(e) => setTotalTrabajo(e.target.value)}
+                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                />
+              </>
+            )}
+
+            {esSena === "no" && paymentMethod !== "ambos" && (
               <input
                 type="number"
-                placeholder="Monto de la seña"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Total del trabajo"
+                value={totalTrabajo}
+                onChange={(e) => setTotalTrabajo(e.target.value)}
                 className="rounded-full px-4 py-2 bg-gray-300 text-black"
               />
             )}
-            <input
-              type="number"
-              placeholder="Total del trabajo"
-              value={totalTrabajo}
-              onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
-          </>
-        )}
 
-        {/* Campos si NO es SEÑA */}
-        {esSena === "no" && (
-          <>
-            {paymentMethod === "ambos" && (
+            {esSena === "no" && paymentMethod === "ambos" && (
               <>
                 <input
                   type="number"
@@ -362,24 +365,23 @@ const FormClient = () => {
                   onChange={(e) => setTransferencia(e.target.value)}
                   className="rounded-full px-4 py-2 bg-gray-300 text-black"
                 />
+                <input
+                  type="number"
+                  placeholder="Pago total del trabajo"
+                  value={totalTrabajo}
+                  onChange={(e) => setTotalTrabajo(e.target.value)}
+                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                />
               </>
             )}
-            <input
-              type="number"
-              placeholder="Pago total del trabajo"
-              value={totalTrabajo}
-              onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
           </>
         )}
 
-        {/* Descripción */}
         <label>Descripción</label>
         <textarea
-          placeholder="Descripción"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          placeholder="Descripción"
           className="rounded-lg px-4 py-2 bg-gray-300 text-black min-h-[100px]"
         />
 

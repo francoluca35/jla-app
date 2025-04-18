@@ -8,18 +8,18 @@ const FormClient = () => {
   const [date, setDate] = useState("");
   const [problemType, setProblemType] = useState("");
   const [paymentOption, setPaymentOption] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [clientName, setClientName] = useState("");
   const [branch, setBranch] = useState("");
   const [totalTrabajo, setTotalTrabajo] = useState("");
   const [showList, setShowList] = useState(false);
-  const [esSena, setEsSena] = useState(null);
-  const [efectivo, setEfectivo] = useState("");
-  const [transferencia, setTransferencia] = useState("");
+  const [formaPago, setFormaPago] = useState("");
+  const [efectivoMonto, setEfectivoMonto] = useState("");
+  const [transferMonto, setTransferMonto] = useState("");
 
   const { addClient, loading } = useAddClient();
+
   const [clientList, setClientList] = useState([]);
 
   useEffect(() => {
@@ -41,79 +41,68 @@ const FormClient = () => {
   const resetForm = () => {
     setProblemType("");
     setPaymentOption("");
-    setPaymentMethod("");
     setAmount("");
     setTotalTrabajo("");
     setDescription("");
     setClientName("");
     setBranch("");
-    setEsSena(null);
-    setEfectivo("");
-    setTransferencia("");
+    setFormaPago("");
+    setEfectivoMonto("");
+    setTransferMonto("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     let sertec = [];
-    let option = "";
-
-    if (esSena === "si") {
-      option = "seña";
-      if (paymentMethod === "efectivo") {
-        sertec.push({ tipo: "seña efectivo", monto: parseFloat(amount) || 0 });
-      } else if (paymentMethod === "transferencia") {
-        sertec.push({
-          tipo: "seña transferencia",
-          monto: parseFloat(amount) || 0,
-        });
-      } else if (paymentMethod === "ambos") {
-        sertec.push({
-          tipo: "seña efectivo",
-          monto: parseFloat(efectivo) || 0,
-        });
-        sertec.push({
-          tipo: "seña transferencia",
-          monto: parseFloat(transferencia) || 0,
-        });
-      }
+    if (problemType === "arreglo") {
       sertec.push({
-        tipo: "totalidad del trabajo",
-        monto: parseFloat(totalTrabajo) || 0,
+        tipo: "% del total abonado",
+        monto: parseFloat(amount) || 0,
       });
-    }
-
-    if (esSena === "no") {
-      option = "pago total";
-      if (paymentMethod === "ambos") {
-        sertec.push({ tipo: "efectivo", monto: parseFloat(efectivo) || 0 });
-        sertec.push({
-          tipo: "transferencia",
-          monto: parseFloat(transferencia) || 0,
-        });
-      }
       sertec.push({
         tipo: "pago total del trabajo",
         monto: parseFloat(totalTrabajo) || 0,
       });
+    } else if (problemType === "presupuesto") {
+      if (paymentOption === "seña") {
+        sertec.push({ tipo: "seña", monto: parseFloat(amount) || 0 });
+        sertec.push({
+          tipo: "totalidad del trabajo",
+          monto: parseFloat(totalTrabajo) || 0,
+        });
+      } else if (paymentOption === "pago total") {
+        sertec.push({ tipo: "pago total", monto: parseFloat(amount) || 0 });
+      }
     }
 
-    const finalAmount = parseFloat(totalTrabajo) || 0;
+    let formaPagoArray = [];
+    if (formaPago === "efectivo") {
+      formaPagoArray.push({ tipo: "efectivo", monto: parseFloat(amount) || 0 });
+    } else if (formaPago === "transferencia") {
+      formaPagoArray.push({
+        tipo: "transferencia",
+        monto: parseFloat(amount) || 0,
+      });
+    } else if (formaPago === "ambos") {
+      formaPagoArray.push(
+        { tipo: "efectivo", monto: parseFloat(efectivoMonto) || 0 },
+        { tipo: "transferencia", monto: parseFloat(transferMonto) || 0 }
+      );
+    }
 
     const formData = {
       clientName,
       branch,
       date,
       problemType,
-      paymentOption: option,
-      paymentMethod,
-      amount: finalAmount,
-      totalTrabajo: finalAmount,
-      efectivo: parseFloat(efectivo) || 0,
-      transferencia: parseFloat(transferencia) || 0,
+      paymentOption,
+      amount: parseFloat(amount) || 0,
+      totalTrabajo: parseFloat(totalTrabajo) || 0,
       description,
-      estado: "en curso",
       sertec,
+      formaPago: formaPagoArray,
+      estado: "en curso",
     };
 
     const resultado = await addClient(formData);
@@ -151,7 +140,6 @@ const FormClient = () => {
         <BackArrow />
         <h2 className="text-center text-2xl font-bold">Cliente Nuevo</h2>
 
-        {/* Nombre Cliente */}
         <label>Nombre cliente</label>
         <div className="relative">
           <input
@@ -175,7 +163,6 @@ const FormClient = () => {
               {showList ? "Ocultar clientes" : "Ver lista de clientes"}
             </button>
           </div>
-
           {showList && clientList.length > 0 && (
             <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-xl w-full max-h-40 overflow-y-auto shadow-lg">
               <p className="text-sm font-semibold p-2 text-gray-600 bg-gray-100 rounded-t-xl">
@@ -199,7 +186,6 @@ const FormClient = () => {
           )}
         </div>
 
-        {/* Sucursal */}
         <label>
           Sucursal <span className="text-sm">(opcional)</span>
         </label>
@@ -211,7 +197,6 @@ const FormClient = () => {
           placeholder="Sucursal"
         />
 
-        {/* Fecha */}
         <label>Fecha</label>
         <input
           type="text"
@@ -220,15 +205,15 @@ const FormClient = () => {
           className="rounded-full text-center px-4 py-2 bg-gray-300 text-black"
         />
 
-        {/* Tipo de problema */}
-        <label>Tipo de problema</label>
+        <label>Tipo de trabajo</label>
         <div className="flex bg-gray-300 rounded-full p-1 justify-between">
           <button
             type="button"
             onClick={() => {
               setProblemType("arreglo");
-              setPaymentMethod("");
-              setEsSena(null);
+              setPaymentOption("");
+              setAmount("");
+              setTotalTrabajo("");
             }}
             className={`px-4 py-2 rounded-full w-1/2 ${
               problemType === "arreglo"
@@ -242,8 +227,9 @@ const FormClient = () => {
             type="button"
             onClick={() => {
               setProblemType("presupuesto");
-              setPaymentMethod("");
-              setEsSena(null);
+              setPaymentOption("");
+              setAmount("");
+              setTotalTrabajo("");
             }}
             className={`px-4 py-2 rounded-full w-1/2 ${
               problemType === "presupuesto"
@@ -255,118 +241,101 @@ const FormClient = () => {
           </button>
         </div>
 
-        {/* Método de pago */}
-        <label>Forma de pago</label>
-        <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-          {["efectivo", "transferencia", "ambos"].map((metodo) => (
-            <label key={metodo} className="flex items-center gap-2">
+        {problemType === "presupuesto" && (
+          <div className="bg-gray-300 text-black p-2 rounded-md flex gap-4 justify-around">
+            <label className="flex items-center gap-2">
               <input
                 type="radio"
-                name="metodo"
-                checked={paymentMethod === metodo}
+                name="pago"
+                checked={paymentOption === "seña"}
                 onChange={() => {
-                  setPaymentMethod(metodo);
-                  setEsSena(null);
+                  setPaymentOption("seña");
                   setAmount("");
-                  setEfectivo("");
-                  setTransferencia("");
+                  setTotalTrabajo("");
                 }}
-              />
-              {metodo.charAt(0).toUpperCase() + metodo.slice(1)}
+              />{" "}
+              Seña
             </label>
-          ))}
-        </div>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="pago"
+                checked={paymentOption === "pago total"}
+                onChange={() => {
+                  setPaymentOption("pago total");
+                  setAmount("");
+                  setTotalTrabajo("");
+                }}
+              />{" "}
+              Pago Total
+            </label>
+          </div>
+        )}
 
-        {/* ¿Es seña? */}
-        {paymentMethod && (
+        {problemType && (
           <>
-            <label>¿Es seña?</label>
-            <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-              {["si", "no"].map((val) => (
-                <label key={val} className="flex items-center gap-2">
+            <label>Forma de Pago</label>
+            <div className="flex gap-4 bg-gray-300 rounded-full p-2 text-black">
+              {["efectivo", "transferencia", "ambos"].map((tipo) => (
+                <label className="flex gap-2 items-center" key={tipo}>
                   <input
                     type="radio"
-                    name="sena"
-                    checked={esSena === val}
+                    name="formaPago"
+                    value={tipo}
+                    checked={formaPago === tipo}
                     onChange={() => {
-                      setEsSena(val);
-                      setAmount("");
-                      setEfectivo("");
-                      setTransferencia("");
-                      setTotalTrabajo("");
+                      setFormaPago(tipo);
+                      setEfectivoMonto("");
+                      setTransferMonto("");
                     }}
-                  />
-                  {val === "si" ? "Sí" : "No"}
+                  />{" "}
+                  {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
                 </label>
               ))}
             </div>
-          </>
-        )}
 
-        {/* Campos si es SEÑA */}
-        {esSena === "si" && (
-          <>
-            {paymentMethod === "ambos" && (
-              <>
-                <input
-                  type="number"
-                  placeholder="Seña en efectivo"
-                  value={efectivo}
-                  onChange={(e) => setEfectivo(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
-                />
-                <input
-                  type="number"
-                  placeholder="Seña en transferencia"
-                  value={transferencia}
-                  onChange={(e) => setTransferencia(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
-                />
-              </>
-            )}
-            {paymentMethod !== "ambos" && (
+            {formaPago === "efectivo" && (
               <input
                 type="number"
-                placeholder="Monto de la seña"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                placeholder="Monto efectivo"
               />
             )}
-            <input
-              type="number"
-              placeholder="Total del trabajo"
-              value={totalTrabajo}
-              onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
-          </>
-        )}
 
-        {/* Campos si NO es SEÑA */}
-        {esSena === "no" && (
-          <>
-            {paymentMethod === "ambos" && (
+            {formaPago === "transferencia" && (
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                placeholder="Monto transferencia"
+              />
+            )}
+
+            {formaPago === "ambos" && (
               <>
                 <input
                   type="number"
-                  placeholder="Pago en efectivo"
-                  value={efectivo}
-                  onChange={(e) => setEfectivo(e.target.value)}
+                  value={efectivoMonto}
+                  onChange={(e) => setEfectivoMonto(e.target.value)}
                   className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                  placeholder="Monto efectivo"
                 />
                 <input
                   type="number"
-                  placeholder="Pago en transferencia"
-                  value={transferencia}
-                  onChange={(e) => setTransferencia(e.target.value)}
+                  value={transferMonto}
+                  onChange={(e) => setTransferMonto(e.target.value)}
                   className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                  placeholder="Monto transferencia"
                 />
               </>
             )}
+
             <input
               type="number"
-              placeholder="Pago total del trabajo"
+              placeholder="Totalidad del trabajo"
               value={totalTrabajo}
               onChange={(e) => setTotalTrabajo(e.target.value)}
               className="rounded-full px-4 py-2 bg-gray-300 text-black"
@@ -374,7 +343,6 @@ const FormClient = () => {
           </>
         )}
 
-        {/* Descripción */}
         <label>Descripción</label>
         <textarea
           placeholder="Descripción"

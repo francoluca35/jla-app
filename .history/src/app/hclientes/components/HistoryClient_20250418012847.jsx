@@ -103,22 +103,17 @@ export default function HistoryClient() {
         ))}
       </div>
 
-      <div className="w-full px-2 sm:px-4 overflow-x-auto">
-        <div className="min-w-[650px] rounded-lg bg-verdefluort text-center font-semibold shadow-md">
-          <div className="grid grid-cols-5 border-b border-black">
-            <div className="p-3 text-black font-bold">Nombre</div>
-            <div className="p-3 text-black font-bold">Sucursal</div>
-            <div className="p-3 text-black font-bold">Fecha</div>
-            <div className="p-3 text-black font-bold">Tipo</div>
-            <div className="p-3 text-white font-bold">+</div>
-          </div>
+      <div className="w-full overflow-x-auto rounded-lg">
+        <div className="grid grid-cols-5 min-w-[600px] text-center font-semibold bg-verdefluort">
+          <div className="p-2 text-black font-bold">Nombre</div>
+          <div className="p-2 text-black font-bold">Sucursal</div>
+          <div className="p-2 text-black font-bold">Fecha</div>
+          <div className="p-2 text-black font-bold">Tipo</div>
+          <div className="p-2 text-white font-bold">+</div>
 
           {filteredClientes.map((cliente, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-5 text-sm sm:text-base even:bg-[#aad1ba] odd:bg-[#84b89b]"
-            >
-              <div className="p-2 text-black break-words">
+            <React.Fragment key={index}>
+              <div className="p-2 bg-[#84b89b] text-black">
                 {cliente.clientName}
               </div>
               <div className="p-2 text-black">{cliente.branch}</div>
@@ -132,7 +127,7 @@ export default function HistoryClient() {
               >
                 +
               </div>
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>
@@ -298,20 +293,7 @@ export default function HistoryClient() {
                       </div>
                       {!fueAnulada && esAnulable && !isEditing && (
                         <button
-                          onClick={async () => {
-                            const confirm = await Swal.fire({
-                              title: `¿Cancelar ${s.tipo}?`,
-                              text: "Esta acción marcará el servicio como anulado.",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonText: "Sí, cancelar",
-                              cancelButtonText: "No, mantener",
-                            });
-
-                            if (confirm.isConfirmed) {
-                              anularServicio(i);
-                            }
-                          }}
+                          onClick={() => anularServicio(i)}
                           className="text-sm text-red-600 hover:underline"
                         >
                           Cancelar {s.tipo}
