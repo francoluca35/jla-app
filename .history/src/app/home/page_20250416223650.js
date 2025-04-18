@@ -59,7 +59,7 @@ export default function Home() {
     },
     {
       texto: "Informes Semanales",
-      ruta: "/excel",
+      ruta: "/hingresos",
       icono: <FileSpreadsheet className="w-6 h-6 mb-1" />,
     },
   ];

@@ -9,7 +9,6 @@ import {
   ReceiptText,
   Power,
   ChartNoAxesCombined,
-  FileSpreadsheet,
 } from "lucide-react";
 
 export default function Home() {
@@ -59,8 +58,8 @@ export default function Home() {
     },
     {
       texto: "Informes Semanales",
-      ruta: "/excel",
-      icono: <FileSpreadsheet className="w-6 h-6 mb-1" />,
+      ruta: "/hingresos",
+      icono: <ChartNoAxesCombined className="w-6 h-6 mb-1" />,
     },
   ];
 
