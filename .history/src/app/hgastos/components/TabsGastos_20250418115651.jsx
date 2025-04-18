@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useGastos } from "@/hooks/UseGastos";
-import Swal from "sweetalert2";
 
 const TabsGasto = () => {
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
@@ -42,9 +41,11 @@ const TabsGasto = () => {
   const totalDia = gastos
     .filter((g) => esMismoDia(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
+
   const totalSemana = gastos
     .filter((g) => esMismaSemana(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
+
   const totalMes = gastos
     .filter((g) => esMismoMes(new Date(g.fecha)))
     .reduce((acc, g) => acc + Number(g.precio), 0);
@@ -66,22 +67,7 @@ const TabsGasto = () => {
   };
 
   const eliminarSeleccionados = async () => {
-    if (seleccionados.length === 0) {
-      return Swal.fire("Nada seleccionado", "", "warning");
-    }
-
-    const result = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: `Eliminarás ${seleccionados.length} gasto(s). Esta acción no se puede deshacer.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (!result.isConfirmed) return;
+    if (seleccionados.length === 0) return alert("Nada seleccionado");
 
     const res = await fetch("/api/gastos", {
       method: "DELETE",
@@ -90,36 +76,11 @@ const TabsGasto = () => {
     });
 
     if (res.ok) {
-      await Swal.fire("Eliminado", "Los gastos fueron eliminados.", "success");
-      window.location.reload();
+      alert("Gastos eliminados");
+      setSeleccionados([]);
+      setSelectAll(false);
     } else {
-      Swal.fire("Error", "Hubo un problema al eliminar.", "error");
-    }
-  };
-
-  const handleGuardar = async () => {
-    const payload = {
-      ...edited,
-      precio: Number(edited.precio),
-    };
-
-    const res = await fetch(`/api/gastos/${gastoSeleccionado._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      await Swal.fire(
-        "Actualizado",
-        "El gasto fue actualizado correctamente.",
-        "success"
-      );
-      setGastoSeleccionado(null);
-      setIsEditing(false);
-      window.location.reload();
-    } else {
-      Swal.fire("Error", "Hubo un problema al actualizar.", "error");
+      alert("Error al eliminar");
     }
   };
 
@@ -136,7 +97,6 @@ const TabsGasto = () => {
         VISUALIZAR GASTOS
       </h2>
 
-      {/* Filtros */}
       <div className="space-y-2">
         <select
           className="p-2 w-full bg-black rounded"
@@ -156,6 +116,7 @@ const TabsGasto = () => {
             dateFormat="d/M/yyyy"
             placeholderText="Desde"
             className="w-full p-2 bg-black text-white rounded"
+            wrapperClassName="w-full"
           />
           <DatePicker
             selected={fechaHasta}
@@ -163,6 +124,7 @@ const TabsGasto = () => {
             dateFormat="d/M/yyyy"
             placeholderText="Hasta"
             className="w-full p-2 bg-black text-white rounded"
+            wrapperClassName="w-full"
           />
         </div>
 
@@ -236,21 +198,18 @@ const TabsGasto = () => {
                       ? "bg-red-800"
                       : "bg-black bg-opacity-60 hover:bg-gray-600"
                   }`}
-                  onClick={() => {
-                    if (modoEliminar) {
-                      toggleSeleccionado(gasto._id);
-                    } else {
-                      setGastoSeleccionado(gasto);
-                      setIsEditing(false);
-                      setEdited(gasto);
-                    }
-                  }}
+                  onClick={() =>
+                    modoEliminar
+                      ? toggleSeleccionado(gasto._id)
+                      : setGastoSeleccionado(gasto)
+                  }
                 >
                   {gasto.tipo === "sueldos" ? (
                     <>
                       <p className="font-bold">Empleado: {gasto.empleado}</p>
                       <p className="text-sm">
-                        Días: {gasto.diasDeTrabajo?.join(", ") || "-"}
+                        Días:{" "}
+                        {gasto.diasDeTrabajo?.join(", ") || "No especificado"}
                       </p>
                     </>
                   ) : (
@@ -270,7 +229,6 @@ const TabsGasto = () => {
         )}
       </div>
 
-      {/* Modal de detalle y edición */}
       {gastoSeleccionado && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white text-black p-6 rounded-xl w-96 relative">
@@ -283,6 +241,7 @@ const TabsGasto = () => {
             >
               ×
             </button>
+
             <h3 className="text-lg font-bold mb-2">Detalle del Gasto</h3>
 
             {!isEditing ? (
@@ -297,11 +256,13 @@ const TabsGasto = () => {
                     </p>
                     <p>
                       <strong>Días de trabajo:</strong>{" "}
-                      {gastoSeleccionado.diasDeTrabajo?.join(", ") || "-"}
+                      {gastoSeleccionado.diasDeTrabajo?.join(", ") ||
+                        "No especificado"}
                     </p>
                     <p>
                       <strong>Forma de pago:</strong>{" "}
-                      {gastoSeleccionado.tipodepago?.join(" + ") || "-"}
+                      {gastoSeleccionado.tipodepago?.join(" + ") ||
+                        "No especificado"}
                     </p>
                     <p>
                       <strong>Importe:</strong> ${gastoSeleccionado.precio}
@@ -343,6 +304,7 @@ const TabsGasto = () => {
               </>
             ) : (
               <>
+                {/* EDITABLE FORM */}
                 {gastoSeleccionado.tipo === "sueldos" ? (
                   <>
                     <label className="block mb-2">
@@ -355,36 +317,19 @@ const TabsGasto = () => {
                         }
                       />
                     </label>
-                    <div className="mb-2">
-                      <p className="font-semibold">Días de trabajo:</p>
-                      {[
-                        "Lunes",
-                        "Martes",
-                        "Miércoles",
-                        "Jueves",
-                        "Viernes",
-                        "Sábado",
-                      ].map((dia) => (
-                        <label key={dia} className="block text-sm">
-                          <input
-                            type="checkbox"
-                            checked={
-                              edited.diasDeTrabajo?.includes(dia) || false
-                            }
-                            onChange={() => {
-                              const nuevosDias = edited.diasDeTrabajo || [];
-                              setEdited({
-                                ...edited,
-                                diasDeTrabajo: nuevosDias.includes(dia)
-                                  ? nuevosDias.filter((d) => d !== dia)
-                                  : [...nuevosDias, dia],
-                              });
-                            }}
-                          />{" "}
-                          {dia}
-                        </label>
-                      ))}
-                    </div>
+                    <label className="block mb-2">
+                      Días de trabajo:
+                      <input
+                        className="w-full border p-1"
+                        value={edited.diasDeTrabajo}
+                        onChange={(e) =>
+                          setEdited({
+                            ...edited,
+                            diasDeTrabajo: e.target.value.split(","),
+                          })
+                        }
+                      />
+                    </label>
                   </>
                 ) : (
                   <>
