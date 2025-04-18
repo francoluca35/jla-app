@@ -14,13 +14,7 @@ function TabsIngresos() {
     editarIngreso,
   } = useIngresos();
 
-  const datos = obtenerFiltrados().filter((item) => {
-    if (item.problemType === "presupuesto") {
-      return item.estado === "terminado";
-    }
-    return true;
-  });
-
+  const datos = obtenerFiltrados();
   const [modoEliminar, setModoEliminar] = useState(false);
   const [modoEditar, setModoEditar] = useState(false);
   const [seleccionados, setSeleccionados] = useState([]);
@@ -219,7 +213,6 @@ function TabsIngresos() {
               <th className="p-3 border border-green-700">Tipo</th>
               <th className="p-3 border border-green-700">Pago</th>
               <th className="p-3 border border-green-700">Monto</th>
-              <th className="p-3 border border-green-700">Estado</th>
             </tr>
           </thead>
           <tbody>
@@ -245,21 +238,6 @@ function TabsIngresos() {
                   {item.paymentOption || "-"}
                 </td>
                 <td className="p-3 border border-green-700">${item.amount}</td>
-                <td className="p-3 border border-green-700">
-                  {["arreglo", "presupuesto"].includes(item.problemType) ? (
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-semibold ${
-                        item.estado === "terminado"
-                          ? "bg-green-600 text-white"
-                          : "bg-yellow-400 text-black"
-                      }`}
-                    >
-                      {item.estado || "-"}
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>

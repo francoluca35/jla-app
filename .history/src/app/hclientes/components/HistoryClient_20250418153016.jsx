@@ -134,11 +134,11 @@ export default function HistoryClient() {
                   : "-"}
               </div>
               <div
-                className={`p-2 font-semibold text-md ${
+                className={`p-1 font-semibold text-sm ${
                   cliente.problemType === "arreglo" ||
                   cliente.estado === "terminado"
-                    ? "  text-terminado"
-                    : " text-curso"
+                    ? "bg-blue-200 text-blue-800"
+                    : "bg-yellow-200 text-yellow-800"
                 } rounded-full`}
               >
                 {cliente.problemType === "arreglo" ||

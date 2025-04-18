@@ -137,8 +137,8 @@ export default function HistoryClient() {
                 className={`p-2 font-semibold text-md ${
                   cliente.problemType === "arreglo" ||
                   cliente.estado === "terminado"
-                    ? "  text-terminado"
-                    : " text-curso"
+                    ? " border-blue-800 border-4 text-blue-800"
+                    : " text-yellow-500"
                 } rounded-full`}
               >
                 {cliente.problemType === "arreglo" ||
