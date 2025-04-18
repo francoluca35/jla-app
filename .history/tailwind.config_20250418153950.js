@@ -7,7 +7,7 @@ module.exports = {
         verdefluor: "#10db00",
         verdefluort: "#00a002",
         curso: "#fff000 ",
-        terminado: "#f1f1f1",
+        terminado: "#36cee7 ",
         verdepanel: "#108f45",
         tabla: "#1f2c26",
         fondo2: "#00a002",

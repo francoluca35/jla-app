@@ -245,22 +245,11 @@ function TabsIngresos() {
                   {item.paymentOption || "-"}
                 </td>
                 <td className="p-3 border border-green-700">${item.amount}</td>
-                <td className="p-3 border border-green-700">
-                  {["arreglo", "presupuesto"].includes(item.problemType) ? (
-                    <span
-                      className={`px-2 py-1 rounded text-sm font-semibold ${
-                        item.estado === "terminado"
-                          ? "bg-green-600 text-white"
-                          : "bg-yellow-400 text-black"
-                      }`}
-                    >
-                      {item.estado || "-"}
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </td>
               </tr>
+              <td className="p-3 border border-green-700">
+  {item.problemType === "arreglo" ? item.estado || "-" : "-"}
+</td>
+
             ))}
           </tbody>
           <tfoot>

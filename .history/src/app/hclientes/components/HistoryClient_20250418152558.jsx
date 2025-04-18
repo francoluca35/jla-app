@@ -105,7 +105,7 @@ export default function HistoryClient() {
 
       <div className="w-full px-2 sm:px-4 overflow-x-auto">
         <div className="min-w-[650px] rounded-lg bg-verdefluort text-center font-semibold shadow-md">
-          <div className="grid grid-cols-6 border-b border-black">
+          <div className="grid grid-cols-5 border-b border-black">
             <div className="p-3 text-black font-bold">Nombre</div>
             <div className="p-3 text-black font-bold">Sucursal</div>
             <div className="p-3 text-black font-bold">Fecha</div>
@@ -117,7 +117,7 @@ export default function HistoryClient() {
           {filteredClientes.map((cliente, index) => (
             <div
               key={index}
-              className="grid grid-cols-6 text-sm sm:text-base even:bg-[#aad1ba] odd:bg-[#84b89b]"
+              className="grid grid-cols-5 text-sm sm:text-base even:bg-[#aad1ba] odd:bg-[#84b89b]"
             >
               <div className="p-2 text-black break-words">
                 {cliente.clientName}
@@ -133,18 +133,8 @@ export default function HistoryClient() {
                   ? "pr"
                   : "-"}
               </div>
-              <div
-                className={`p-2 font-semibold text-md ${
-                  cliente.problemType === "arreglo" ||
-                  cliente.estado === "terminado"
-                    ? "  text-terminado"
-                    : " text-curso"
-                } rounded-full`}
-              >
-                {cliente.problemType === "arreglo" ||
-                cliente.estado === "terminado"
-                  ? "terminado"
-                  : "en curso"}
+              <div className="p-2 text-black">
+                {cliente.estado || "en curso"}
               </div>
 
               <div
