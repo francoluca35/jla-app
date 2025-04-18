@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useGastos } from "@/hooks/UseGastos";
-import Swal from "sweetalert2";
 
 const TabsGasto = () => {
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
@@ -66,22 +65,13 @@ const TabsGasto = () => {
   };
 
   const eliminarSeleccionados = async () => {
-    if (seleccionados.length === 0) {
-      return Swal.fire("Nada seleccionado", "", "warning");
-    }
+    if (seleccionados.length === 0) return alert("Nada seleccionado");
 
-    const result = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: `Eliminarás ${seleccionados.length} gasto(s). Esta acción no se puede deshacer.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    });
+    const confirmacion = window.confirm(
+      `¿Estás seguro que querés eliminar ${seleccionados.length} gasto(s)?`
+    );
 
-    if (!result.isConfirmed) return;
+    if (!confirmacion) return;
 
     const res = await fetch("/api/gastos", {
       method: "DELETE",
@@ -90,17 +80,17 @@ const TabsGasto = () => {
     });
 
     if (res.ok) {
-      await Swal.fire("Eliminado", "Los gastos fueron eliminados.", "success");
-      window.location.reload();
+      alert("Gastos eliminados con éxito");
+      window.location.reload(); // Refrescar la página
     } else {
-      Swal.fire("Error", "Hubo un problema al eliminar.", "error");
+      alert("Error al eliminar");
     }
   };
 
   const handleGuardar = async () => {
     const payload = {
       ...edited,
-      precio: Number(edited.precio),
+      precio: Number(edited.precio), // 🔥 ¡Convertir precio a número!
     };
 
     const res = await fetch(`/api/gastos/${gastoSeleccionado._id}`, {
@@ -110,16 +100,12 @@ const TabsGasto = () => {
     });
 
     if (res.ok) {
-      await Swal.fire(
-        "Actualizado",
-        "El gasto fue actualizado correctamente.",
-        "success"
-      );
+      alert("Gasto actualizado");
       setGastoSeleccionado(null);
       setIsEditing(false);
       window.location.reload();
     } else {
-      Swal.fire("Error", "Hubo un problema al actualizar.", "error");
+      alert("Error al guardar");
     }
   };
 

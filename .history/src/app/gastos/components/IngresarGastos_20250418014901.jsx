@@ -205,14 +205,15 @@ const IngresarGastos = () => {
                 />
               </label>
 
-              <label>
-                Tipo de pago
-                <div className="flex gap-2">
+              <div className="flex gap-2">
+                <label>
+                  tipo de pago
+                  <br></br>
                   <button
                     type="button"
                     onClick={() => toggleTipoDePago("efectivo")}
                     className={clsx(
-                      "flex-1 p-2 rounded font-semibold",
+                      "flex-1 p-4 rounded font-semibold",
                       tiposDePago.includes("efectivo")
                         ? "bg-green-600"
                         : "bg-gray-800 hover:bg-gray-600"
@@ -232,8 +233,8 @@ const IngresarGastos = () => {
                   >
                     Transferencia
                   </button>
-                </div>
-              </label>
+                </label>
+              </div>
 
               <label>
                 Precio

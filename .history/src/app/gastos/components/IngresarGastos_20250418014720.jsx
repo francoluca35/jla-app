@@ -205,35 +205,32 @@ const IngresarGastos = () => {
                 />
               </label>
 
-              <label>
-                Tipo de pago
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => toggleTipoDePago("efectivo")}
-                    className={clsx(
-                      "flex-1 p-2 rounded font-semibold",
-                      tiposDePago.includes("efectivo")
-                        ? "bg-green-600"
-                        : "bg-gray-800 hover:bg-gray-600"
-                    )}
-                  >
-                    Efectivo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleTipoDePago("transferencia")}
-                    className={clsx(
-                      "flex-1 p-2 rounded font-semibold",
-                      tiposDePago.includes("transferencia")
-                        ? "bg-green-600"
-                        : "bg-gray-800 hover:bg-gray-600"
-                    )}
-                  >
-                    Transferencia
-                  </button>
-                </div>
-              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleTipoDePago("efectivo")}
+                  className={clsx(
+                    "flex-1 p-2 rounded font-semibold",
+                    tiposDePago.includes("efectivo")
+                      ? "bg-green-600"
+                      : "bg-gray-800 hover:bg-gray-600"
+                  )}
+                >
+                  Efectivo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleTipoDePago("transferencia")}
+                  className={clsx(
+                    "flex-1 p-2 rounded font-semibold",
+                    tiposDePago.includes("transferencia")
+                      ? "bg-green-600"
+                      : "bg-gray-800 hover:bg-gray-600"
+                  )}
+                >
+                  Transferencia
+                </button>
+              </div>
 
               <label>
                 Precio

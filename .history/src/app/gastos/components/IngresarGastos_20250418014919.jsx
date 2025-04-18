@@ -206,7 +206,8 @@ const IngresarGastos = () => {
               </label>
 
               <label>
-                Tipo de pago
+                tipo de pago
+                <br></br>
                 <div className="flex gap-2">
                   <button
                     type="button"

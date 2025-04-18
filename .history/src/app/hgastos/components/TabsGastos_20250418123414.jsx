@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useGastos } from "@/hooks/UseGastos";
-import Swal from "sweetalert2";
 
 const TabsGasto = () => {
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
@@ -66,22 +65,7 @@ const TabsGasto = () => {
   };
 
   const eliminarSeleccionados = async () => {
-    if (seleccionados.length === 0) {
-      return Swal.fire("Nada seleccionado", "", "warning");
-    }
-
-    const result = await Swal.fire({
-      title: "¿Estás seguro?",
-      text: `Eliminarás ${seleccionados.length} gasto(s). Esta acción no se puede deshacer.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (!result.isConfirmed) return;
+    if (seleccionados.length === 0) return alert("Nada seleccionado");
 
     const res = await fetch("/api/gastos", {
       method: "DELETE",
@@ -90,36 +74,27 @@ const TabsGasto = () => {
     });
 
     if (res.ok) {
-      await Swal.fire("Eliminado", "Los gastos fueron eliminados.", "success");
-      window.location.reload();
+      alert("Gastos eliminados");
+      setSeleccionados([]);
+      setSelectAll(false);
     } else {
-      Swal.fire("Error", "Hubo un problema al eliminar.", "error");
+      alert("Error al eliminar");
     }
   };
 
   const handleGuardar = async () => {
-    const payload = {
-      ...edited,
-      precio: Number(edited.precio),
-    };
-
     const res = await fetch(`/api/gastos/${gastoSeleccionado._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(edited),
     });
 
     if (res.ok) {
-      await Swal.fire(
-        "Actualizado",
-        "El gasto fue actualizado correctamente.",
-        "success"
-      );
+      alert("Gasto actualizado");
       setGastoSeleccionado(null);
       setIsEditing(false);
-      window.location.reload();
     } else {
-      Swal.fire("Error", "Hubo un problema al actualizar.", "error");
+      alert("Error al guardar");
     }
   };
 
@@ -237,13 +212,9 @@ const TabsGasto = () => {
                       : "bg-black bg-opacity-60 hover:bg-gray-600"
                   }`}
                   onClick={() => {
-                    if (modoEliminar) {
-                      toggleSeleccionado(gasto._id);
-                    } else {
-                      setGastoSeleccionado(gasto);
-                      setIsEditing(false);
-                      setEdited(gasto);
-                    }
+                    setGastoSeleccionado(gasto);
+                    setIsEditing(false);
+                    setEdited(gasto);
                   }}
                 >
                   {gasto.tipo === "sueldos" ? (

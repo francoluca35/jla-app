@@ -100,7 +100,7 @@ const TabsGasto = () => {
   const handleGuardar = async () => {
     const payload = {
       ...edited,
-      precio: Number(edited.precio),
+      precio: Number(edited.precio), // 🔥 ¡Convertir precio a número!
     };
 
     const res = await fetch(`/api/gastos/${gastoSeleccionado._id}`, {
@@ -110,16 +110,12 @@ const TabsGasto = () => {
     });
 
     if (res.ok) {
-      await Swal.fire(
-        "Actualizado",
-        "El gasto fue actualizado correctamente.",
-        "success"
-      );
+      alert("Gasto actualizado");
       setGastoSeleccionado(null);
       setIsEditing(false);
       window.location.reload();
     } else {
-      Swal.fire("Error", "Hubo un problema al actualizar.", "error");
+      alert("Error al guardar");
     }
   };
 
