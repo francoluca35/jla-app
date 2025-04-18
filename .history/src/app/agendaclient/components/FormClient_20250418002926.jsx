@@ -7,113 +7,66 @@ import Swal from "sweetalert2";
 const FormClient = () => {
   const [date, setDate] = useState("");
   const [problemType, setProblemType] = useState("");
-  const [paymentOption, setPaymentOption] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [isSena, setIsSena] = useState(null);
   const [amount, setAmount] = useState("");
+  const [totalTrabajo, setTotalTrabajo] = useState("");
   const [description, setDescription] = useState("");
   const [clientName, setClientName] = useState("");
   const [branch, setBranch] = useState("");
-  const [totalTrabajo, setTotalTrabajo] = useState("");
   const [showList, setShowList] = useState(false);
-  const [esSena, setEsSena] = useState(null);
-  const [efectivo, setEfectivo] = useState("");
-  const [transferencia, setTransferencia] = useState("");
+  const [clientList, setClientList] = useState([]);
 
   const { addClient, loading } = useAddClient();
-  const [clientList, setClientList] = useState([]);
 
   useEffect(() => {
     const now = new Date();
     setDate(now.toISOString());
-
     fetch("/api/nombres")
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Error al obtener nombres");
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => setClientList(data))
-      .catch((err) => {
-        console.error("Error al cargar nombres:", err);
-        setClientList([]);
-      });
+      .catch(() => setClientList([]));
   }, []);
 
   const resetForm = () => {
     setProblemType("");
-    setPaymentOption("");
     setPaymentMethod("");
+    setIsSena(null);
     setAmount("");
     setTotalTrabajo("");
     setDescription("");
     setClientName("");
     setBranch("");
-    setEsSena(null);
-    setEfectivo("");
-    setTransferencia("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let sertec = [];
-    let option = "";
-
-    if (esSena === "si") {
-      option = "seña";
-      if (paymentMethod === "efectivo") {
-        sertec.push({ tipo: "seña efectivo", monto: parseFloat(amount) || 0 });
-      } else if (paymentMethod === "transferencia") {
-        sertec.push({
-          tipo: "seña transferencia",
-          monto: parseFloat(amount) || 0,
-        });
-      } else if (paymentMethod === "ambos") {
-        sertec.push({
-          tipo: "seña efectivo",
-          monto: parseFloat(efectivo) || 0,
-        });
-        sertec.push({
-          tipo: "seña transferencia",
-          monto: parseFloat(transferencia) || 0,
-        });
-      }
+    const sertec = [];
+    if (isSena === "si") {
+      sertec.push({ tipo: "seña", monto: parseFloat(amount) || 0 });
       sertec.push({
         tipo: "totalidad del trabajo",
         monto: parseFloat(totalTrabajo) || 0,
       });
-    }
-
-    if (esSena === "no") {
-      option = "pago total";
-      if (paymentMethod === "ambos") {
-        sertec.push({ tipo: "efectivo", monto: parseFloat(efectivo) || 0 });
-        sertec.push({
-          tipo: "transferencia",
-          monto: parseFloat(transferencia) || 0,
-        });
-      }
+    } else {
       sertec.push({
         tipo: "pago total del trabajo",
         monto: parseFloat(totalTrabajo) || 0,
       });
     }
 
-    const finalAmount = parseFloat(totalTrabajo) || 0;
-
     const formData = {
       clientName,
       branch,
       date,
       problemType,
-      paymentOption: option,
       paymentMethod,
-      amount: finalAmount,
-      totalTrabajo: finalAmount,
-      efectivo: parseFloat(efectivo) || 0,
-      transferencia: parseFloat(transferencia) || 0,
+      amount: parseFloat(amount) || 0,
+      totalTrabajo: parseFloat(totalTrabajo) || 0,
       description,
-      estado: "en curso",
       sertec,
+      estado: "en curso",
     };
 
     const resultado = await addClient(formData);
@@ -123,14 +76,12 @@ const FormClient = () => {
         title: "¡Éxito!",
         text: "Cliente guardado con éxito.",
         icon: "success",
-        confirmButtonText: "Aceptar",
-      }).then(resetForm);
+      }).then(() => resetForm());
     } else {
       Swal.fire({
         title: "Error",
-        text: resultado?.error || "Hubo un problema al guardar el cliente.",
+        text: resultado?.error || "Hubo un problema al guardar.",
         icon: "error",
-        confirmButtonText: "Aceptar",
       });
     }
   };
@@ -151,7 +102,6 @@ const FormClient = () => {
         <BackArrow />
         <h2 className="text-center text-2xl font-bold">Cliente Nuevo</h2>
 
-        {/* Nombre Cliente */}
         <label>Nombre cliente</label>
         <div className="relative">
           <input
@@ -159,23 +109,21 @@ const FormClient = () => {
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
             className="rounded-full px-4 py-2 bg-gray-300 text-black w-full"
-            placeholder="Escribí o seleccioná un cliente existente"
             required
           />
           <div className="flex justify-end mt-1">
             <button
               type="button"
-              onClick={() => setShowList((prev) => !prev)}
-              className={`px-3 py-1 text-sm rounded-full border transition-all duration-200 ${
+              onClick={() => setShowList(!showList)}
+              className={`px-3 py-1 text-sm rounded-full border ${
                 showList
-                  ? "bg-red-100 text-red-600 border-red-400 hover:bg-red-200"
-                  : "bg-blue-100 text-blue-600 border-blue-400 hover:bg-blue-200"
+                  ? "bg-red-100 text-red-600"
+                  : "bg-blue-100 text-blue-600"
               }`}
             >
               {showList ? "Ocultar clientes" : "Ver lista de clientes"}
             </button>
           </div>
-
           {showList && clientList.length > 0 && (
             <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-xl w-full max-h-40 overflow-y-auto shadow-lg">
               <p className="text-sm font-semibold p-2 text-gray-600 bg-gray-100 rounded-t-xl">
@@ -185,7 +133,7 @@ const FormClient = () => {
                 {clientList.map((name, i) => (
                   <li
                     key={i}
-                    className="cursor-pointer px-4 py-2 hover:bg-green-100 transition text-black"
+                    className="cursor-pointer px-4 py-2 hover:bg-green-100 text-black"
                     onClick={() => {
                       setClientName(name);
                       setShowList(false);
@@ -199,7 +147,6 @@ const FormClient = () => {
           )}
         </div>
 
-        {/* Sucursal */}
         <label>
           Sucursal <span className="text-sm">(opcional)</span>
         </label>
@@ -208,10 +155,8 @@ const FormClient = () => {
           value={branch}
           onChange={(e) => setBranch(e.target.value)}
           className="rounded-full px-4 py-2 bg-gray-300 text-black"
-          placeholder="Sucursal"
         />
 
-        {/* Fecha */}
         <label>Fecha</label>
         <input
           type="text"
@@ -220,7 +165,6 @@ const FormClient = () => {
           className="rounded-full text-center px-4 py-2 bg-gray-300 text-black"
         />
 
-        {/* Tipo de problema */}
         <label>Tipo de problema</label>
         <div className="flex bg-gray-300 rounded-full p-1 justify-between">
           <button
@@ -228,7 +172,9 @@ const FormClient = () => {
             onClick={() => {
               setProblemType("arreglo");
               setPaymentMethod("");
-              setEsSena(null);
+              setIsSena(null);
+              setAmount("");
+              setTotalTrabajo("");
             }}
             className={`px-4 py-2 rounded-full w-1/2 ${
               problemType === "arreglo"
@@ -243,7 +189,9 @@ const FormClient = () => {
             onClick={() => {
               setProblemType("presupuesto");
               setPaymentMethod("");
-              setEsSena(null);
+              setIsSena(null);
+              setAmount("");
+              setTotalTrabajo("");
             }}
             className={`px-4 py-2 rounded-full w-1/2 ${
               problemType === "presupuesto"
@@ -255,132 +203,87 @@ const FormClient = () => {
           </button>
         </div>
 
-        {/* Método de pago */}
         <label>Forma de pago</label>
-        <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-          {["efectivo", "transferencia", "ambos"].map((metodo) => (
-            <label key={metodo} className="flex items-center gap-2">
+        <div className="flex gap-2">
+          {["efectivo", "transferencia", "ambos"].map((opt) => (
+            <label key={opt} className="flex items-center gap-2">
               <input
                 type="radio"
-                name="metodo"
-                checked={paymentMethod === metodo}
-                onChange={() => {
-                  setPaymentMethod(metodo);
-                  setEsSena(null);
-                  setAmount("");
-                  setEfectivo("");
-                  setTransferencia("");
-                }}
+                name="formaPago"
+                checked={paymentMethod === opt}
+                onChange={() => setPaymentMethod(opt)}
               />
-              {metodo.charAt(0).toUpperCase() + metodo.slice(1)}
+              {opt.charAt(0).toUpperCase() + opt.slice(1)}
             </label>
           ))}
         </div>
 
-        {/* ¿Es seña? */}
         {paymentMethod && (
-          <>
+          <div>
             <label>¿Es seña?</label>
-            <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-              {["si", "no"].map((val) => (
-                <label key={val} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="sena"
-                    checked={esSena === val}
-                    onChange={() => {
-                      setEsSena(val);
-                      setAmount("");
-                      setEfectivo("");
-                      setTransferencia("");
-                      setTotalTrabajo("");
-                    }}
-                  />
-                  {val === "si" ? "Sí" : "No"}
-                </label>
-              ))}
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="isSena"
+                  value="si"
+                  checked={isSena === "si"}
+                  onChange={() => setIsSena("si")}
+                />{" "}
+                Sí
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="isSena"
+                  value="no"
+                  checked={isSena === "no"}
+                  onChange={() => setIsSena("no")}
+                />{" "}
+                No
+              </label>
             </div>
-          </>
+          </div>
         )}
 
-        {/* Campos si es SEÑA */}
-        {esSena === "si" && (
+        {paymentMethod && isSena && (
           <>
-            {paymentMethod === "ambos" && (
+            {isSena === "si" && (
               <>
                 <input
                   type="number"
-                  placeholder="Seña en efectivo"
-                  value={efectivo}
-                  onChange={(e) => setEfectivo(e.target.value)}
+                  placeholder="Seña"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
                   className="rounded-full px-4 py-2 bg-gray-300 text-black"
                 />
                 <input
                   type="number"
-                  placeholder="Seña en transferencia"
-                  value={transferencia}
-                  onChange={(e) => setTransferencia(e.target.value)}
+                  placeholder="Total del trabajo"
+                  value={totalTrabajo}
+                  onChange={(e) => setTotalTrabajo(e.target.value)}
                   className="rounded-full px-4 py-2 bg-gray-300 text-black"
                 />
               </>
             )}
-            {paymentMethod !== "ambos" && (
+            {isSena === "no" && (
               <input
                 type="number"
-                placeholder="Monto de la seña"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Total del trabajo"
+                value={totalTrabajo}
+                onChange={(e) => setTotalTrabajo(e.target.value)}
                 className="rounded-full px-4 py-2 bg-gray-300 text-black"
               />
             )}
-            <input
-              type="number"
-              placeholder="Total del trabajo"
-              value={totalTrabajo}
-              onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
           </>
         )}
 
-        {/* Campos si NO es SEÑA */}
-        {esSena === "no" && (
-          <>
-            {paymentMethod === "ambos" && (
-              <>
-                <input
-                  type="number"
-                  placeholder="Pago en efectivo"
-                  value={efectivo}
-                  onChange={(e) => setEfectivo(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
-                />
-                <input
-                  type="number"
-                  placeholder="Pago en transferencia"
-                  value={transferencia}
-                  onChange={(e) => setTransferencia(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
-                />
-              </>
-            )}
-            <input
-              type="number"
-              placeholder="Pago total del trabajo"
-              value={totalTrabajo}
-              onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
-            />
-          </>
-        )}
-
-        {/* Descripción */}
         <label>Descripción</label>
         <textarea
-          placeholder="Descripción"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="rounded-lg px-4 py-2 bg-gray-300 text-black min-h-[100px]"
+          placeholder="Describa el trabajo..."
         />
 
         <button

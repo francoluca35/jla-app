@@ -298,20 +298,7 @@ export default function HistoryClient() {
                       </div>
                       {!fueAnulada && esAnulable && !isEditing && (
                         <button
-                          onClick={async () => {
-                            const confirm = await Swal.fire({
-                              title: `¿Cancelar ${s.tipo}?`,
-                              text: "Esta acción marcará el servicio como anulado.",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonText: "Sí, cancelar",
-                              cancelButtonText: "No, mantener",
-                            });
-
-                            if (confirm.isConfirmed) {
-                              anularServicio(i);
-                            }
-                          }}
+                          onClick={() => anularServicio(i)}
                           className="text-sm text-red-600 hover:underline"
                         >
                           Cancelar {s.tipo}
