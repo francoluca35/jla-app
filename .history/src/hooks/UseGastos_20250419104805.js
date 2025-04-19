@@ -15,18 +15,17 @@ export const useGastos = ({ tipo, fecha, min, max }) => {
         if (max !== undefined) query.push(`max=${max}`);
 
         const res = await fetch(`/api/gastos?${query.join("&")}`);
-        const json = await res.json();
-        const data = Array.isArray(json) ? json : json.data || [];
-
-        const gastosConFechas = data.map((g) => ({
-          ...g,
-          fecha: new Date(g.fecha),
-        }));
+        const data = await res.json();
+        const gastosConFechas = Array.isArray(data)
+          ? data.map((g) => ({
+              ...g,
+              fecha: new Date(g.fecha),
+            }))
+          : [];
 
         setGastos(gastosConFechas);
       } catch (err) {
-        console.error("Error al obtener gastos:", err);
-        setGastos([]);
+        console.error(err);
       } finally {
         setLoading(false);
       }

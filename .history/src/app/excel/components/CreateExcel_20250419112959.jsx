@@ -124,7 +124,7 @@ const CreateExcel = () => {
       "Balance Neto": val.ingresos - val.gastos,
     }));
 
-    // Crear hojas
+    // Crear workbook
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       wb,
@@ -169,8 +169,8 @@ const CreateExcel = () => {
   };
 
   return (
-    <div className="min-h-screen  p-6 flex flex-col items-center justify-center">
-      <h2 className="text-3xl font-bold mb-6 text-white underline tracking-wide">
+    <div className="min-h-screen bg-gradient-to-br from-green-100 via-white to-green-200 p-6 flex flex-col items-center justify-center">
+      <h2 className="text-3xl font-bold mb-6 text-green-900 tracking-wide">
         Exportar Datos a Excel
       </h2>
 
