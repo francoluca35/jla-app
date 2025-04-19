@@ -70,7 +70,7 @@ export default function Home() {
     <div
       className="min-h-screen bg-white p-4 flex flex-col items-center gap-6"
       style={{
-        backgroundImage: "url('/Assets/home.jpg')",
+        backgroundImage: "url('/Assets/inicio.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -78,25 +78,25 @@ export default function Home() {
       {/* Header */}
       <div className="w-full flex justify-between items-center">
         <div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-100">
             {fechaHora.toLocaleDateString()}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-100">
             {fechaHora.toLocaleTimeString()}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <img
-            src="/avatar.png"
+            src="/Assets/logo.jpg"
             alt="Avatar"
-            className="w-10 h-10 rounded-full border"
+            className="w-10 h-10 rounded-full "
           />
           <div className="text-right">
-            <p className="text-sm font-bold text-gray-800">
+            <p className="text-sm font-bold text-white uppercase">
               {usuario.username}
             </p>
-            <p className="text-xs text-green-500 uppercase">{usuario.role}</p>
+            <p className="text-xs text-green-200 uppercase">{usuario.role}</p>
           </div>
           <button
             onClick={() => {
