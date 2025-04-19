@@ -256,54 +256,64 @@ const FormClient = () => {
         </div>
 
         {/* Método de pago */}
-        <label>Forma de pago</label>
-        <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-          {["efectivo", "transferencia", "ambos"].map((metodo) => (
-            <label key={metodo} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="metodo"
-                checked={paymentMethod === metodo}
-                onChange={() => {
+        <label className="font-semibold">Forma de pago</label>
+        <div className="flex gap-2">
+          {["efectivo", "transferencia", "ambos"].map((metodo) => {
+            const activo = paymentMethod === metodo;
+            return (
+              <button
+                key={metodo}
+                type="button"
+                onClick={() => {
                   setPaymentMethod(metodo);
                   setEsSena(null);
                   setAmount("");
                   setEfectivo("");
                   setTransferencia("");
                 }}
-              />
-              {metodo.charAt(0).toUpperCase() + metodo.slice(1)}
-            </label>
-          ))}
+                className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-200 border ${
+                  activo
+                    ? "bg-green-500 text-white border-green-600 shadow-md"
+                    : "bg-gray-300 text-black border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {metodo.charAt(0).toUpperCase() + metodo.slice(1)}
+              </button>
+            );
+          })}
         </div>
 
-        {/* ¿Es seña? */}
         {paymentMethod && (
           <>
-            <label>¿Es seña?</label>
-            <div className="bg-white text-black p-2 rounded-md flex gap-4 justify-around">
-              {["si", "no"].map((val) => (
-                <label key={val} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="sena"
-                    checked={esSena === val}
-                    onChange={() => {
+            <label className="font-semibold">¿Es seña?</label>
+            <div className="flex gap-2">
+              {["si", "no"].map((val) => {
+                const activo = esSena === val;
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => {
                       setEsSena(val);
                       setAmount("");
                       setEfectivo("");
                       setTransferencia("");
                       setTotalTrabajo("");
                     }}
-                  />
-                  {val === "si" ? "Sí" : "No"}
-                </label>
-              ))}
+                    className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-200 border ${
+                      activo
+                        ? "bg-green-500 text-white border-green-600 shadow-md"
+                        : "bg-gray-300 text-black border-gray-300 hover:bg-gray-100"
+                    }`}
+                  >
+                    {val === "si" ? "Sí" : "No"}
+                  </button>
+                );
+              })}
             </div>
           </>
         )}
 
-        {/* Campos si es SEÑA */}
         {esSena === "si" && (
           <>
             {paymentMethod === "ambos" && (
@@ -343,7 +353,6 @@ const FormClient = () => {
           </>
         )}
 
-        {/* Campos si NO es SEÑA */}
         {esSena === "no" && (
           <>
             {paymentMethod === "ambos" && (
@@ -374,7 +383,6 @@ const FormClient = () => {
           </>
         )}
 
-        {/* Descripción */}
         <label>Descripción</label>
         <textarea
           placeholder="Descripción"
