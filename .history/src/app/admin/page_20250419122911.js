@@ -39,7 +39,7 @@ export default function AdminAuth() {
     >
       <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
         <div className="flex justify-center mb-6">
-          <div className="w-36 h-36 rounded-full overflow-hidden  shadow-lg">
+          <div className="w-24 h-24 rounded-full overflow-hidden  shadow-lg">
             <img
               src="/Assets/logo.jpg"
               alt="Login Logo"
@@ -95,6 +95,8 @@ export default function AdminAuth() {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+
+          {/* Mostrar contraseña */}
 
           {/* Botón */}
           <button
