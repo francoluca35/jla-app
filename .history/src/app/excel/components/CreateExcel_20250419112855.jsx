@@ -124,7 +124,7 @@ const CreateExcel = () => {
       "Balance Neto": val.ingresos - val.gastos,
     }));
 
-    // Crear hojas
+    // Crear workbook
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       wb,
@@ -169,25 +169,19 @@ const CreateExcel = () => {
   };
 
   return (
-    <div className="min-h-screen  p-6 flex flex-col items-center justify-center">
-      <h2 className="text-3xl font-bold mb-6 text-white underline tracking-wide">
-        Exportar Datos a Excel
-      </h2>
-
-      <div className="flex flex-col sm:flex-row gap-4 items-center mb-6 bg-white p-6 rounded-xl shadow-lg border border-green-300">
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h2 className="text-2xl font-bold mb-4">Exportar Datos a Excel</h2>
+      <div className="flex gap-4 items-center mb-6">
         <DatePicker.RangePicker
           format="DD/MM/YYYY"
           onChange={(values) => {
             if (!values) return setRange([]);
             setRange([values[0].toDate(), values[1].toDate()]);
           }}
-          className="!rounded-lg !border-green-400 !shadow-sm hover:!border-green-600 transition-all"
-          popupClassName="rounded-lg shadow-lg border border-green-300"
         />
-
         <button
           onClick={generarExcel}
-          className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition duration-300"
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
         >
           Generar Excel
         </button>

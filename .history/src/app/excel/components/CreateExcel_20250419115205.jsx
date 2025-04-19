@@ -170,7 +170,7 @@ const CreateExcel = () => {
 
   return (
     <div className="min-h-screen  p-6 flex flex-col items-center justify-center">
-      <h2 className="text-3xl font-bold mb-6 text-white underline tracking-wide">
+      <h2 className="text-3xl font-bold mb-6 text-white tracking-wide">
         Exportar Datos a Excel
       </h2>
 
