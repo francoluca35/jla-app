@@ -39,17 +39,13 @@ export default function AdminAuth() {
     >
       <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
         <div className="flex justify-center mb-6">
-          <div className="w-36 h-36 rounded-full overflow-hidden  shadow-lg">
-            <img
-              src="/Assets/logo.jpg"
-              alt="Login Logo"
-              className="w-full h-full object-cover"
-            />
+          <div className="w-24 h-24 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/20 rounded-full" />
           </div>
         </div>
 
         <h2 className="text-center text-lg font-bold mb-6 tracking-wide uppercase">
-          Iniciar sesión
+          Login
         </h2>
 
         {(authError || error) && (
@@ -58,49 +54,57 @@ export default function AdminAuth() {
           </p>
         )}
 
-        <form onSubmit={handleAuth} className="space-y-6 w-full">
+        <form onSubmit={handleAuth} className="space-y-5">
           {/* Email */}
           <div className="relative">
+            <Mail className="absolute left-3 top-3.5 text-white/70" size={18} />
             <input
               type="text"
-              placeholder="Email"
+              placeholder="Email ID"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
+              className="w-full bg-transparent border-b border-white/30 text-white pl-10 pb-2 pt-3 focus:outline-none focus:border-verdefluor placeholder-white/50"
               required
             />
-            <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
-              Email
-            </label>
           </div>
 
           {/* Password */}
           <div className="relative">
+            <Lock className="absolute left-3 top-3.5 text-white/70" size={18} />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
+              className="w-full bg-transparent border-b border-white/30 text-white pl-10 pb-2 pt-3 focus:outline-none focus:border-verdefluor placeholder-white/50"
               required
             />
-            <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
-              Password
-            </label>
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-4 text-white/60"
+              className="absolute right-3 top-3 text-white/60"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-          {/* Botón */}
+          {/* Checkbox */}
+          <div className="flex items-center gap-2 text-sm">
+            <input
+              id="showPass"
+              type="checkbox"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              className="accent-verdefluor"
+            />
+            <label htmlFor="showPass">Mostrar contraseña</label>
+          </div>
+
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-green-500 to-green-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
+            className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
           >
             {loading ? "Ingresando..." : "LOGIN"}
           </button>

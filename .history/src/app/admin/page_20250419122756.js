@@ -39,7 +39,7 @@ export default function AdminAuth() {
     >
       <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
         <div className="flex justify-center mb-6">
-          <div className="w-36 h-36 rounded-full overflow-hidden  shadow-lg">
+          <div className="w-24 h-24 rounded-full overflow-hidden  shadow-lg">
             <img
               src="/Assets/logo.jpg"
               alt="Login Logo"
@@ -69,7 +69,7 @@ export default function AdminAuth() {
               className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
               required
             />
-            <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
+            <label className="absolute left-2 top-4 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
               Email
             </label>
           </div>
@@ -84,7 +84,7 @@ export default function AdminAuth() {
               className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
               required
             />
-            <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
+            <label className="absolute left-2 top-2 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
               Password
             </label>
             <button
@@ -96,11 +96,23 @@ export default function AdminAuth() {
             </button>
           </div>
 
+          {/* Mostrar contraseña */}
+          <div className="flex items-center gap-2 text-sm text-white/70">
+            <input
+              id="showPass"
+              type="checkbox"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              className="accent-verdefluor w-4 h-4"
+            />
+            <label htmlFor="showPass">Mostrar contraseña</label>
+          </div>
+
           {/* Botón */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-green-500 to-green-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
+            className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
           >
             {loading ? "Ingresando..." : "LOGIN"}
           </button>
