@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 import { Eye, EyeOff, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
