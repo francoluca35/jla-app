@@ -1,0 +1,157 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  CalendarPlus,
+  PiggyBank,
+  Users,
+  ReceiptText,
+  Power,
+  ChartNoAxesCombined,
+  FileSpreadsheet,
+} from "lucide-react";
+
+export default function Home() {
+  const [fechaHora, setFechaHora] = useState(new Date());
+  const [usuario, setUsuario] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("adminUser");
+    if (storedUser) {
+      setUsuario(JSON.parse(storedUser));
+    } else {
+      setUsuario({ username: "Admin", role: "COORDINADOR" });
+    }
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setFechaHora(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const botones = [
+    {
+      texto: "Agenda de Clientes",
+      ruta: "/agendaclient",
+      icono: <CalendarPlus className="w-6 h-6 mb-1" />,
+    },
+    {
+      texto: "Ingreso de Gastos",
+      ruta: "/gastos",
+      icono: <PiggyBank className="w-6 h-6 mb-1" />,
+    },
+    {
+      texto: "Historial Clientes",
+      ruta: "/hclientes",
+      icono: <Users className="w-6 h-6 mb-1" />,
+    },
+    {
+      texto: "Historial de Gastos",
+      ruta: "/hgastos",
+      icono: <ReceiptText className="w-6 h-6 mb-1" />,
+    },
+    {
+      texto: "Historial de Ingresos",
+      ruta: "/hingresos",
+      icono: <ChartNoAxesCombined className="w-6 h-6 mb-1" />,
+    },
+    {
+      texto: "Informes Semanales",
+      ruta: "/excel",
+      icono: <FileSpreadsheet className="w-6 h-6 mb-1" />,
+    },
+  ];
+
+  if (!usuario) return <div className="p-6">Cargando usuario...</div>;
+
+  return (
+    <div
+      className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center gap-10 px-4 py-10"
+      style={{
+        backgroundImage: "url('/Assets/inicio.jpg')",
+      }}
+    >
+      {/* Fecha y usuario */}
+      <div className="absolute top-4 left-4 text-white text-sm text-left">
+        <p>{fechaHora.toLocaleDateString()}</p>
+        <p className="text-xs">{fechaHora.toLocaleTimeString()}</p>
+      </div>
+
+      <div className="absolute top-4 right-4 flex items-center gap-3 text-white">
+        <img
+          src="/Assets/logo.jpg"
+          alt="Avatar"
+          className="w-8 h-8 rounded-full"
+        />
+        <div className="text-right">
+          <p className="text-sm font-bold uppercase">{usuario.username}</p>
+          <p className="text-xs text-green-300 uppercase">{usuario.role}</p>
+        </div>
+        <button
+          onClick={() => {
+            localStorage.removeItem("adminUser");
+            router.push("/admin");
+          }}
+          className="text-red-500 hover:text-red-700"
+          title="Cerrar sesión"
+        >
+          <Power className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-green-900 bg-opacity-90 rounded-lg p-6 backdrop-blur-md shadow-lg text-sm w-full max-w-md text-white">
+        <table className="table-auto border-collapse w-full text-center">
+          <thead>
+            <tr>
+              <th className="p-2 border border-white/30">Datos</th>
+              <th className="p-2 border border-white/30">Semanal</th>
+              <th className="p-2 border border-white/30">Mensual</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="p-2 border border-white/30">Clientes</td>
+              <td className="p-2 border border-white/30">clientes nuevos</td>
+              <td className="p-2 border border-white/30">clientes nuevos</td>
+            </tr>
+            <tr>
+              <td className="p-2 border border-white/30">Gastos</td>
+              <td className="p-2 border border-white/30">
+                total gasto semanal
+              </td>
+              <td className="p-2 border border-white/30">
+                total gasto mensual
+              </td>
+            </tr>
+            <tr>
+              <td className="p-2 border border-white/30">Ingresos</td>
+              <td className="p-2 border border-white/30">
+                total ingreso semanal
+              </td>
+              <td className="p-2 border border-white/30">
+                total ingreso mensual
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Botones */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-4xl px-2 mt-6">
+        {botones.map((btn, i) => (
+          <button
+            key={i}
+            onClick={() => router.push(btn.ruta)}
+            className="bg-verdefluor hover:bg-green-600 text-black font-bold rounded-2xl h-36 flex flex-col items-center justify-center text-lg shadow-xl transition text-center"
+          >
+            {btn.icono}
+            <span className="text-center px-2">{btn.texto}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

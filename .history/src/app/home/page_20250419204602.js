@@ -110,7 +110,7 @@ export default function Home() {
               <LogOut size={16} /> Cerrar sesión
             </button>
             <button
-              onClick={() => router.push("/cambiarcontrasena")}
+              onClick={() => router.push("/cambiarcontraseña")}
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
             >
               <KeyRound size={16} /> Cambiar contraseña
