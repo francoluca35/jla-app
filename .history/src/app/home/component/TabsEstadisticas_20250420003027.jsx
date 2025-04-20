@@ -7,7 +7,7 @@ import useIngresos from "@/hooks/useIngresos";
 function TabsEstadisticas() {
   const { clientes, calcularClientesNuevos } = useClientes();
   const { calcularGastosPorSemanaYMes } = useGastos({});
-  const { data } = useIngresos(); // Usamos el estado 'data' de 'useIngresos'
+  const { data } = useIngresos(); // Usamos el estado data de useIngresos
 
   // Agregamos el estado para los ingresos
   const [ingresos, setIngresos] = useState({ semanal: 0, mensual: 0 });
@@ -18,9 +18,6 @@ function TabsEstadisticas() {
   const [gastos, setGastos] = useState({ semanal: 0, mensual: 0 });
 
   useEffect(() => {
-    // Verifica que 'data' y 'data.clientes' estén definidos
-    if (!data || !data.clientes) return;
-
     // Calcular clientes nuevos, gastos e ingresos
     const { nuevosPorSemana, nuevosPorMes } = calcularClientesNuevos();
     const { totalPorSemana: totalGastosSemana, totalPorMes: totalGastosMes } =
