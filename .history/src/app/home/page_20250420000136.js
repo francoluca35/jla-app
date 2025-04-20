@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState, Suspense } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CalendarPlus,
@@ -13,7 +14,6 @@ import {
   LogOut,
   KeyRound,
 } from "lucide-react";
-import TabsEstadisticas from "./component/TabsEstadisticas";
 
 export default function Home() {
   const [fechaHora, setFechaHora] = useState(new Date());
@@ -121,6 +121,44 @@ export default function Home() {
 
       {/* Layout central con tabla y botones */}
       <div className="flex flex-col-reverse lg:flex-row items-center justify-center gap-12 w-full px-4 pt-20">
+        {/* Tabla */}
+        <div className="bg-verdefluor bg-opacity-90 rounded-lg p-6 backdrop-blur-md shadow-lg text-sm w-full max-w-xs text-white">
+          <table className="table-auto border-collapse w-full text-center">
+            <thead>
+              <tr>
+                <th className="p-2 border border-white/30">Datos</th>
+                <th className="p-2 border border-white/30">Semanal</th>
+                <th className="p-2 border border-white/30">Mensual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="p-2 border border-white/30">Clientes</td>
+                <td className="p-2 border border-white/30">clientes nuevos</td>
+                <td className="p-2 border border-white/30">clientes nuevos</td>
+              </tr>
+              <tr>
+                <td className="p-2 border border-white/30">Gastos</td>
+                <td className="p-2 border border-white/30">
+                  total gasto semanal
+                </td>
+                <td className="p-2 border border-white/30">
+                  total gasto mensual
+                </td>
+              </tr>
+              <tr>
+                <td className="p-2 border border-white/30">Ingresos</td>
+                <td className="p-2 border border-white/30">
+                  total ingreso semanal
+                </td>
+                <td className="p-2 border border-white/30">
+                  total ingreso mensual
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         {/* Botones */}
         <div className="grid grid-cols-2 gap-6 w-full max-w-xl">
           {botones.map((btn, i) => (
@@ -136,13 +174,6 @@ export default function Home() {
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Tabla centrada dentro de Suspense */}
-      <div className="mt-12 w-full flex justify-center">
-        <Suspense fallback={<div>Loading...</div>}>
-          <TabsEstadisticas />
-        </Suspense>
       </div>
     </div>
   );

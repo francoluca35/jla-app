@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState, Suspense } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CalendarPlus,
@@ -121,6 +122,8 @@ export default function Home() {
 
       {/* Layout central con tabla y botones */}
       <div className="flex flex-col-reverse lg:flex-row items-center justify-center gap-12 w-full px-4 pt-20">
+        <TabsEstadisticas />
+
         {/* Botones */}
         <div className="grid grid-cols-2 gap-6 w-full max-w-xl">
           {botones.map((btn, i) => (
@@ -136,13 +139,6 @@ export default function Home() {
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Tabla centrada dentro de Suspense */}
-      <div className="mt-12 w-full flex justify-center">
-        <Suspense fallback={<div>Loading...</div>}>
-          <TabsEstadisticas />
-        </Suspense>
       </div>
     </div>
   );
