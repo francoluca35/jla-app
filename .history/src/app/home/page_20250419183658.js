@@ -10,15 +10,11 @@ import {
   Power,
   ChartNoAxesCombined,
   FileSpreadsheet,
-  ChevronDown,
-  LogOut,
-  KeyRound,
 } from "lucide-react";
 
 export default function Home() {
   const [fechaHora, setFechaHora] = useState(new Date());
   const [usuario, setUsuario] = useState(null);
-  const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -80,49 +76,32 @@ export default function Home() {
         <p>{fechaHora.toLocaleDateString()}</p>
         <p className="text-xs">{fechaHora.toLocaleTimeString()}</p>
       </div>
-      <div className="absolute top-4 right-4 text-white text-sm flex flex-col items-end">
-        <div className="flex items-center gap-2">
-          <img
-            src="/Assets/logo.jpg"
-            alt="Avatar"
-            className="w-8 h-8 rounded-full"
-          />
-          <div className="text-right">
-            <p className="text-sm font-bold uppercase">{usuario.username}</p>
-            <p className="text-xs text-green-300 uppercase">{usuario.role}</p>
-          </div>
-          <button
-            onClick={() => setShowMenu((prev) => !prev)}
-            className="text-white hover:text-verdefluor focus:outline-none"
-          >
-            <ChevronDown className="w-5 h-5" />
-          </button>
+      <div className="absolute top-4 right-4 flex items-center gap-3 text-white">
+        <img
+          src="/Assets/logo.jpg"
+          alt="Avatar"
+          className="w-8 h-8 rounded-full"
+        />
+        <div className="text-right">
+          <p className="text-sm font-bold uppercase">{usuario.username}</p>
+          <p className="text-xs text-green-300 uppercase">{usuario.role}</p>
         </div>
-        {showMenu && (
-          <div className="mt-2 bg-white text-black rounded shadow-md w-48 z-50">
-            <button
-              onClick={() => {
-                localStorage.removeItem("adminUser");
-                router.push("/admin");
-              }}
-              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
-            >
-              <LogOut size={16} /> Cerrar sesión
-            </button>
-            <button
-              onClick={() => router.push("/cambiarcontrasena")}
-              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
-            >
-              <KeyRound size={16} /> Cambiar contraseña
-            </button>
-          </div>
-        )}
+        <button
+          onClick={() => {
+            localStorage.removeItem("adminUser");
+            router.push("/admin");
+          }}
+          className="text-red-500 hover:text-red-700"
+          title="Cerrar sesión"
+        >
+          <Power className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Layout central con tabla y botones */}
       <div className="flex flex-col-reverse lg:flex-row items-center justify-center gap-12 w-full px-4 pt-20">
         {/* Tabla */}
-        <div className="bg-verdefluor bg-opacity-90 rounded-lg p-6 backdrop-blur-md shadow-lg text-sm w-full max-w-xs text-white">
+        <div className="bg-green-900 bg-opacity-90 rounded-lg p-6 backdrop-blur-md shadow-lg text-sm w-full max-w-xs text-white">
           <table className="table-auto border-collapse w-full text-center">
             <thead>
               <tr>

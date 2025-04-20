@@ -80,26 +80,25 @@ export default function Home() {
         <p>{fechaHora.toLocaleDateString()}</p>
         <p className="text-xs">{fechaHora.toLocaleTimeString()}</p>
       </div>
-      <div className="absolute top-4 right-4 text-white text-sm flex flex-col items-end">
-        <div className="flex items-center gap-2">
-          <img
-            src="/Assets/logo.jpg"
-            alt="Avatar"
-            className="w-8 h-8 rounded-full"
-          />
-          <div className="text-right">
-            <p className="text-sm font-bold uppercase">{usuario.username}</p>
-            <p className="text-xs text-green-300 uppercase">{usuario.role}</p>
-          </div>
-          <button
-            onClick={() => setShowMenu((prev) => !prev)}
-            className="text-white hover:text-verdefluor focus:outline-none"
-          >
-            <ChevronDown className="w-5 h-5" />
-          </button>
+      <div className="absolute top-4 right-4 flex items-center gap-3 text-white relative">
+        <img
+          src="/Assets/logo.jpg"
+          alt="Avatar"
+          className="w-8 h-8 rounded-full"
+        />
+        <div className="text-right">
+          <p className="text-sm font-bold uppercase">{usuario.username}</p>
+          <p className="text-xs text-green-300 uppercase">{usuario.role}</p>
         </div>
+        <button
+          onClick={() => setShowMenu((prev) => !prev)}
+          className="text-white hover:text-verdefluor focus:outline-none"
+        >
+          <ChevronDown className="w-5 h-5" />
+        </button>
+
         {showMenu && (
-          <div className="mt-2 bg-white text-black rounded shadow-md w-48 z-50">
+          <div className="absolute top-10 right-0 bg-white text-black rounded shadow-md w-48 z-50">
             <button
               onClick={() => {
                 localStorage.removeItem("adminUser");
@@ -110,7 +109,7 @@ export default function Home() {
               <LogOut size={16} /> Cerrar sesión
             </button>
             <button
-              onClick={() => router.push("/cambiarcontrasena")}
+              onClick={() => router.push("/admin/cambiar-password")}
               className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
             >
               <KeyRound size={16} /> Cambiar contraseña
