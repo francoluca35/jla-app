@@ -12,6 +12,7 @@ export default function AdminAuth() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [useFingerprint, setUseFingerprint] = useState(false); // Nueva variable de estado
 
   // Manejar el login con contraseña
   const handleAuth = async (e) => {
@@ -96,14 +97,51 @@ export default function AdminAuth() {
             </button>
           </div>
 
-          {/* Login with password */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-green-500 to-green-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
-          >
-            {loading ? "Ingresando..." : "LOGIN"}
-          </button>
+          {/* Opción para elegir entre huella o contraseña */}
+          <div className="flex justify-center gap-4 mb-6">
+            <button
+              type="button"
+              onClick={() => setUseFingerprint(false)} // Elegir login por contraseña
+              className={`px-6 py-3 rounded font-semibold ${
+                !useFingerprint
+                  ? "bg-green-300 text-black"
+                  : "bg-green-700 text-white"
+              }`}
+            >
+              Contraseña
+            </button>
+            <button
+              type="button"
+              onClick={() => setUseFingerprint(true)} // Elegir login por huella
+              className={`px-6 py-3 rounded font-semibold ${
+                useFingerprint
+                  ? "bg-green-300 text-black"
+                  : "bg-green-700 text-white"
+              }`}
+            >
+              Huella Digital
+            </button>
+          </div>
+
+          {/* Condicionalmente mostrar login con huella o con contraseña */}
+          {useFingerprint ? (
+            <button
+              type="button"
+              onClick={handleFingerprintLogin}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition mt-4"
+            >
+              {loading ? "Autenticando..." : "Iniciar sesión con huella"}
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-green-500 to-green-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
+            >
+              {loading ? "Ingresando..." : "LOGIN"}
+            </button>
+          )}
         </form>
       </div>
     </div>
