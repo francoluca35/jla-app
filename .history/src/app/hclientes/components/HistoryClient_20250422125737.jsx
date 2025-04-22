@@ -59,6 +59,7 @@ export default function HistoryClient() {
     // Asegúrate de que el campo amount sea igual a totalTrabajo
     const updatedClient = {
       ...editedClient,
+      amount: totalTrabajo, // Sincronizar amount con totalTrabajo
     };
 
     // Guardar cambios en el cliente
@@ -321,7 +322,7 @@ export default function HistoryClient() {
                             }}
                           />
                         ) : (
-                          <span className="block">${s.monto}</span>
+                          <span className="block">${s.mont}</span>
                         )}
                         {fueAnulada && (
                           <span className="text-sm">(anulado)</span>
@@ -357,10 +358,9 @@ export default function HistoryClient() {
                   <span className="font-semibold">Total por pagar:</span>
                   <span className="font-semibold text-red-600">
                     $
-                    {selectedClient.amount -
-                      selectedClient.sertec.find(
-                        (service) => service.tipo === "seña transferencia"
-                      )?.monto}
+                    {selectedClient.sertec.find(
+                      (service) => service.tipo === "seña transferencia"
+                    )?.monto - selectedClient.amount}
                   </span>
                 </li>
               </ul>

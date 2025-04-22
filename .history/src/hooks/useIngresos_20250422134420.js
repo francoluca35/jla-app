@@ -120,30 +120,8 @@ function useIngresos() {
     }
   };
 
-  const calcularTotalCombinado = () => {
-    if (!data || !data.clientes) return 0;
-
-    // Calcular total de "arreglos"
-    const totalArreglos = data.clientes
-      .filter((cliente) => cliente.problemType === "arreglo")
-      .reduce((total, cliente) => total + cliente.amount, 0);
-
-    // Calcular total de "presupuestos" con estado "terminado"
-    const totalPresupuestos = data.clientes
-      .filter(
-        (cliente) =>
-          cliente.problemType === "presupuesto" &&
-          cliente.estado === "terminado"
-      )
-      .reduce((total, cliente) => total + cliente.amount, 0);
-
-    // Retornar el total combinado
-    return totalArreglos + totalPresupuestos;
-  };
-
   return {
     calcularTotal,
-    calcularTotalCombinado,
     obtenerFiltrados,
     setFiltro,
     filtro,

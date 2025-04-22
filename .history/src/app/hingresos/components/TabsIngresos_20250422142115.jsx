@@ -99,7 +99,11 @@ function TabsIngresos() {
               : "bg-verdepanel text-white"
           }`}
         >
-          Todos
+          Todos{" "}
+          <span className="ml-2 font-semibold">
+            ${calcularTotalCombinado()}
+          </span>{" "}
+          {/* Mostrar total combinado aquí */}
         </button>
         <button
           key="servicioT"
@@ -290,10 +294,7 @@ function TabsIngresos() {
                 Total
               </td>
               <td className="p-3 border border-green-700">
-                $
-                {filtro === "todos"
-                  ? calcularTotalCombinado()
-                  : calcularTotal()}
+                ${calcularTotal()}
               </td>
             </tr>
           </tfoot>

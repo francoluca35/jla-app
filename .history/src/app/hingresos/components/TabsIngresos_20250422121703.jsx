@@ -5,7 +5,6 @@ import useIngresos from "@/hooks/useIngresos";
 function TabsIngresos() {
   const {
     calcularTotal,
-    calcularTotalCombinado,
     obtenerFiltrados,
     setFiltro,
     filtro,
@@ -44,32 +43,19 @@ function TabsIngresos() {
 
   const handleEditar = () => {
     if (seleccionados.length !== 1) return alert("Seleccioná uno solo");
-
     const item = datos.find((i) => i._id === seleccionados[0]);
     setEditando(item);
-
-    // Asegúrate de que estamos copiando correctamente los datos del item seleccionado
     setForm({
       clientName: item.clientName || "",
       branch: item.branch || "",
       problemType: item.problemType || "",
       paymentOption: item.paymentOption || "",
-      amount: item.amount || "", // Asegurarte de que amount es el correcto
+      amount: item.amount || "",
     });
   };
 
   const confirmarEdicion = async () => {
-    // Obtener el monto modificado y asegurarse de que es un número válido
-    const updatedData = {
-      ...form,
-      amount: parseFloat(form.amount), // Asegurarse de que el monto es un número
-    };
-
-    // Actualizar el ingreso en la base de datos
-    await editarIngreso(editando._id, updatedData);
-
-    // Refrescar los datos después de guardar
-    refetch(); // Esto asegura que los datos sean recargados después de editar
+    await editarIngreso(editando._id, form);
     setModoEditar(false);
     setEditando(null);
     setSeleccionados([]);
@@ -89,36 +75,33 @@ function TabsIngresos() {
       </h1>
 
       {/* Filtros */}
-      <div className="flex justify-center gap-4 mb-6 flex-wrap justify-center">
+      <div className="flex justify-center gap-4 mb-6">
         <button
-          key="todos"
           onClick={() => setFiltro("todos")}
-          className={`rounded-full px-6 py-2 font-bold border-2 transition ${
+          className={`px-6 py-3 rounded font-semibold ${
             filtro === "todos"
-              ? "bg-verdefluor text-black"
-              : "bg-verdepanel text-white"
+              ? "bg-green-300 text-black"
+              : "bg-green-700 text-white"
           }`}
         >
           Todos
         </button>
         <button
-          key="servicioT"
           onClick={() => setFiltro("arreglo")}
-          className={`rounded-full px-6 py-2 font-bold border-2 transition ${
+          className={`px-6 py-3 rounded font-semibold ${
             filtro === "arreglo"
-              ? "bg-verdefluor text-black"
-              : "bg-verdepanel text-white"
+              ? "bg-green-300 text-black"
+              : "bg-green-700 text-white"
           }`}
         >
           Servicio T.
         </button>
         <button
-          key="presupuesto"
           onClick={() => setFiltro("presupuesto")}
-          className={`rounded-full px-6 py-2 font-bold border-2 transition ${
+          className={`px-6 py-3 rounded font-semibold ${
             filtro === "presupuesto"
-              ? "bg-verdefluor text-black"
-              : "bg-verdepanel text-white"
+              ? "bg-green-300 text-black"
+              : "bg-green-700 text-white"
           }`}
         >
           Presupuesto
@@ -290,10 +273,7 @@ function TabsIngresos() {
                 Total
               </td>
               <td className="p-3 border border-green-700">
-                $
-                {filtro === "todos"
-                  ? calcularTotalCombinado()
-                  : calcularTotal()}
+                ${calcularTotal()}
               </td>
             </tr>
           </tfoot>

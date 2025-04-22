@@ -289,8 +289,8 @@ function TabsIngresos() {
               >
                 Total
               </td>
+              <p>$</p>
               <td className="p-3 border border-green-700">
-                $
                 {filtro === "todos"
                   ? calcularTotalCombinado()
                   : calcularTotal()}

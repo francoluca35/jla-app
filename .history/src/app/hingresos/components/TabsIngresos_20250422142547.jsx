@@ -100,6 +100,7 @@ function TabsIngresos() {
           }`}
         >
           Todos
+          {/* Mostrar total combinado aquí */}
         </button>
         <button
           key="servicioT"
@@ -111,6 +112,7 @@ function TabsIngresos() {
           }`}
         >
           Servicio T.
+          {/* Mostrar total de "Servicio T." */}
         </button>
         <button
           key="presupuesto"
@@ -122,6 +124,10 @@ function TabsIngresos() {
           }`}
         >
           Presupuesto
+          {/* Mostrar total de "Presupuesto" */}
+          <span className="ml-2 font-semibold">
+            ${filtro === "presupuesto" ? calcularTotal() : 0}
+          </span>
         </button>
       </div>
 
@@ -290,7 +296,6 @@ function TabsIngresos() {
                 Total
               </td>
               <td className="p-3 border border-green-700">
-                $
                 {filtro === "todos"
                   ? calcularTotalCombinado()
                   : calcularTotal()}

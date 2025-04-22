@@ -59,6 +59,7 @@ export default function HistoryClient() {
     // Asegúrate de que el campo amount sea igual a totalTrabajo
     const updatedClient = {
       ...editedClient,
+      amount: totalTrabajo, // Sincronizar amount con totalTrabajo
     };
 
     // Guardar cambios en el cliente
@@ -178,29 +179,17 @@ export default function HistoryClient() {
 
             {isEditing ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800">
-                {[
+                {[ 
                   { label: "Nombre", key: "clientName" },
                   { label: "Sucursal", key: "branch" },
                   { label: "Tipo", key: "problemType" },
                   { label: "Forma de pago", key: "paymentOption" },
                   { label: "Método de pago", key: "paymentMethod" },
                   { label: "Efectivo", key: "efectivo", type: "number" },
-                  {
-                    label: "Transferencia",
-                    key: "transferencia",
-                    type: "number",
-                  },
-                  {
-                    label: "Total del trabajo",
-                    key: "totalTrabajo",
-                    type: "number",
-                  },
+                  { label: "Transferencia", key: "transferencia", type: "number" },
+                  { label: "Total del trabajo", key: "totalTrabajo", type: "number" },
                   { label: "Estado", key: "estado" },
-                  {
-                    label: "Descripción",
-                    key: "description",
-                    type: "textarea",
-                  },
+                  { label: "Descripción", key: "description", type: "textarea" },
                 ].map(({ label, key, type = "text" }) => (
                   <div key={key}>
                     <label className="block font-semibold text-green-700 mb-1">
@@ -299,145 +288,4 @@ export default function HistoryClient() {
                     <li
                       key={i}
                       className={`flex justify-between items-start gap-2 ${
-                        fueAnulada
-                          ? "line-through text-red-600 font-medium"
-                          : ""
-                      }`}
-                    >
-                      <div className="flex-1">
-                        <span className="block font-semibold">{s.tipo}</span>
-                        {isEditing ? (
-                          <input
-                            type="number"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm mt-1"
-                            value={editedClient?.sertec?.[i]?.monto}
-                            onChange={(e) => {
-                              const newSertec = [...editedClient.sertec];
-                              newSertec[i].monto = Number(e.target.value);
-                              setEditedClient({
-                                ...editedClient,
-                                sertec: newSertec,
-                              });
-                            }}
-                          />
-                        ) : (
-                          <span className="block">${s.monto}</span>
-                        )}
-                        {fueAnulada && (
-                          <span className="text-sm">(anulado)</span>
-                        )}
-                      </div>
-                      {!fueAnulada && esAnulable && !isEditing && (
-                        <button
-                          onClick={async () => {
-                            const confirm = await Swal.fire({
-                              title: `¿Cancelar ${s.tipo}?`,
-                              text: "Esta acción marcará el servicio como anulado.",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonText: "Sí, cancelar",
-                              cancelButtonText: "No, mantener",
-                            });
-
-                            if (confirm.isConfirmed) {
-                              anularServicio(i);
-                            }
-                          }}
-                          className="text-sm text-red-600 hover:underline"
-                        >
-                          Cancelar {s.tipo}
-                        </button>
-                      )}
-                    </li>
-                  );
-                })}
-
-                {/* Total pendiente por pagar */}
-                <li className="flex justify-between items-center gap-2">
-                  <span className="font-semibold">Total por pagar:</span>
-                  <span className="font-semibold text-red-600">
-                    $
-                    {selectedClient.amount -
-                      selectedClient.sertec.find(
-                        (service) => service.tipo === "seña transferencia"
-                      )?.monto}
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            {/* BOTONES */}
-            <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-3">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleGuardarCambios}
-                    className="w-full sm:w-auto flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg"
-                  >
-                    Guardar Cambios
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditedClient(null);
-                    }}
-                    className="w-full sm:w-auto flex-1 bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 rounded-lg"
-                  >
-                    Cancelar
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      setIsEditing(true);
-                      setEditedClient({
-                        ...selectedClient,
-                        sertec: [...selectedClient.sertec],
-                      });
-                    }}
-                    className="w-full sm:w-auto flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleEliminar(selectedClient._id)}
-                    className="w-full sm:w-auto flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg"
-                  >
-                    Eliminar
-                  </button>
-                  {selectedClient.estado !== "terminado" && (
-                    <button
-                      onClick={async () => {
-                        const actualizado = {
-                          ...selectedClient,
-                          estado: "terminado",
-                        };
-                        await editarCliente(actualizado);
-                        setSelectedClient(actualizado);
-                        refetch();
-                      }}
-                      className="w-full sm:w-auto flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
-                    >
-                      Marcar como terminado
-                    </button>
-                  )}
-                </>
-              )}
-              <button
-                onClick={() => {
-                  setSelectedClient(null);
-                  setIsEditing(false);
-                  setEditedClient(null);
-                }}
-                className="w-full sm:w-auto flex-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 rounded-lg"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+                        fueAnulada ? "line
