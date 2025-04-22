@@ -21,51 +21,17 @@ function useIngresos() {
   }, []);
 
   const calcularTotal = () => {
-    if (!data) return 0;
+    if (!data || !data.clientes) return 0;
 
-    // Para "arreglo", siempre se suman los montos, sin importar el estado
-    if (filtro === "arreglo") {
-      return data.clientes
-        .filter((cliente) => cliente.problemType === "arreglo")
-        .reduce((total, cliente) => total + cliente.amount, 0);
-    }
+    // Filtra solo los clientes de tipo "presupuesto" con estado "terminado"
+    const filteredData = data.clientes.filter((cliente) => {
+      return (
+        cliente.problemType === "presupuesto" && cliente.estado === "terminado"
+      );
+    });
 
-    // Para "presupuesto", solo se suman aquellos con estado "terminado"
-    if (filtro === "presupuesto") {
-      if (subFiltro === "todos") {
-        return data.clientes
-          .filter(
-            (cliente) =>
-              cliente.problemType === "presupuesto" &&
-              cliente.estado === "terminado"
-          )
-          .reduce((total, cliente) => total + cliente.amount, 0);
-      }
-
-      if (subFiltro === "seña") {
-        return data.clientes
-          .filter(
-            (cliente) =>
-              cliente.problemType === "presupuesto" &&
-              cliente.paymentOption === "seña" &&
-              cliente.estado === "terminado"
-          )
-          .reduce((total, cliente) => total + cliente.amount, 0);
-      }
-
-      if (subFiltro === "pago total") {
-        return data.clientes
-          .filter(
-            (cliente) =>
-              cliente.problemType === "presupuesto" &&
-              cliente.paymentOption === "pago total" &&
-              cliente.estado === "terminado"
-          )
-          .reduce((total, cliente) => total + cliente.amount, 0);
-      }
-    }
-
-    return 0;
+    // Sumar los montos de los clientes filtrados
+    return filteredData.reduce((total, cliente) => total + cliente.amount, 0);
   };
 
   const obtenerFiltrados = () => {
@@ -120,30 +86,8 @@ function useIngresos() {
     }
   };
 
-  const calcularTotalCombinado = () => {
-    if (!data || !data.clientes) return 0;
-
-    // Calcular total de "arreglos"
-    const totalArreglos = data.clientes
-      .filter((cliente) => cliente.problemType === "arreglo")
-      .reduce((total, cliente) => total + cliente.amount, 0);
-
-    // Calcular total de "presupuestos" con estado "terminado"
-    const totalPresupuestos = data.clientes
-      .filter(
-        (cliente) =>
-          cliente.problemType === "presupuesto" &&
-          cliente.estado === "terminado"
-      )
-      .reduce((total, cliente) => total + cliente.amount, 0);
-
-    // Retornar el total combinado
-    return totalArreglos + totalPresupuestos;
-  };
-
   return {
     calcularTotal,
-    calcularTotalCombinado,
     obtenerFiltrados,
     setFiltro,
     filtro,

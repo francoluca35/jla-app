@@ -59,6 +59,7 @@ export default function HistoryClient() {
     // Asegúrate de que el campo amount sea igual a totalTrabajo
     const updatedClient = {
       ...editedClient,
+      amount: totalTrabajo, // Sincronizar amount con totalTrabajo
     };
 
     // Guardar cambios en el cliente
@@ -190,11 +191,7 @@ export default function HistoryClient() {
                     key: "transferencia",
                     type: "number",
                   },
-                  {
-                    label: "Total del trabajo",
-                    key: "totalTrabajo",
-                    type: "number",
-                  },
+                  ,
                   { label: "Estado", key: "estado" },
                   {
                     label: "Descripción",
@@ -263,10 +260,7 @@ export default function HistoryClient() {
                     <strong>Transferencia:</strong> $
                     {selectedClient.transferencia}
                   </p>
-                  <p>
-                    <strong>Total del trabajo:</strong> $
-                    {selectedClient.totalTrabajo}
-                  </p>
+                  <p></p>
                   <p>
                     <strong>Estado:</strong> {selectedClient.estado}
                   </p>
@@ -310,7 +304,7 @@ export default function HistoryClient() {
                           <input
                             type="number"
                             className="w-full border border-gray-300 rounded px-3 py-2 text-sm mt-1"
-                            value={editedClient?.sertec?.[i]?.monto}
+                            value={editedClient?.sertec?.[i]?.monto || s.monto}
                             onChange={(e) => {
                               const newSertec = [...editedClient.sertec];
                               newSertec[i].monto = Number(e.target.value);
@@ -357,10 +351,9 @@ export default function HistoryClient() {
                   <span className="font-semibold">Total por pagar:</span>
                   <span className="font-semibold text-red-600">
                     $
-                    {selectedClient.amount -
-                      selectedClient.sertec.find(
-                        (service) => service.tipo === "seña transferencia"
-                      )?.monto}
+                    {selectedClient.sertec.find(
+                      (service) => service.tipo === "seña transferencia"
+                    )?.monto - selectedClient.amount}
                   </span>
                 </li>
               </ul>

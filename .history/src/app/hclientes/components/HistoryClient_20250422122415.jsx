@@ -54,17 +54,16 @@ export default function HistoryClient() {
   };
 
   const handleGuardarCambios = async () => {
-    const { totalTrabajo } = editedClient;
+    const { totalTrabajo, amount } = editedClient;
 
-    // Asegúrate de que el campo amount sea igual a totalTrabajo
-    const updatedClient = {
-      ...editedClient,
-    };
+    if (totalTrabajo !== amount) {
+      setEditedClient({
+        ...editedClient,
+        amount: totalTrabajo, // Aseguramos que amount sea igual a totalTrabajo
+      });
+    }
 
-    // Guardar cambios en el cliente
-    await editarCliente(updatedClient);
-
-    // Cambiar el estado de edición
+    await editarCliente(editedClient);
     setIsEditing(false);
     setSelectedClient(null);
     setEditedClient(null);
@@ -310,7 +309,7 @@ export default function HistoryClient() {
                           <input
                             type="number"
                             className="w-full border border-gray-300 rounded px-3 py-2 text-sm mt-1"
-                            value={editedClient?.sertec?.[i]?.monto}
+                            value={editedClient?.sertec?.[i]?.monto || s.monto}
                             onChange={(e) => {
                               const newSertec = [...editedClient.sertec];
                               newSertec[i].monto = Number(e.target.value);
@@ -351,18 +350,6 @@ export default function HistoryClient() {
                     </li>
                   );
                 })}
-
-                {/* Total pendiente por pagar */}
-                <li className="flex justify-between items-center gap-2">
-                  <span className="font-semibold">Total por pagar:</span>
-                  <span className="font-semibold text-red-600">
-                    $
-                    {selectedClient.amount -
-                      selectedClient.sertec.find(
-                        (service) => service.tipo === "seña transferencia"
-                      )?.monto}
-                  </span>
-                </li>
               </ul>
             </div>
 

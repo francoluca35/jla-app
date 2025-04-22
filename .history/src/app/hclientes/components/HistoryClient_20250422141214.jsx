@@ -59,6 +59,7 @@ export default function HistoryClient() {
     // Asegúrate de que el campo amount sea igual a totalTrabajo
     const updatedClient = {
       ...editedClient,
+      amount: totalTrabajo, // Sincronizar amount con totalTrabajo
     };
 
     // Guardar cambios en el cliente
@@ -68,7 +69,25 @@ export default function HistoryClient() {
     setIsEditing(false);
     setSelectedClient(null);
     setEditedClient(null);
-    refetch();
+    refetch(); // Refrescar los datos para asegurarse de que los cambios se reflejen
+  };
+  const handleGuardarCambios = async () => {
+    const { totalTrabajo } = editedClient;
+
+    // Asegúrate de que el campo amount sea igual a totalTrabajo
+    const updatedClient = {
+      ...editedClient,
+      amount: totalTrabajo, // Sincronizar amount con totalTrabajo
+    };
+
+    // Guardar cambios en el cliente
+    await editarCliente(updatedClient);
+
+    // Cambiar el estado de edición
+    setIsEditing(false);
+    setSelectedClient(null);
+    setEditedClient(null);
+    refetch(); // Refrescar los datos para asegurarse de que los cambios se reflejen
   };
 
   const anularServicio = async (index) => {

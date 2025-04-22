@@ -143,7 +143,6 @@ function useIngresos() {
 
   return {
     calcularTotal,
-    calcularTotalCombinado,
     obtenerFiltrados,
     setFiltro,
     filtro,

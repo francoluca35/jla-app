@@ -59,6 +59,7 @@ export default function HistoryClient() {
     // Asegúrate de que el campo amount sea igual a totalTrabajo
     const updatedClient = {
       ...editedClient,
+      amount: totalTrabajo, // Sincronizar amount con totalTrabajo
     };
 
     // Guardar cambios en el cliente
@@ -296,71 +297,17 @@ export default function HistoryClient() {
                   const esAnulable = anulables.includes(s.tipo);
 
                   return (
-                    <li
-                      key={i}
-                      className={`flex justify-between items-start gap-2 ${
-                        fueAnulada
-                          ? "line-through text-red-600 font-medium"
-                          : ""
-                      }`}
-                    >
-                      <div className="flex-1">
-                        <span className="block font-semibold">{s.tipo}</span>
-                        {isEditing ? (
-                          <input
-                            type="number"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm mt-1"
-                            value={editedClient?.sertec?.[i]?.monto}
-                            onChange={(e) => {
-                              const newSertec = [...editedClient.sertec];
-                              newSertec[i].monto = Number(e.target.value);
-                              setEditedClient({
-                                ...editedClient,
-                                sertec: newSertec,
-                              });
-                            }}
-                          />
-                        ) : (
-                          <span className="block">${s.monto}</span>
-                        )}
-                        {fueAnulada && (
-                          <span className="text-sm">(anulado)</span>
-                        )}
-                      </div>
-                      {!fueAnulada && esAnulable && !isEditing && (
-                        <button
-                          onClick={async () => {
-                            const confirm = await Swal.fire({
-                              title: `¿Cancelar ${s.tipo}?`,
-                              text: "Esta acción marcará el servicio como anulado.",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonText: "Sí, cancelar",
-                              cancelButtonText: "No, mantener",
-                            });
+                   
+                )}
 
-                            if (confirm.isConfirmed) {
-                              anularServicio(i);
-                            }
-                          }}
-                          className="text-sm text-red-600 hover:underline"
-                        >
-                          Cancelar {s.tipo}
-                        </button>
-                      )}
-                    </li>
-                  );
-                })}
 
-                {/* Total pendiente por pagar */}
                 <li className="flex justify-between items-center gap-2">
                   <span className="font-semibold">Total por pagar:</span>
                   <span className="font-semibold text-red-600">
                     $
-                    {selectedClient.amount -
-                      selectedClient.sertec.find(
-                        (service) => service.tipo === "seña transferencia"
-                      )?.monto}
+                    {selectedClient.sertec.find(
+                      (service) => service.tipo === "seña transferencia"
+                    )?.monto - selectedClient.amount}
                   </span>
                 </li>
               </ul>
