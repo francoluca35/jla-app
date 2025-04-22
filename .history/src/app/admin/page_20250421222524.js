@@ -1,71 +1,66 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import useLogin from "../../hooks/useLogin";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminAuth() {
   const router = useRouter();
-  const { login, loading, error } = useLogin();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [useFingerprint, setUseFingerprint] = useState(false); // Nueva variable de estado
-
-  // Manejar el login con contraseña
-  const handleAuth = async (e) => {
-    e.preventDefault();
-    setAuthError(null);
-
-    if (loading) return;
-
-    const validUser = await login(username, password);
-
-    if (validUser) {
-      localStorage.setItem("adminUser", JSON.stringify(validUser));
-      router.push("/home");
-    } else {
-      setAuthError("Usuario o contraseña incorrectos.");
-    }
-  };
-
+  const [error, setError] = useState(null); // Declaración del estado 'error'
+  const { login, loading } = useLogin();
+  // Función para manejar el login con huella digital
   const handleFingerprintLogin = async () => {
     try {
-      // Solicitar al backend el challenge para huella digital
+      console.log(
+        "Iniciando autenticación con huella para el usuario:",
+        username
+      );
+
+      // Solicitar challenge al backend
       const response = await fetch("/api/authenticate-fingerprint", {
         method: "POST",
-        body: JSON.stringify({ username }), // Solo enviar el username
+        body: JSON.stringify({ username }),
         headers: { "Content-Type": "application/json" },
       });
 
-      const { challenge } = await response.json();
-      if (!challenge) throw new Error("No se recibió challenge");
+      const data = await response.json();
+      console.log("Challenge recibido del backend:", data);
 
-      // Solicitar la credencial de huella digital
+      if (!data.challenge) throw new Error("No se recibió un challenge");
+
+      // Solicitar al navegador que registre la huella
       const credential = await navigator.credentials.get({
         publicKey: {
-          challenge: new TextEncoder().encode(challenge),
+          challenge: new TextEncoder().encode(data.challenge), // Challenge recibido
           allowCredentials: [
             {
               type: "public-key",
-              id: new TextEncoder().encode(username), // Solo credenciales relacionadas con el usuario
-              transports: ["internal"], // Solo dispositivos internos como la huella digital
+              id: new TextEncoder().encode(data.webAuthnCredential.id),
             },
           ],
           timeout: 60000,
         },
       });
 
-      // Enviar la credencial al backend para autenticar
+      console.log("Credential creada:", credential);
+
+      // Enviar la credencial al backend para autenticarla
       const authResponse = await fetch("/api/authenticate-fingerprint", {
         method: "POST",
-        body: JSON.stringify({ username, credential }),
+        body: JSON.stringify({
+          username,
+          credential,
+        }),
         headers: { "Content-Type": "application/json" },
       });
 
       const authData = await authResponse.json();
+      console.log("Resultado de la autenticación:", authData);
+
       if (authData.username) {
         localStorage.setItem("adminUser", JSON.stringify(authData));
         router.push("/home");
@@ -81,9 +76,7 @@ export default function AdminAuth() {
   return (
     <div
       className="min-h-screen bg-cover bg-center flex justify-center items-center"
-      style={{
-        backgroundImage: "url('/Assets/admin.jpg')",
-      }}
+      style={{ backgroundImage: "url('/Assets/admin.jpg')" }}
     >
       <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
         <div className="flex justify-center mb-6">
@@ -106,7 +99,7 @@ export default function AdminAuth() {
           </p>
         )}
 
-        <form onSubmit={handleAuth} className="space-y-6 w-full">
+        <form className="space-y-6 w-full">
           {/* Email */}
           <div className="relative">
             <input
@@ -148,7 +141,7 @@ export default function AdminAuth() {
           <div className="flex justify-center gap-4 mb-6">
             <button
               type="button"
-              onClick={() => setUseFingerprint(false)} // Elegir login por contraseña
+              onClick={() => setUseFingerprint(false)}
               className={`px-6 py-3 rounded font-semibold ${
                 !useFingerprint
                   ? "bg-green-300 text-black"
@@ -159,7 +152,7 @@ export default function AdminAuth() {
             </button>
             <button
               type="button"
-              onClick={() => setUseFingerprint(true)} // Elegir login por huella
+              onClick={() => setUseFingerprint(true)}
               className={`px-6 py-3 rounded font-semibold ${
                 useFingerprint
                   ? "bg-green-300 text-black"

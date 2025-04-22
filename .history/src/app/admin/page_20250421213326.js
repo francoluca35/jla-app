@@ -1,0 +1,131 @@
+// /components/AdminAuth.js
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import useLogin from "../../hooks/useLogin";
+import { Eye, EyeOff } from "lucide-react";
+
+export default function AdminAuth() {
+  const { login, loading, error } = useLogin();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loadingFingerprint, setLoadingFingerprint] = useState(false);
+  const router = useRouter();
+
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setAuthError(null);
+
+    if (loading) return;
+
+    const validUser = await login(username, password);
+
+    if (validUser) {
+      localStorage.setItem("adminUser", JSON.stringify(validUser));
+      router.push("/home");
+    } else {
+      setAuthError("Usuario o contraseña incorrectos.");
+    }
+  };
+
+  const handleFingerprintLogin = async () => {
+    try {
+      setLoadingFingerprint(true);
+      const response = await fetch("/api/authenticate-fingerprint", {
+        method: "POST",
+        body: JSON.stringify({ username }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      if (data.username) {
+        localStorage.setItem("adminUser", JSON.stringify(data));
+        router.push("/home");
+      } else {
+        setAuthError("Autenticación con huella fallida");
+      }
+    } catch (error) {
+      setAuthError("Error al autenticar con huella digital.");
+    } finally {
+      setLoadingFingerprint(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-cover bg-center flex justify-center items-center">
+      <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
+        <h2 className="text-center text-lg font-bold mb-6 tracking-wide uppercase">
+          Iniciar sesión
+        </h2>
+
+        {(authError || error) && (
+          <p className="text-red-400 text-sm mb-4 text-center">
+            {authError || error}
+          </p>
+        )}
+
+        <form onSubmit={handleAuth} className="space-y-6 w-full">
+          {/* Email */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Email"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
+              required
+            />
+            <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
+              Email
+            </label>
+          </div>
+
+          {/* Password */}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
+              required
+            />
+            <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-4 text-white/60"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {/* Botón de Login */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-green-500 to-green-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
+          >
+            {loading ? "Ingresando..." : "LOGIN"}
+          </button>
+
+          {/* Botón de Login por huella digital */}
+          <button
+            type="button"
+            onClick={handleFingerprintLogin}
+            disabled={loadingFingerprint}
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition mt-4"
+          >
+            {loadingFingerprint
+              ? "Autenticando..."
+              : "Iniciar sesión con huella"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

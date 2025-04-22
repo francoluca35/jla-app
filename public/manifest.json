@@ -1,0 +1,13 @@
+
+{
+  "name": "jla-app",
+  "short_name": "App",
+  "description": "Una aplicación increíble hecha con Next.js y PWA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+ 
+  ]
+}
