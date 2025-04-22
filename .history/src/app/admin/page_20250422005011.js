@@ -51,7 +51,7 @@ export default function AdminAuth() {
             {
               type: "public-key",
               id: new TextEncoder().encode(username), // Solo credenciales relacionadas con el usuario
-              transports: ["internal"], // Solo dispositivos internos como la huella digital
+              transports: ["internal"], // Esto limita los dispositivos que pueden ser utilizados (limitado a huella digital interna)
             },
           ],
           timeout: 60000,

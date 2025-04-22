@@ -34,7 +34,6 @@
     "react-dom": "19.1.0",
     "sweetalert2": "^11.18.0",
     "tailwindcss": "^2.2.19",
-    "workbox-webpack-plugin": "^7.3.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

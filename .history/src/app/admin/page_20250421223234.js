@@ -2,11 +2,17 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import useLogin from "../../hooks/useLogin";
+import useFingerprintLogin from "../../hooks/useFingerprintLogin"; // Importar el hook de huella digital
 import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminAuth() {
   const router = useRouter();
   const { login, loading, error } = useLogin();
+  const {
+    authenticateFingerprint,
+    loading: loadingFingerprint,
+    error: errorFingerprint,
+  } = useFingerprintLogin();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +20,6 @@ export default function AdminAuth() {
   const [showPassword, setShowPassword] = useState(false);
   const [useFingerprint, setUseFingerprint] = useState(false); // Nueva variable de estado
 
-  // Manejar el login con contraseña
   const handleAuth = async (e) => {
     e.preventDefault();
     setAuthError(null);
@@ -32,49 +37,13 @@ export default function AdminAuth() {
   };
 
   const handleFingerprintLogin = async () => {
-    try {
-      // Solicitar al backend el challenge para huella digital
-      const response = await fetch("/api/authenticate-fingerprint", {
-        method: "POST",
-        body: JSON.stringify({ username }), // Solo enviar el username
-        headers: { "Content-Type": "application/json" },
-      });
+    const result = await authenticateFingerprint(username);
 
-      const { challenge } = await response.json();
-      if (!challenge) throw new Error("No se recibió challenge");
-
-      // Solicitar la credencial de huella digital
-      const credential = await navigator.credentials.get({
-        publicKey: {
-          challenge: new TextEncoder().encode(challenge),
-          allowCredentials: [
-            {
-              type: "public-key",
-              id: new TextEncoder().encode(username), // Solo credenciales relacionadas con el usuario
-              transports: ["internal"], // Solo dispositivos internos como la huella digital
-            },
-          ],
-          timeout: 60000,
-        },
-      });
-
-      // Enviar la credencial al backend para autenticar
-      const authResponse = await fetch("/api/authenticate-fingerprint", {
-        method: "POST",
-        body: JSON.stringify({ username, credential }),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const authData = await authResponse.json();
-      if (authData.username) {
-        localStorage.setItem("adminUser", JSON.stringify(authData));
-        router.push("/home");
-      } else {
-        setAuthError("Autenticación con huella fallida");
-      }
-    } catch (error) {
-      console.error("Error al autenticar con huella digital:", error);
-      setAuthError("Error al autenticar con huella digital.");
+    if (result.success) {
+      localStorage.setItem("adminUser", JSON.stringify(result.user));
+      router.push("/home");
+    } else {
+      setAuthError(result.error || "Error al autenticar con huella digital.");
     }
   };
 
@@ -87,7 +56,7 @@ export default function AdminAuth() {
     >
       <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
         <div className="flex justify-center mb-6">
-          <div className="w-36 h-36 rounded-full overflow-hidden shadow-lg">
+          <div className="w-36 h-36 rounded-full overflow-hidden  shadow-lg">
             <img
               src="/Assets/logo.jpg"
               alt="Login Logo"
@@ -175,10 +144,12 @@ export default function AdminAuth() {
             <button
               type="button"
               onClick={handleFingerprintLogin}
-              disabled={loading}
+              disabled={loading || loadingFingerprint}
               className="w-full bg-gradient-to-r from-blue-500 to-blue-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition mt-4"
             >
-              {loading ? "Autenticando..." : "Iniciar sesión con huella"}
+              {loadingFingerprint
+                ? "Autenticando..."
+                : "Iniciar sesión con huella"}
             </button>
           ) : (
             <button

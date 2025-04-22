@@ -31,6 +31,7 @@ export default function AdminAuth() {
     }
   };
 
+  // Manejar el login con huella digital
   const handleFingerprintLogin = async () => {
     try {
       // Solicitar al backend el challenge para huella digital
@@ -50,8 +51,7 @@ export default function AdminAuth() {
           allowCredentials: [
             {
               type: "public-key",
-              id: new TextEncoder().encode(username), // Solo credenciales relacionadas con el usuario
-              transports: ["internal"], // Solo dispositivos internos como la huella digital
+              id: new TextEncoder().encode(username),
             },
           ],
           timeout: 60000,
