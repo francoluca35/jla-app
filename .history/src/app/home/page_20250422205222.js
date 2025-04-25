@@ -139,11 +139,9 @@ export default function Home() {
       </div>
 
       {/* Tabla centrada dentro de Suspense */}
-      {/* <div className="mt-12 w-full flex justify-center">
-        <Suspense fallback={<div>Loading...</div>}>
-          <TabsEstadisticas />
-        </Suspense>
-      </div> */}
+      <div className="mt-12 w-full flex justify-center">
+        <Suspense fallback={<div>Loading...</div>}></Suspense>
+      </div>
     </div>
   );
 }
