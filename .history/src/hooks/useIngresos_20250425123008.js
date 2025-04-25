@@ -137,6 +137,7 @@ function useIngresos() {
       )
       .reduce((total, cliente) => total + cliente.amount, 0);
 
+    // Retornar el total combinado
     return totalArreglos + totalPresupuestos;
   };
 
