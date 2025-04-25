@@ -9,27 +9,6 @@ function TabsEstadisticas() {
     useClientes();
   const { data } = useIngresos(); // Usamos el estado 'data' de 'useIngresos'
 
-  // Función para obtener el primer y último día del mes
-  const getPrimerYUltimoDiaDelMes = (fecha) => {
-    const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
-    primerDia.setHours(0, 0, 0, 0); // Aseguramos que la hora sea 00:00:00
-    const ultimoDia = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
-    ultimoDia.setHours(23, 59, 59, 999); // Aseguramos que la hora sea 23:59:59
-    return { primerDia, ultimoDia };
-  };
-
-  // Función para obtener el rango de fechas de la semana (Lunes - Domingo)
-  const getRangoDeSemana = (fecha) => {
-    const inicioSemana = fecha.getDate() - fecha.getDay() + 1; // Lunes de la semana
-    const finSemana = inicioSemana + 6; // Domingo de la semana
-    const primerDiaSemana = new Date(fecha.setDate(inicioSemana));
-    primerDiaSemana.setHours(0, 0, 0, 0); // Aseguramos que la hora sea 00:00:00
-    const ultimoDiaSemana = new Date(fecha.setDate(finSemana));
-    ultimoDiaSemana.setHours(23, 59, 59, 999); // Aseguramos que la hora sea 23:59:59
-    return { primerDiaSemana, ultimoDiaSemana };
-  };
-
-  // Fecha actual
   const hoy = new Date();
 
   // Obtener fechas dinámicamente para el mes y la semana

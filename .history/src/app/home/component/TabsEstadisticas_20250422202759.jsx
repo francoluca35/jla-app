@@ -5,11 +5,11 @@ import { useGastos } from "../../../hooks/UseGastos";
 import useIngresos from "@/hooks/useIngresos";
 
 function TabsEstadisticas() {
-  const { clientes, calcularClientesNuevos, calcularGastosEIngresos } =
-    useClientes();
+  const { clientes, calcularClientesNuevos } = useClientes();
+  const { calcularGastosPorSemanaYMes } = useGastos({});
   const { data } = useIngresos(); // Usamos el estado 'data' de 'useIngresos'
 
-  // Función para obtener el primer y último día del mes
+  // Función para obtener el primer día del mes y el último día del mes
   const getPrimerYUltimoDiaDelMes = (fecha) => {
     const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
     primerDia.setHours(0, 0, 0, 0); // Aseguramos que la hora sea 00:00:00
@@ -36,39 +36,83 @@ function TabsEstadisticas() {
   const { primerDia, ultimoDia } = getPrimerYUltimoDiaDelMes(hoy);
   const { primerDiaSemana, ultimoDiaSemana } = getRangoDeSemana(hoy);
 
+  // Agregamos el estado para los ingresos
+  const [ingresos, setIngresos] = useState({ semanal: 0, mensual: 0 });
   const [clientesNuevos, setClientesNuevos] = useState({
     semanal: 0,
     mensual: 0,
   });
   const [gastos, setGastos] = useState({ semanal: 0, mensual: 0 });
-  const [ingresos, setIngresos] = useState({ semanal: 0, mensual: 0 });
 
   useEffect(() => {
-    // Verifica que 'data' y 'clientes' estén definidos
-    if (!data || !clientes) return;
+    console.log(
+      "Fechas: ",
+      primerDia,
+      ultimoDia,
+      primerDiaSemana,
+      ultimoDiaSemana
+    );
 
-    // Calcular clientes nuevos
+    // Verifica que 'data' y 'data.clientes' estén definidos
+    if (!data || !data.clientes) return;
+
+    // Calcular clientes nuevos, gastos e ingresos
     const { nuevosPorSemana, nuevosPorMes } = calcularClientesNuevos(
       primerDiaSemana,
       ultimoDiaSemana,
       primerDia,
       ultimoDia
     );
-    setClientesNuevos({ semanal: nuevosPorSemana, mensual: nuevosPorMes });
+    const { totalPorSemana: totalGastosSemana, totalPorMes: totalGastosMes } =
+      calcularGastosPorSemanaYMes(
+        primerDiaSemana,
+        ultimoDiaSemana,
+        primerDia,
+        ultimoDia
+      );
 
-    // Calcular gastos e ingresos
-    const { ingresosPorSemana, ingresosPorMes } = calcularGastosEIngresos(
-      primerDiaSemana,
-      ultimoDiaSemana,
-      primerDia,
-      ultimoDia
-    );
-    setGastos({ semanal: ingresosPorSemana, mensual: ingresosPorMes });
-    setIngresos({ semanal: ingresosPorSemana, mensual: ingresosPorMes });
-  }, [clientes, data, calcularClientesNuevos, calcularGastosEIngresos]);
+    // Calcular ingresos por semana y mes
+    const calcularIngresosPorSemanaYMes = () => {
+      // Para la semana actual
+      const ingresosPorSemana = data.clientes
+        .filter((cliente) => {
+          const date = new Date(cliente.fecha);
+          date.setHours(0, 0, 0, 0); // Compara solo la fecha (sin la hora)
+          return date >= primerDiaSemana && date <= ultimoDiaSemana;
+        })
+        .reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
+      const ingresosPorMes = data.clientes
+        .filter((cliente) => {
+          const date = new Date(cliente.fecha);
+          date.setHours(0, 0, 0, 0); // Compara solo la fecha (sin la hora)
+          return date >= primerDia && date <= ultimoDia;
+        })
+        .reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
+      return { ingresosPorSemana, ingresosPorMes };
+    };
+
+    const { ingresosPorSemana, ingresosPorMes } =
+      calcularIngresosPorSemanaYMes();
+
+    setClientesNuevos({
+      semanal: nuevosPorSemana || 0,
+      mensual: nuevosPorMes || 0,
+    });
+    setGastos({
+      semanal: totalGastosSemana || 0,
+      mensual: totalGastosMes || 0,
+    });
+    setIngresos({
+      semanal: ingresosPorSemana || 0,
+      mensual: ingresosPorMes || 0,
+    });
+  }, [data, calcularClientesNuevos, calcularGastosPorSemanaYMes]); // Se agregan las dependencias necesarias
 
   return (
     <div>
+      {/* Tabla */}
       <div className="bg-verdefluor bg-opacity-90 rounded-lg p-6 backdrop-blur-md shadow-lg text-sm w-full max-w-xs text-white">
         <table className="table-auto border-collapse w-full text-center">
           <thead>

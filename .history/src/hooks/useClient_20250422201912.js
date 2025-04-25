@@ -1,20 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import useClientes from "@/hooks/useClient";
-import { useGastos } from "../../../hooks/UseGastos";
+import { useGastos } from "@hooks/useGastos";
 import useIngresos from "@/hooks/useIngresos";
 
 function TabsEstadisticas() {
-  const { clientes, calcularClientesNuevos, calcularGastosEIngresos } =
-    useClientes();
+  const { clientes, calcularClientesNuevos } = useClientes();
+  const { calcularGastosPorSemanaYMes } = useGastos({});
   const { data } = useIngresos(); // Usamos el estado 'data' de 'useIngresos'
 
-  // Función para obtener el primer y último día del mes
+  // Función para obtener el primer día del mes y el último día del mes
   const getPrimerYUltimoDiaDelMes = (fecha) => {
     const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
-    primerDia.setHours(0, 0, 0, 0); // Aseguramos que la hora sea 00:00:00
     const ultimoDia = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
-    ultimoDia.setHours(23, 59, 59, 999); // Aseguramos que la hora sea 23:59:59
     return { primerDia, ultimoDia };
   };
 
@@ -23,9 +21,7 @@ function TabsEstadisticas() {
     const inicioSemana = fecha.getDate() - fecha.getDay() + 1; // Lunes de la semana
     const finSemana = inicioSemana + 6; // Domingo de la semana
     const primerDiaSemana = new Date(fecha.setDate(inicioSemana));
-    primerDiaSemana.setHours(0, 0, 0, 0); // Aseguramos que la hora sea 00:00:00
     const ultimoDiaSemana = new Date(fecha.setDate(finSemana));
-    ultimoDiaSemana.setHours(23, 59, 59, 999); // Aseguramos que la hora sea 23:59:59
     return { primerDiaSemana, ultimoDiaSemana };
   };
 
@@ -36,39 +32,73 @@ function TabsEstadisticas() {
   const { primerDia, ultimoDia } = getPrimerYUltimoDiaDelMes(hoy);
   const { primerDiaSemana, ultimoDiaSemana } = getRangoDeSemana(hoy);
 
+  // Agregamos el estado para los ingresos
+  const [ingresos, setIngresos] = useState({ semanal: 0, mensual: 0 });
   const [clientesNuevos, setClientesNuevos] = useState({
     semanal: 0,
     mensual: 0,
   });
   const [gastos, setGastos] = useState({ semanal: 0, mensual: 0 });
-  const [ingresos, setIngresos] = useState({ semanal: 0, mensual: 0 });
 
   useEffect(() => {
-    // Verifica que 'data' y 'clientes' estén definidos
-    if (!data || !clientes) return;
+    // Verifica que 'data' y 'data.clientes' estén definidos
+    if (!data || !data.clientes) return;
 
-    // Calcular clientes nuevos
+    // Calcular clientes nuevos, gastos e ingresos
     const { nuevosPorSemana, nuevosPorMes } = calcularClientesNuevos(
       primerDiaSemana,
       ultimoDiaSemana,
       primerDia,
       ultimoDia
     );
-    setClientesNuevos({ semanal: nuevosPorSemana, mensual: nuevosPorMes });
+    const { totalPorSemana: totalGastosSemana, totalPorMes: totalGastosMes } =
+      calcularGastosPorSemanaYMes(
+        primerDiaSemana,
+        ultimoDiaSemana,
+        primerDia,
+        ultimoDia
+      );
 
-    // Calcular gastos e ingresos
-    const { ingresosPorSemana, ingresosPorMes } = calcularGastosEIngresos(
-      primerDiaSemana,
-      ultimoDiaSemana,
-      primerDia,
-      ultimoDia
-    );
-    setGastos({ semanal: ingresosPorSemana, mensual: ingresosPorMes });
-    setIngresos({ semanal: ingresosPorSemana, mensual: ingresosPorMes });
-  }, [clientes, data, calcularClientesNuevos, calcularGastosEIngresos]);
+    // Calcular ingresos por semana y mes
+    const calcularIngresosPorSemanaYMes = () => {
+      // Para la semana actual
+      const ingresosPorSemana = data.clientes
+        .filter((cliente) => {
+          const date = new Date(cliente.fecha);
+          return date >= primerDiaSemana && date <= ultimoDiaSemana;
+        })
+        .reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
+      const ingresosPorMes = data.clientes
+        .filter((cliente) => {
+          const date = new Date(cliente.fecha);
+          return date >= primerDia && date <= ultimoDia;
+        })
+        .reduce((acc, curr) => acc + (curr.amount || 0), 0);
+
+      return { ingresosPorSemana, ingresosPorMes };
+    };
+
+    const { ingresosPorSemana, ingresosPorMes } =
+      calcularIngresosPorSemanaYMes();
+
+    setClientesNuevos({
+      semanal: nuevosPorSemana || 0,
+      mensual: nuevosPorMes || 0,
+    });
+    setGastos({
+      semanal: totalGastosSemana || 0,
+      mensual: totalGastosMes || 0,
+    });
+    setIngresos({
+      semanal: ingresosPorSemana || 0,
+      mensual: ingresosPorMes || 0,
+    });
+  }, [calcularClientesNuevos, calcularGastosPorSemanaYMes, data]); // Se agregan las dependencias necesarias
 
   return (
     <div>
+      {/* Tabla */}
       <div className="bg-verdefluor bg-opacity-90 rounded-lg p-6 backdrop-blur-md shadow-lg text-sm w-full max-w-xs text-white">
         <table className="table-auto border-collapse w-full text-center">
           <thead>

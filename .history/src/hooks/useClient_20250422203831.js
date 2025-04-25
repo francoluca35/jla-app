@@ -9,7 +9,6 @@ export default function useClientes() {
   const fetchClientes = async () => {
     try {
       const res = await axios.get("/api/clientes");
-      console.log("Datos de clientes:", res.data);
       setClientes(res.data);
     } catch (err) {
       console.error(err);
