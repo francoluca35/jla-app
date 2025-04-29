@@ -131,7 +131,7 @@ export default function HistoryClient() {
               </div>
               <div className="p-2 text-black">{cliente.branch}</div>
               <div className="p-2 text-black">
-                {cliente.date?.slice(0, 10).split("-").reverse().join("/")}
+                {new Date(cliente.date).toLocaleDateString()}
               </div>
               <div className="p-2 text-black">
                 {cliente.problemType === "arreglo"
