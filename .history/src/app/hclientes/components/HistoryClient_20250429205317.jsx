@@ -146,7 +146,7 @@ export default function HistoryClient() {
                         .reverse()
                         .join("/")}
                     </span>
-                    <span className="text-md font-bold text-black">
+                    <span className="text-sm font-bold text-black">
                       {cliente.fechaTerminado
                         ? cliente.fechaTerminado.split("-").reverse().join("/")
                         : ""}

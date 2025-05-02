@@ -136,29 +136,8 @@ export default function HistoryClient() {
               </div>
               <div className="p-2 text-black">{cliente.branch}</div>
               <div className="p-2 text-black">
-                {cliente.problemType === "presupuesto" &&
-                cliente.estado === "terminado" ? (
-                  <div className="flex flex-col items-center">
-                    <span className="line-through text-sm text-red-500">
-                      {cliente.date
-                        ?.slice(0, 10)
-                        .split("-")
-                        .reverse()
-                        .join("/")}
-                    </span>
-                    <span className="text-md font-bold text-black">
-                      {cliente.fechaTerminado
-                        ? cliente.fechaTerminado.split("-").reverse().join("/")
-                        : ""}
-                    </span>
-                  </div>
-                ) : (
-                  <span>
-                    {cliente.date?.slice(0, 10).split("-").reverse().join("/")}
-                  </span>
-                )}
+                {cliente.date?.slice(0, 10).split("-").reverse().join("/")}
               </div>
-
               <div className="p-2 text-black">
                 {cliente.problemType === "arreglo"
                   ? "ar"
