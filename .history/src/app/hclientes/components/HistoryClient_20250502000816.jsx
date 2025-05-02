@@ -242,20 +242,6 @@ export default function HistoryClient() {
                           })
                         }
                       />
-                    ) : type === "select" && key === "estado" ? (
-                      <select
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-                        value={editedClient?.estado || "en curso"}
-                        onChange={(e) =>
-                          setEditedClient({
-                            ...editedClient,
-                            estado: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="en curso">En curso</option>
-                        <option value="terminado">Terminado</option>
-                      </select>
                     ) : (
                       <input
                         type={type}
