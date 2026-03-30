@@ -1,18 +1,21 @@
 import React, { Suspense, lazy } from "react";
+import DashboardLayout from "../components/DashboardLayout";
 
 const TabsGasto = lazy(() => import("./components/TabsGastos"));
 
 function hgastos() {
   return (
-    <div className="p-4 space-y-8">
-      <Suspense
-        fallback={
-          <p className="text-white">Cargando formulario de gastos...</p>
-        }
-      >
-        <TabsGasto />
-      </Suspense>
-    </div>
+    <DashboardLayout>
+      <div className="space-y-8">
+        <Suspense
+          fallback={
+            <p className="text-neutral-600">Cargando...</p>
+          }
+        >
+          <TabsGasto />
+        </Suspense>
+      </div>
+    </DashboardLayout>
   );
 }
 

@@ -1,13 +1,14 @@
 import React, { Suspense } from "react";
+import DashboardLayout from "../components/DashboardLayout";
 import CambiarPassword from "./component/CambiarPassword";
 
 function cambiarcontrasena() {
   return (
-    <div>
-      <Suspense fallback={<div>Cargando...</div>}>
+    <DashboardLayout>
+      <Suspense fallback={<div className="text-neutral-600">Cargando...</div>}>
         <CambiarPassword />
       </Suspense>
-    </div>
+    </DashboardLayout>
   );
 }
 

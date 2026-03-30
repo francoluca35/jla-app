@@ -124,105 +124,99 @@ const TabsGasto = () => {
   };
 
   return (
-    <div
-      className="min-h-screen p-6 text-white space-y-4"
-      style={{
-        backgroundImage: "url('/Assets/formclient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <h2 className="text-3xl font-bold mb-4 text-center tracking-wider">
-        VISUALIZAR GASTOS
-      </h2>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold text-gray-900">Historial de Gastos</h1>
+        <p className="text-gray-500 mt-1 text-sm">Filtrar y consultar gastos registrados</p>
+      </header>
 
-      {/* Filtros */}
-      <div className="space-y-2">
-        <select
-          className="p-2 w-full bg-black rounded"
-          value={tipoSeleccionado}
-          onChange={(e) => setTipoSeleccionado(e.target.value)}
-        >
-          <option value="">Todos los tipos</option>
-          <option value="materiaPrima">Materia Prima</option>
-          <option value="gastoVario">Gastos Varios</option>
-          <option value="sueldos">Sueldos</option>
-        </select>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <select
+            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900 text-sm"
+            value={tipoSeleccionado}
+            onChange={(e) => setTipoSeleccionado(e.target.value)}
+          >
+            <option value="">Todos los tipos</option>
+            <option value="materiaPrima">Materia Prima</option>
+            <option value="gastoVario">Gastos Varios</option>
+            <option value="sueldos">Sueldos</option>
+          </select>
 
-        <div className="flex gap-2">
           <DatePicker
             selected={fechaDesde}
             onChange={(date) => setFechaDesde(date)}
             dateFormat="d/M/yyyy"
             placeholderText="Desde"
-            className="w-full p-2 bg-black text-white rounded"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 text-sm"
           />
           <DatePicker
             selected={fechaHasta}
             onChange={(date) => setFechaHasta(date)}
             dateFormat="d/M/yyyy"
             placeholderText="Hasta"
-            className="w-full p-2 bg-black text-white rounded"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 text-sm"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <input
-              type="number"
-              placeholder="Precio mín"
-              className="p-2 flex-1 bg-black text-white rounded"
-              value={minPrecio}
-              onChange={(e) => setMinPrecio(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Precio máx"
-              className="p-2 flex-1 bg-black text-white rounded"
-              value={maxPrecio}
-              onChange={(e) => setMaxPrecio(e.target.value)}
-            />
-          </div>
-
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            type="number"
+            placeholder="Precio mín"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900 text-sm w-28"
+            value={minPrecio}
+            onChange={(e) => setMinPrecio(e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="Precio máx"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-900 text-sm w-28"
+            value={maxPrecio}
+            onChange={(e) => setMaxPrecio(e.target.value)}
+          />
           <button
             onClick={() => {
               setModoEliminar(!modoEliminar);
               setSeleccionados([]);
               setSelectAll(false);
             }}
-            className="bg-red-500 text-white px-4 py-2 rounded"
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${
+              modoEliminar
+                ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                : "bg-red-600 text-white hover:bg-red-700"
+            }`}
           >
-            {modoEliminar ? "Cancelar selección" : "Seleccionar para eliminar"}
+            {modoEliminar ? "Cancelar" : "Seleccionar para eliminar"}
           </button>
         </div>
       </div>
 
-      <div className="space-y-1">
-        <p>Total del día: ${totalDia}</p>
-        <p>Total de la semana: ${totalSemana}</p>
-        <p>Total del mes: ${totalMes}</p>
-      </div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+        <div className="flex flex-wrap gap-4 text-sm text-gray-700 mb-4">
+          <span><strong>Día:</strong> ${totalDia}</span>
+          <span><strong>Semana:</strong> ${totalSemana}</span>
+          <span><strong>Mes:</strong> ${totalMes}</span>
+        </div>
 
-      <div className="mt-4 space-y-2">
         {loading ? (
-          <p>Cargando...</p>
+          <p className="text-gray-500 py-4">Cargando...</p>
         ) : gastos.length === 0 ? (
-          <p>No hay gastos para mostrar.</p>
+          <p className="text-gray-500 py-4">No hay gastos para mostrar.</p>
         ) : (
           <>
             {modoEliminar && (
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-4">
                 <button
                   onClick={toggleSelectAll}
-                  className="bg-red-700 text-white px-4 py-1 rounded"
+                  className="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800"
                 >
                   {selectAll ? "Desmarcar todo" : "Seleccionar todo"}
                 </button>
                 <button
                   onClick={eliminarSeleccionados}
-                  className="bg-red-600 text-white px-4 py-1 rounded"
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700"
                 >
-                  Eliminar seleccionados ({seleccionados.length})
+                  Eliminar ({seleccionados.length})
                 </button>
               </div>
             )}
@@ -233,10 +227,10 @@ const TabsGasto = () => {
                 .map((gasto) => (
                   <div
                     key={gasto._id}
-                    className={`p-3 rounded cursor-pointer transition-colors ${
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors ${
                       modoEliminar && seleccionados.includes(gasto._id)
-                        ? "bg-red-800"
-                        : "bg-black bg-opacity-60 hover:bg-gray-600"
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200 hover:bg-gray-50"
                     }`}
                     onClick={() => {
                       if (modoEliminar) {
@@ -250,21 +244,18 @@ const TabsGasto = () => {
                   >
                     {gasto.tipo === "sueldos" ? (
                       <>
-                        <p className="font-bold">Empleado: {gasto.empleado}</p>
-                        <p className="text-sm">
+                        <p className="font-semibold text-gray-900">Empleado: {gasto.empleado}</p>
+                        <p className="text-sm text-gray-600">
                           Días: {gasto.diasDeTrabajo?.join(", ") || "-"}
                         </p>
                       </>
                     ) : (
                       <>
-                        <p className="font-bold">{gasto.descripcion}</p>
-                        <p className="text-sm">{gasto.lugar}</p>
+                        <p className="font-semibold text-gray-900">{gasto.descripcion}</p>
+                        <p className="text-sm text-gray-600">{gasto.lugar}</p>
                       </>
                     )}
-                    <p className="text-sm">Precio: ${gasto.precio}</p>
-                    <p className="text-sm">
-                      Fecha: {new Date(gasto.fecha).toLocaleDateString("es-AR")}
-                    </p>
+                    <p className="text-sm text-gray-700 mt-1">${gasto.precio} · {new Date(gasto.fecha).toLocaleDateString("es-AR")}</p>
                   </div>
                 ))}
             </div>
@@ -274,10 +265,10 @@ const TabsGasto = () => {
 
       {/* Modal de detalle y edición */}
       {gastoSeleccionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white text-black p-6 rounded-xl w-96 relative">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white text-gray-900 p-6 rounded-xl w-full max-w-md relative border border-gray-200 shadow-xl">
             <button
-              className="absolute top-2 right-2 text-xl"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
               onClick={() => {
                 setGastoSeleccionado(null);
                 setIsEditing(false);
@@ -285,7 +276,7 @@ const TabsGasto = () => {
             >
               ×
             </button>
-            <h3 className="text-lg font-bold mb-2">Detalle del Gasto</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Detalle del gasto</h3>
 
             {!isEditing ? (
               <>
@@ -337,7 +328,7 @@ const TabsGasto = () => {
                 </p>
 
                 <button
-                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                  className="mt-4 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900"
                   onClick={() => setIsEditing(true)}
                 >
                   Editar
@@ -426,7 +417,7 @@ const TabsGasto = () => {
 
                 <button
                   onClick={handleGuardar}
-                  className="mt-3 bg-green-600 text-white px-4 py-2 rounded"
+                  className="mt-3 bg-verdefluor hover:bg-verdefluort text-black font-semibold px-4 py-2 rounded-lg"
                 >
                   Guardar cambios
                 </button>

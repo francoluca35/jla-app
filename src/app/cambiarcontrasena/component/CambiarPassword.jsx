@@ -49,65 +49,65 @@ function CambiarPassword() {
   };
 
   return (
-    <div
-      className="min-h-screen flex justify-center items-center bg-cover bg-center px-4"
-      style={{ backgroundImage: "url('/Assets/admin.jpg')" }}
-    >
+    <div className="max-w-md mx-auto">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Cambiar contraseña</h1>
+        <p className="text-gray-500 mt-1 text-sm">Actualizar tu contraseña de acceso</p>
+      </header>
+
       <form
         onSubmit={handleCambio}
-        className="bg-black bg-opacity-90 text-white p-6 rounded-xl w-full max-w-sm flex flex-col gap-5 shadow-xl"
+        className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col gap-5"
       >
-        <h2 className="text-2xl font-bold text-center">Cambiar Contraseña</h2>
-
         <div className="relative">
-          <label className="text-sm">Contraseña actual</label>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Contraseña actual</label>
           <input
             type={verActual ? "text" : "password"}
             value={actual}
             onChange={(e) => setActual(e.target.value)}
-            className="w-full p-2 mt-1 rounded bg-white text-black outline-none pr-10"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 pr-10 focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
             required
           />
           <button
             type="button"
             onClick={() => setVerActual(!verActual)}
-            className="absolute right-3 top-[35px] text-gray-600"
+            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
           >
             {verActual ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
 
         <div className="relative">
-          <label className="text-sm">Nueva contraseña</label>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Nueva contraseña</label>
           <input
             type={verNueva ? "text" : "password"}
             value={nueva}
             onChange={(e) => setNueva(e.target.value)}
-            className="w-full p-2 mt-1 rounded bg-white text-black outline-none pr-10"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 pr-10 focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
             required
           />
           <button
             type="button"
             onClick={() => setVerNueva(!verNueva)}
-            className="absolute right-3 top-[35px] text-gray-600"
+            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
           >
             {verNueva ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
 
         <div className="relative">
-          <label className="text-sm">Confirmar nueva contraseña</label>
+          <label className="text-sm font-medium text-gray-700 block mb-1">Confirmar nueva contraseña</label>
           <input
             type={verConfirmar ? "text" : "password"}
             value={confirmar}
             onChange={(e) => setConfirmar(e.target.value)}
-            className="w-full p-2 mt-1 rounded bg-white text-black outline-none pr-10"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 pr-10 focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
             required
           />
           <button
             type="button"
             onClick={() => setVerConfirmar(!verConfirmar)}
-            className="absolute right-3 top-[35px] text-gray-600"
+            className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
           >
             {verConfirmar ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -116,9 +116,9 @@ function CambiarPassword() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 flex justify-center items-center gap-2 bg-verdefluor text-black font-bold py-2 rounded-full hover:bg-verdefluort transition"
+          className="mt-2 flex justify-center items-center gap-2 bg-verdefluor hover:bg-verdefluort text-black font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-70"
         >
-          <Save size={16} /> {loading ? "Guardando..." : "Guardar Cambios"}
+          <Save size={16} /> {loading ? "Guardando..." : "Guardar cambios"}
         </button>
       </form>
     </div>

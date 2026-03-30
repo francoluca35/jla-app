@@ -141,6 +141,8 @@ function useIngresos() {
   };
 
   return {
+    data,
+    fetchData,
     calcularTotal,
     calcularTotalCombinado,
     obtenerFiltrados,

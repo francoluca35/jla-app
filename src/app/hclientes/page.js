@@ -1,13 +1,14 @@
 import React, { Suspense } from "react";
+import DashboardLayout from "../components/DashboardLayout";
 import HistoryClient from "./components/HistoryClient";
 
 function HCliente() {
   return (
-    <div>
-      <Suspense fallback={<div className="text-white">Cargando...</div>}>
+    <DashboardLayout>
+      <Suspense fallback={<div className="text-neutral-600">Cargando...</div>}>
         <HistoryClient />
       </Suspense>
-    </div>
+    </DashboardLayout>
   );
 }
 

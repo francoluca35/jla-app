@@ -24,8 +24,8 @@ export default function HistoryClient() {
     };
   }, [selectedClient]);
 
-  if (loading) return <div className="text-white">Cargando...</div>;
-  if (error) return <div className="text-red-500">Error cargando datos</div>;
+  if (loading) return <div className="text-gray-600 py-8">Cargando...</div>;
+  if (error) return <div className="text-red-600 py-8">Error cargando datos</div>;
 
   const filteredClientes =
     filter === "Todos"
@@ -87,27 +87,21 @@ export default function HistoryClient() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center p-6"
-      style={{
-        backgroundImage: "url('/Assets/formclient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <h1 className="text-black font-bold text-lg mb-6 tracking-wide">
-        HISTORIAL DE INGRESOS
-      </h1>
+    <div className="max-w-6xl mx-auto">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Historial de Clientes</h1>
+        <p className="text-gray-500 mt-1 text-sm">Ver y gestionar clientes e ingresos</p>
+      </header>
 
-      <div className="flex gap-4 mb-6 flex-wrap justify-center">
+      <div className="flex gap-2 mb-6 flex-wrap">
         {["Todos", "Servicio T.", "Presupuesto"].map((tipo) => (
           <button
             key={tipo}
             onClick={() => setFilter(tipo)}
-            className={`rounded-full px-6 py-2 font-bold border-2 transition ${
+            className={`rounded-lg px-5 py-2 text-sm font-medium border transition-colors ${
               filter === tipo
-                ? "bg-verdefluor text-black"
-                : "bg-verdepanel text-white"
+                ? "bg-verdefluor text-black border-verdefluor"
+                : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
             }`}
           >
             {tipo}
@@ -115,21 +109,23 @@ export default function HistoryClient() {
         ))}
       </div>
 
-      <div className="w-full px-2 sm:px-4 overflow-x-auto">
-        <div className="min-w-[650px] rounded-lg bg-verdefluort text-center font-semibold shadow-md">
-          <div className="grid grid-cols-6 border-b border-black">
-            <div className="p-3 text-black font-bold">Nombre</div>
-            <div className="p-3 text-black font-bold">Sucursal</div>
-            <div className="p-3 text-black font-bold">Fecha</div>
-            <div className="p-3 text-black font-bold">Tipo</div>
-            <div className="p-3 text-black font-bold">Estado</div>
-            <div className="p-3 text-white font-bold">+</div>
+      <div className="w-full overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="min-w-[650px]">
+          <div className="grid grid-cols-6 border-b border-gray-200 bg-gray-50 text-gray-700 text-sm font-semibold">
+            <div className="p-3 text-left">Nombre</div>
+            <div className="p-3 text-left">Sucursal</div>
+            <div className="p-3 text-left">Fecha</div>
+            <div className="p-3 text-left">Tipo</div>
+            <div className="p-3 text-left">Estado</div>
+            <div className="p-3 text-center">+</div>
           </div>
 
           {filteredClientes.map((cliente, index) => (
             <div
               key={index}
-              className="grid grid-cols-6 text-sm sm:text-base even:bg-[#aad1ba] odd:bg-[#84b89b]"
+              className={`grid grid-cols-6 text-sm text-gray-800 ${
+                index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+              } hover:bg-gray-50 border-b border-gray-100 last:border-0`}
             >
               <div className="p-2 text-black break-words">
                 {cliente.clientName}
@@ -167,12 +163,12 @@ export default function HistoryClient() {
                   : "-"}
               </div>
               <div
-                className={`p-2 font-semibold text-md ${
+                className={`p-2 font-semibold text-sm ${
                   cliente.problemType === "arreglo" ||
                   cliente.estado === "terminado"
-                    ? "  text-terminado"
-                    : " text-curso"
-                } rounded-full`}
+                    ? "text-gray-600"
+                    : "text-amber-700"
+                }`}
               >
                 {cliente.problemType === "arreglo" ||
                 cliente.estado === "terminado"
@@ -181,7 +177,7 @@ export default function HistoryClient() {
               </div>
 
               <div
-                className="p-2 text-white hover:text-green-600 cursor-pointer"
+                className="p-2 text-gray-600 hover:text-verdefluor cursor-pointer font-medium text-center"
                 onClick={() => setSelectedClient(cliente)}
               >
                 +
@@ -193,10 +189,10 @@ export default function HistoryClient() {
 
       {/* MODAL DETALLES */}
       {selectedClient && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto px-2 sm:px-4 py-6 flex justify-center items-start">
-          <div className="bg-white w-full max-w-3xl mx-auto rounded-xl shadow-2xl px-4 py-6 sm:px-6 sm:py-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-green-800 mb-6 text-center">
-              Detalles del Cliente
+        <div className="fixed inset-0 z-50 bg-black/40 overflow-y-auto px-2 sm:px-4 py-6 flex justify-center items-start">
+          <div className="bg-white w-full max-w-3xl mx-auto rounded-xl shadow-xl border border-gray-200 px-4 py-6 sm:px-6 sm:py-8 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">
+              Detalles del cliente
             </h2>
             {isEditing ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800">
@@ -227,7 +223,7 @@ export default function HistoryClient() {
                   },
                 ].map(({ label, key, type = "text" }) => (
                   <div key={key}>
-                    <label className="block font-semibold text-green-700 mb-1">
+                    <label className="block font-medium text-gray-700 mb-1 text-sm">
                       {label}:
                     </label>
                     {type === "textarea" ? (
@@ -328,7 +324,7 @@ export default function HistoryClient() {
 
             {/* SERVICIOS */}
             <div className="mt-6">
-              <span className="font-semibold text-green-600">Servicios:</span>
+              <span className="font-semibold text-gray-800 text-sm">Servicios</span>
               <ul className="list-disc pl-6 mt-2 text-gray-700 space-y-2">
                 {(isEditing
                   ? editedClient?.sertec || []
@@ -421,16 +417,16 @@ export default function HistoryClient() {
                 <>
                   <button
                     onClick={handleGuardarCambios}
-                    className="w-full sm:w-auto flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg"
+                    className="w-full sm:w-auto flex-1 bg-verdefluor hover:bg-verdefluort text-black font-semibold py-2 rounded-lg"
                   >
-                    Guardar Cambios
+                    Guardar cambios
                   </button>
                   <button
                     onClick={() => {
                       setIsEditing(false);
                       setEditedClient(null);
                     }}
-                    className="w-full sm:w-auto flex-1 bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 rounded-lg"
+                    className="w-full sm:w-auto flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded-lg"
                   >
                     Cancelar
                   </button>
@@ -445,7 +441,7 @@ export default function HistoryClient() {
                         sertec: [...selectedClient.sertec],
                       });
                     }}
-                    className="w-full sm:w-auto flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg"
+                    className="w-full sm:w-auto flex-1 bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 rounded-lg"
                   >
                     Editar
                   </button>
@@ -467,13 +463,12 @@ export default function HistoryClient() {
                           estado: "terminado",
                           fechaTerminado: new Date()
                             .toISOString()
-                            .split("T")[0], // guarda "2025-04-29"
+                            .split("T")[0],
                         });
-
                         setSelectedClient(actualizado);
                         refetch();
                       }}
-                      className="w-full sm:w-auto flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
+                      className="w-full sm:w-auto flex-1 bg-verdefluor hover:bg-verdefluort text-black font-semibold py-2 rounded-lg"
                     >
                       Marcar como terminado
                     </button>
@@ -486,7 +481,7 @@ export default function HistoryClient() {
                   setIsEditing(false);
                   setEditedClient(null);
                 }}
-                className="w-full sm:w-auto flex-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 rounded-lg"
+                className="w-full sm:w-auto flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2 rounded-lg"
               >
                 Cerrar
               </button>

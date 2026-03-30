@@ -169,25 +169,26 @@ const CreateExcel = () => {
   };
 
   return (
-    <div className="min-h-screen  p-6 flex flex-col items-center justify-center">
-      <h2 className="text-3xl font-bold mb-6 text-white underline tracking-wide">
-        Exportar Datos a Excel
-      </h2>
+    <div className="max-w-2xl mx-auto">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Informes Semanales</h1>
+        <p className="text-gray-500 mt-1 text-sm">Exportar clientes, gastos e ingresos a Excel</p>
+      </header>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center mb-6 bg-white p-6 rounded-xl shadow-lg border border-green-300">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col sm:flex-row gap-4 items-center">
         <DatePicker.RangePicker
           format="DD/MM/YYYY"
           onChange={(values) => {
             if (!values) return setRange([]);
             setRange([values[0].toDate(), values[1].toDate()]);
           }}
-          className="!rounded-lg !border-green-400 !shadow-sm hover:!border-green-600 transition-all"
-          popupClassName="rounded-lg shadow-lg border border-green-300"
+          className="!rounded-lg !border-gray-300 !shadow-sm"
+          popupClassName="rounded-lg shadow-lg border border-gray-200"
         />
 
         <button
           onClick={generarExcel}
-          className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition duration-300"
+          className="bg-verdefluor hover:bg-verdefluort text-black font-semibold px-6 py-2.5 rounded-lg transition-colors"
         >
           Generar Excel
         </button>

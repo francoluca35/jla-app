@@ -1,149 +1,62 @@
 "use client";
-import React, { useEffect, useState, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import {
-  CalendarPlus,
-  PiggyBank,
-  Users,
-  ReceiptText,
-  Power,
-  ChartNoAxesCombined,
-  FileSpreadsheet,
-  ChevronDown,
-  LogOut,
-  KeyRound,
-} from "lucide-react";
-import TabsEstadisticas from "./component/TabsEstadisticas";
+
+import React, { Suspense } from "react";
+import DashboardLayout from "../components/DashboardLayout";
+import DashboardStats from "./component/DashboardStats";
+import TrabajosEnCurso from "./component/TrabajosEnCurso";
+import { LayoutDashboard, BarChart3, Wrench } from "lucide-react";
 
 export default function Home() {
-  const [fechaHora, setFechaHora] = useState(new Date());
-  const [usuario, setUsuario] = useState(null);
-  const [showMenu, setShowMenu] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("adminUser");
-    if (storedUser) {
-      setUsuario(JSON.parse(storedUser));
-    } else {
-      setUsuario({ username: "Admin", role: "COORDINADOR" });
-    }
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setFechaHora(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const botones = [
-    {
-      texto: "Agenda de Clientes",
-      ruta: "/agendaclient",
-      icono: <CalendarPlus className="w-6 h-6 mb-1" />,
-    },
-    {
-      texto: "Ingreso de Gastos",
-      ruta: "/gastos",
-      icono: <PiggyBank className="w-6 h-6 mb-1" />,
-    },
-    {
-      texto: "Historial Clientes",
-      ruta: "/hclientes",
-      icono: <Users className="w-6 h-6 mb-1" />,
-    },
-    {
-      texto: "Historial de Gastos",
-      ruta: "/hgastos",
-      icono: <ReceiptText className="w-6 h-6 mb-1" />,
-    },
-    {
-      texto: "Historial de Ingresos",
-      ruta: "/hingresos",
-      icono: <ChartNoAxesCombined className="w-6 h-6 mb-1" />,
-    },
-    {
-      texto: "Informes Semanales",
-      ruta: "/excel",
-      icono: <FileSpreadsheet className="w-6 h-6 mb-1" />,
-    },
-  ];
-
-  if (!usuario) return <div className="p-6">Cargando usuario...</div>;
-
   return (
-    <div
-      className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center px-4 py-6"
-      style={{ backgroundImage: "url('/Assets/inicio.jpg')" }}
-    >
-      {/* Header superior */}
-      <div className="absolute top-4 left-4 text-white text-sm">
-        <p>{fechaHora.toLocaleDateString()}</p>
-        <p className="text-xs">{fechaHora.toLocaleTimeString()}</p>
-      </div>
-      <div className="absolute top-4 right-4 text-white text-sm flex flex-col items-end">
-        <div className="flex items-center gap-2">
-          <img
-            src="/Assets/logo.jpg"
-            alt="Avatar"
-            className="w-8 h-8 rounded-full"
-          />
-          <div className="text-right">
-            <p className="text-sm font-bold uppercase">{usuario.username}</p>
-            <p className="text-xs text-green-300 uppercase">{usuario.role}</p>
+    <DashboardLayout>
+      <div className="max-w-4xl mx-auto px-2 sm:px-0">
+        <header className="text-center mb-10 animate-fade-in-up">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-verdefluor/15 text-verdefluor mb-4 transition-transform duration-300 hover:scale-105">
+            <LayoutDashboard className="w-8 h-8" />
           </div>
-          <button
-            onClick={() => setShowMenu((prev) => !prev)}
-            className="text-white hover:text-verdefluor focus:outline-none"
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-gray-500 mt-2 text-sm sm:text-base max-w-md mx-auto">
+            Vista de métricas, clientes y trabajos en curso
+          </p>
+        </header>
+
+        <section className="mb-10 animate-fade-in-up-delay-1 opacity-0">
+          <h2 className="flex items-center justify-center gap-2 text-gray-700 font-semibold text-sm mb-5">
+            <BarChart3 className="w-4 h-4 text-verdefluor" />
+            Métricas
+          </h2>
+          <Suspense
+            fallback={
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="h-36 bg-gray-200/80 animate-pulse rounded-2xl"
+                  />
+                ))}
+              </div>
+            }
           >
-            <ChevronDown className="w-5 h-5" />
-          </button>
-        </div>
-        {showMenu && (
-          <div className="mt-2 bg-white text-black rounded shadow-md w-48 z-50">
-            <button
-              onClick={() => {
-                localStorage.removeItem("adminUser");
-                router.push("/admin");
-              }}
-              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
-            >
-              <LogOut size={16} /> Cerrar sesión
-            </button>
-            <button
-              onClick={() => router.push("/cambiarcontrasena")}
-              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
-            >
-              <KeyRound size={16} /> Cambiar contraseña
-            </button>
-          </div>
-        )}
-      </div>
+            <DashboardStats />
+          </Suspense>
+        </section>
 
-      {/* Layout central con tabla y botones */}
-      <div className="flex flex-col-reverse lg:flex-row items-center justify-center gap-12 w-full px-4 pt-20">
-        {/* Botones */}
-        <div className="grid grid-cols-2 gap-6 w-full max-w-xl">
-          {botones.map((btn, i) => (
-            <button
-              key={i}
-              onClick={() => router.push(btn.ruta)}
-              className="bg-verdefluor hover:bg-green-600 text-black font-bold rounded-2xl h-40 flex flex-col items-center justify-center text-xl shadow-xl transition text-center"
-            >
-              {btn.icono}
-              <span className="text-center px-2 mt-2 leading-tight">
-                {btn.texto}
-              </span>
-            </button>
-          ))}
-        </div>
+        <section className="animate-fade-in-up-delay-2 opacity-0">
+          <h2 className="flex items-center justify-center gap-2 text-gray-700 font-semibold text-sm mb-5">
+            <Wrench className="w-4 h-4 text-verdefluor" />
+            Trabajos en curso
+          </h2>
+          <Suspense
+            fallback={
+              <div className="max-w-3xl mx-auto bg-white border border-gray-200 rounded-2xl p-6 h-52 animate-pulse" />
+            }
+          >
+            <TrabajosEnCurso />
+          </Suspense>
+        </section>
       </div>
-
-      {/* Tabla centrada dentro de Suspense */}
-      {/* <div className="mt-12 w-full flex justify-center">
-        <Suspense fallback={<div>Loading...</div>}>
-          <TabsEstadisticas />
-        </Suspense>
-      </div> */}
-    </div>
+    </DashboardLayout>
   );
 }
