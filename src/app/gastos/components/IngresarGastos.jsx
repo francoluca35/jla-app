@@ -67,26 +67,22 @@ const IngresarGastos = () => {
   };
 
   return (
-    <div
-      className="min-h-screen p-6 text-white"
-      style={{
-        backgroundImage: "url('/Assets/formclient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="max-w-md mx-auto bg-black bg-opacity-70 p-6 rounded-xl">
-        <h2 className="text-2xl mb-6 font-bold text-center">Ingresar Gasto</h2>
-
-        {/* Botones de selección de tipo de gasto */}
+    <div className="max-w-xl mx-auto">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Ingreso de Gastos</h1>
+        <p className="text-gray-500 mt-1 text-sm">Registrar materia prima, gastos varios o sueldos</p>
+      </header>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
         <div className="flex gap-2 mb-6">
           {["materiaPrima", "gastoVario", "sueldos"].map((t) => (
             <button
               key={t}
               onClick={() => setTipo(t)}
               className={clsx(
-                "flex-1 p-3 rounded transition-all font-semibold capitalize",
-                tipo === t ? "bg-green-600" : "bg-gray-800 hover:bg-gray-600"
+                "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium border transition-colors",
+                tipo === t
+                  ? "bg-verdefluor text-black border-verdefluor"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
               )}
             >
               {t === "materiaPrima"
@@ -101,38 +97,31 @@ const IngresarGastos = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {tipo === "sueldos" ? (
             <>
-              <label className="flex flex-col">
-                <span className="mb-1 font-semibold">Empleado</span>
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700 mb-1 block">Empleado</span>
                 <input
                   type="text"
                   value={empleado}
                   onChange={(e) => setEmpleado(e.target.value)}
                   required
                   placeholder="Nombre del empleado"
-                  className="p-3 rounded w-full text-black border border-gray-300"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </label>
 
               <div>
-                <p className="mb-2 font-semibold">Días de trabajo:</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">Días de trabajo</p>
                 <div className="flex flex-wrap gap-2">
-                  {[
-                    "Lunes",
-                    "Martes",
-                    "Miércoles",
-                    "Jueves",
-                    "Viernes",
-                    "Sábado",
-                  ].map((dia) => (
+                  {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"].map((dia) => (
                     <button
                       key={dia}
                       type="button"
                       onClick={() => toggleDiaTrabajo(dia)}
                       className={clsx(
-                        "px-4 py-2 rounded-full border text-sm font-medium",
+                        "px-4 py-2 rounded-lg text-sm font-medium border transition-colors",
                         diasDeTrabajo.includes(dia)
-                          ? "bg-green-500 text-white border-green-500"
-                          : "bg-gray-800 text-white border-gray-600 hover:bg-gray-700"
+                          ? "bg-verdefluor text-black border-verdefluor"
+                          : "border-gray-300 text-gray-600 hover:bg-gray-50"
                       )}
                     >
                       {dia}
@@ -142,32 +131,32 @@ const IngresarGastos = () => {
               </div>
 
               <div>
-                <p className="mt-4 mb-2 font-semibold">Forma de pago:</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">Forma de pago</p>
                 <div className="flex flex-wrap gap-2">
-                  {["efectivo", "transferencia"].map((tipo) => (
+                  {["efectivo", "transferencia"].map((t) => (
                     <label
-                      key={tipo}
+                      key={t}
                       className={clsx(
-                        "cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full text-sm border",
-                        tiposDePago.includes(tipo)
-                          ? "bg-green-500 text-white border-green-500"
-                          : "bg-gray-800 text-white border-gray-600 hover:bg-gray-700"
+                        "cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors",
+                        tiposDePago.includes(t)
+                          ? "bg-verdefluor text-black border-verdefluor"
+                          : "border-gray-300 text-gray-600 hover:bg-gray-50"
                       )}
                     >
                       <input
                         type="checkbox"
-                        checked={tiposDePago.includes(tipo)}
-                        onChange={() => toggleTipoDePago(tipo)}
+                        checked={tiposDePago.includes(t)}
+                        onChange={() => toggleTipoDePago(t)}
                         className="hidden"
                       />
-                      {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+                      {t.charAt(0).toUpperCase() + t.slice(1)}
                     </label>
                   ))}
                 </div>
               </div>
 
-              <label className="flex flex-col">
-                <span className="mb-1 font-semibold">Importe a pagar</span>
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700 mb-1 block">Importe a pagar</span>
                 <input
                   type="number"
                   name="precio"
@@ -175,97 +164,89 @@ const IngresarGastos = () => {
                   onChange={handleChange}
                   required
                   placeholder="Monto en pesos"
-                  className="p-3 rounded w-full text-black border border-gray-300"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </label>
             </>
           ) : (
             <>
-              <label>
-                {tipo === "materiaPrima" ? "Materia prima" : "Gasto vario"}
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700 mb-1 block">
+                  {tipo === "materiaPrima" ? "Materia prima" : "Descripción"}
+                </span>
                 <input
                   type="text"
                   name="descripcion"
                   value={formData.descripcion}
                   onChange={handleChange}
                   required
-                  className="p-3 rounded w-full text-black"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </label>
 
-              <label>
-                Lugar de compra
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700 mb-1 block">Lugar de compra</span>
                 <input
                   type="text"
                   name="lugar"
                   value={formData.lugar}
                   onChange={handleChange}
                   required
-                  className="p-3 rounded w-full text-black"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </label>
 
-              <label>
-                Tipo de pago
+              <div>
+                <span className="text-sm font-medium text-gray-700 mb-2 block">Tipo de pago</span>
                 <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => toggleTipoDePago("efectivo")}
-                    className={clsx(
-                      "flex-1 p-2 rounded font-semibold",
-                      tiposDePago.includes("efectivo")
-                        ? "bg-green-600"
-                        : "bg-gray-800 hover:bg-gray-600"
-                    )}
-                  >
-                    Efectivo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleTipoDePago("transferencia")}
-                    className={clsx(
-                      "flex-1 p-2 rounded font-semibold",
-                      tiposDePago.includes("transferencia")
-                        ? "bg-green-600"
-                        : "bg-gray-800 hover:bg-gray-600"
-                    )}
-                  >
-                    Transferencia
-                  </button>
+                  {["efectivo", "transferencia"].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => toggleTipoDePago(t)}
+                      className={clsx(
+                        "flex-1 py-2 rounded-lg text-sm font-medium border transition-colors",
+                        tiposDePago.includes(t)
+                          ? "bg-verdefluor text-black border-verdefluor"
+                          : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                      )}
+                    >
+                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                    </button>
+                  ))}
                 </div>
-              </label>
+              </div>
 
-              <label>
-                Precio
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700 mb-1 block">Precio</span>
                 <input
                   type="number"
                   name="precio"
                   value={formData.precio}
                   onChange={handleChange}
                   required
-                  className="p-3 rounded w-full text-black"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </label>
             </>
           )}
 
-          <p className="text-sm text-green-300">
-            Fecha y hora actual: {fechaActual}
+          <p className="text-xs text-gray-500">
+            Fecha y hora: {fechaActual}
           </p>
 
           <button
             type="submit"
-            className="bg-green-700 hover:bg-green-800 text-white p-3 rounded font-bold"
+            disabled={loading}
+            className="mt-2 bg-verdefluor hover:bg-verdefluort text-black font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-70"
           >
-            {loading ? "Guardando..." : "Guardar Gasto"}
+            {loading ? "Guardando..." : "Guardar gasto"}
           </button>
 
           {success && (
-            <p className="text-green-400 font-medium">
-              ¡Gasto guardado con éxito!
-            </p>
+            <p className="text-sm font-medium text-green-600">Gasto guardado correctamente.</p>
           )}
-          {error && <p className="text-red-500">Error: {error}</p>}
+          {error && <p className="text-sm text-red-600">Error: {error}</p>}
         </form>
       </div>
     </div>

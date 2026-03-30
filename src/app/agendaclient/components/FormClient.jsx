@@ -1,5 +1,4 @@
 "use client";
-import BackArrow from "@/app/components/BackArrow";
 import { useState, useEffect } from "react";
 import useAddClient from "@/hooks/useAddClient";
 import Swal from "sweetalert2";
@@ -136,56 +135,44 @@ const FormClient = () => {
   };
 
   return (
-    <div
-      className="min-h-screen p-6 text-white"
-      style={{
-        backgroundImage: "url('/Assets/formclient.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="max-w-2xl mx-auto">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Agenda de Clientes</h1>
+        <p className="text-gray-500 mt-1 text-sm">Cargar nuevo cliente o presupuesto</p>
+      </header>
       <form
         onSubmit={handleSubmit}
-        className="bg-black bg-opacity-70 p-6 flex flex-col gap-4 w-full max-w-md mx-auto rounded-xl"
+        className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col gap-4"
       >
-        <BackArrow />
-        <h2 className="text-center text-2xl font-bold">Cliente Nuevo</h2>
-
-        {/* Nombre Cliente */}
-        <label>Nombre cliente</label>
+        <label className="text-sm font-medium text-gray-700">Nombre del cliente</label>
         <div className="relative">
           <input
             type="text"
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
-            className="rounded-full px-4 py-2 bg-gray-300 text-black w-full"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
             placeholder="Escribí o seleccioná un cliente existente"
             required
           />
-          <div className="flex justify-end mt-1">
+          <div className="flex justify-end mt-2">
             <button
               type="button"
               onClick={() => setShowList((prev) => !prev)}
-              className={`px-3 py-1 text-sm rounded-full border transition-all duration-200 ${
-                showList
-                  ? "bg-red-100 text-red-600 border-red-400 hover:bg-red-200"
-                  : "bg-blue-100 text-blue-600 border-blue-400 hover:bg-blue-200"
-              }`}
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50"
             >
-              {showList ? "Ocultar clientes" : "Ver lista de clientes"}
+              {showList ? "Ocultar lista" : "Ver lista de clientes"}
             </button>
           </div>
-
           {showList && clientList.length > 0 && (
-            <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-xl w-full max-h-40 overflow-y-auto shadow-lg">
-              <p className="text-sm font-semibold p-2 text-gray-600 bg-gray-100 rounded-t-xl">
-                Clientes guardados:
+            <div className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-lg w-full max-h-40 overflow-y-auto shadow-lg">
+              <p className="text-xs font-medium text-gray-500 p-2 bg-gray-50 border-b border-gray-100">
+                Clientes guardados
               </p>
-              <ul className="divide-y divide-gray-200">
+              <ul className="divide-y divide-gray-100">
                 {clientList.map((name, i) => (
                   <li
                     key={i}
-                    className="cursor-pointer px-4 py-2 hover:bg-green-100 transition text-black"
+                    className="cursor-pointer px-4 py-2.5 text-gray-800 hover:bg-gray-50 text-sm"
                     onClick={() => {
                       setClientName(name);
                       setShowList(false);
@@ -199,64 +186,48 @@ const FormClient = () => {
           )}
         </div>
 
-        {/* Sucursal */}
-        <label>
-          Sucursal <span className="text-sm">(opcional)</span>
+        <label className="text-sm font-medium text-gray-700">
+          Sucursal <span className="text-gray-400 font-normal">(opcional)</span>
         </label>
         <input
           type="text"
           value={branch}
           onChange={(e) => setBranch(e.target.value)}
-          className="rounded-full px-4 py-2 bg-gray-300 text-black"
+          className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
           placeholder="Sucursal"
         />
 
-        {/* Fecha */}
-        <label>Fecha</label>
+        <label className="text-sm font-medium text-gray-700">Fecha</label>
         <input
           type="text"
           value={date}
           readOnly
-          className="rounded-full text-center px-4 py-2 bg-gray-300 text-black"
+          className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-gray-700 text-center"
         />
 
-        {/* Tipo de problema */}
-        <label>Tipo de problema</label>
-        <div className="flex bg-gray-300 rounded-full p-1 justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              setProblemType("arreglo");
-              setPaymentMethod("");
-              setEsSena(null);
-            }}
-            className={`px-4 py-2 rounded-full w-1/2 ${
-              problemType === "arreglo"
-                ? "bg-green-500 text-black"
-                : "text-black"
-            }`}
-          >
-            Arreglo
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setProblemType("presupuesto");
-              setPaymentMethod("");
-              setEsSena(null);
-            }}
-            className={`px-4 py-2 rounded-full w-1/2 ${
-              problemType === "presupuesto"
-                ? "bg-green-500 text-black"
-                : "text-black"
-            }`}
-          >
-            Presupuesto
-          </button>
+        <label className="text-sm font-medium text-gray-700">Tipo de problema</label>
+        <div className="flex bg-gray-100 rounded-lg p-1 gap-1">
+          {["arreglo", "presupuesto"].map((tipo) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => {
+                setProblemType(tipo);
+                setPaymentMethod("");
+                setEsSena(null);
+              }}
+              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                problemType === tipo
+                  ? "bg-verdefluor text-black"
+                  : "text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {tipo === "arreglo" ? "Arreglo" : "Presupuesto"}
+            </button>
+          ))}
         </div>
 
-        {/* Método de pago */}
-        <label className="font-semibold">Forma de pago</label>
+        <label className="text-sm font-medium text-gray-700">Forma de pago</label>
         <div className="flex gap-2">
           {["efectivo", "transferencia", "ambos"].map((metodo) => {
             const activo = paymentMethod === metodo;
@@ -271,10 +242,10 @@ const FormClient = () => {
                   setEfectivo("");
                   setTransferencia("");
                 }}
-                className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-200 border ${
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium border transition-colors ${
                   activo
-                    ? "bg-green-500 text-white border-green-600 shadow-md"
-                    : "bg-gray-300 text-black border-gray-300 hover:bg-gray-100"
+                    ? "bg-verdefluor text-black border-verdefluor"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 {metodo.charAt(0).toUpperCase() + metodo.slice(1)}
@@ -285,7 +256,7 @@ const FormClient = () => {
 
         {paymentMethod && (
           <>
-            <label className="font-semibold">¿Es seña?</label>
+            <label className="text-sm font-medium text-gray-700">¿Es seña?</label>
             <div className="flex gap-2">
               {["si", "no"].map((val) => {
                 const activo = esSena === val;
@@ -300,10 +271,10 @@ const FormClient = () => {
                       setTransferencia("");
                       setTotalTrabajo("");
                     }}
-                    className={`flex-1 py-2 px-4 rounded-full font-medium transition-all duration-200 border ${
+                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium border transition-colors ${
                       activo
-                        ? "bg-green-500 text-white border-green-600 shadow-md"
-                        : "bg-gray-300 text-black border-gray-300 hover:bg-gray-100"
+                        ? "bg-verdefluor text-black border-verdefluor"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
                     {val === "si" ? "Sí" : "No"}
@@ -323,14 +294,14 @@ const FormClient = () => {
                   placeholder="Seña en efectivo"
                   value={efectivo}
                   onChange={(e) => setEfectivo(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                  className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
                 <input
                   type="number"
                   placeholder="Seña en transferencia"
                   value={transferencia}
                   onChange={(e) => setTransferencia(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                  className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </>
             )}
@@ -340,7 +311,7 @@ const FormClient = () => {
                 placeholder="Monto de la seña"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
               />
             )}
             <input
@@ -348,7 +319,7 @@ const FormClient = () => {
               placeholder="Total del trabajo"
               value={totalTrabajo}
               onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
+              className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
             />
           </>
         )}
@@ -362,14 +333,14 @@ const FormClient = () => {
                   placeholder="Pago en efectivo"
                   value={efectivo}
                   onChange={(e) => setEfectivo(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                  className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
                 <input
                   type="number"
                   placeholder="Pago en transferencia"
                   value={transferencia}
                   onChange={(e) => setTransferencia(e.target.value)}
-                  className="rounded-full px-4 py-2 bg-gray-300 text-black"
+                  className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
                 />
               </>
             )}
@@ -378,25 +349,25 @@ const FormClient = () => {
               placeholder="Pago total del trabajo"
               value={totalTrabajo}
               onChange={(e) => setTotalTrabajo(e.target.value)}
-              className="rounded-full px-4 py-2 bg-gray-300 text-black"
+              className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
             />
           </>
         )}
 
-        <label>Descripción</label>
+        <label className="text-sm font-medium text-gray-700">Descripción</label>
         <textarea
-          placeholder="Descripción"
+          placeholder="Descripción del trabajo"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="rounded-lg px-4 py-2 bg-gray-300 text-black min-h-[100px]"
+          className="rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 min-h-[100px] placeholder-gray-400 focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-verdefluor hover:bg-verdefluort text-black font-bold rounded-full py-2"
+          className="mt-2 bg-verdefluor hover:bg-verdefluort text-black font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-70"
         >
-          {loading ? "Guardando..." : "GUARDAR"}
+          {loading ? "Guardando..." : "Guardar"}
         </button>
       </form>
     </div>

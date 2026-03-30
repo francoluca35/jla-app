@@ -89,9 +89,11 @@ export default function AdminAuth() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-4 text-white/60"
+              className="absolute right-2 top-3 flex items-center gap-1 text-white/70 hover:text-white text-xs"
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              <span>{showPassword ? "Ocultar" : "Mostrar"}</span>
             </button>
           </div>
 
