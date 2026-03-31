@@ -14,8 +14,7 @@ import {
   ShoppingCart,
   FileText,
   LogOut,
-  Trash2,
-  KeyRound,
+  Settings,
   Menu,
   X,
   Search,
@@ -38,12 +37,15 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const [usuario, setUsuario] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [reseteando, setReseteando] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("adminUser");
-    if (stored) setUsuario(JSON.parse(stored));
-    else setUsuario({ username: "Admin", role: "COORDINADOR" });
+    if (stored) {
+      const parsedUser = JSON.parse(stored);
+      setUsuario(parsedUser);
+    } else {
+      setUsuario({ username: "Admin", role: "COORDINADOR" });
+    }
   }, []);
 
   useEffect(() => {
@@ -53,39 +55,6 @@ export default function DashboardLayout({ children }) {
   const handleLogout = () => {
     localStorage.removeItem("adminUser");
     router.push("/admin");
-  };
-
-  const handleResetDatos = async () => {
-    const aviso = window.confirm(
-      "Se borrarán TODOS los datos métricos y operativos (clientes, gastos y ventas). El usuario y contraseña se mantienen. ¿Querés continuar?"
-    );
-    if (!aviso) return;
-
-    const palabra = window.prompt(
-      'Para confirmar, escribí exactamente: BORRAR TODO'
-    );
-    if (palabra !== "BORRAR TODO") return;
-
-    try {
-      setReseteando(true);
-      const response = await fetch("/api/reset-datos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confirmacion: palabra }),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result?.error || "No se pudo reiniciar los datos.");
-      }
-
-      alert("Datos reiniciados correctamente. Ahora la app está en cero.");
-      window.location.reload();
-    } catch (error) {
-      alert(error.message || "Error al reiniciar datos.");
-    } finally {
-      setReseteando(false);
-    }
   };
 
   if (!usuario) {
@@ -137,11 +106,15 @@ export default function DashboardLayout({ children }) {
           <p className="uppercase tracking-wide text-gray-400 mt-0.5">{usuario.role}</p>
         </div>
         <Link
-          href="/cambiarcontrasena"
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-gray-300 hover:bg-gray-700/60 hover:text-white transition-colors"
+          href="/configuraciones"
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors ${
+            pathname === "/configuraciones"
+              ? "bg-verdefluor text-black"
+              : "text-gray-300 hover:bg-gray-700/60 hover:text-white"
+          }`}
         >
-          <KeyRound className="w-5 h-5 flex-shrink-0" />
-          Cambiar contraseña
+          <Settings className="w-5 h-5 flex-shrink-0" />
+          Configuraciones
         </Link>
         <button
           onClick={handleLogout}
@@ -149,14 +122,6 @@ export default function DashboardLayout({ children }) {
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           Cerrar sesión
-        </button>
-        <button
-          onClick={handleResetDatos}
-          disabled={reseteando}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-amber-200 hover:bg-amber-500/20 hover:text-amber-100 transition-colors disabled:opacity-60"
-        >
-          <Trash2 className="w-5 h-5 flex-shrink-0" />
-          {reseteando ? "Borrando datos..." : "Borrar datos métricos"}
         </button>
       </div>
     </div>

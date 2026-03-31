@@ -1,8 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useLogin from "../../hooks/useLogin";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Fingerprint } from "lucide-react";
+import {
+  authenticateBiometricLogin,
+  configureBiometricNextSlot,
+  getBiometricConfig,
+  getLastLoginUsername,
+  isMobileOrTablet,
+  isBiometricSupported,
+  markBiometricPrompted,
+  setLastLoginUsername,
+} from "@/lib/biometricConfig";
 
 export default function AdminAuth() {
   const router = useRouter();
@@ -12,6 +22,29 @@ export default function AdminAuth() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [biometricReady, setBiometricReady] = useState(false);
+  const [loadingBiometric, setLoadingBiometric] = useState(false);
+
+  useEffect(() => {
+    const lastUser = getLastLoginUsername();
+    if (lastUser) setUsername(lastUser);
+  }, []);
+
+  useEffect(() => {
+    const checkBiometricStatus = async () => {
+      if (!username || !isBiometricSupported() || !isMobileOrTablet()) {
+        setBiometricReady(false);
+        return;
+      }
+      try {
+        const config = await getBiometricConfig(username);
+        setBiometricReady(config.credentialIds.length > 0);
+      } catch {
+        setBiometricReady(false);
+      }
+    };
+    checkBiometricStatus();
+  }, [username]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -23,9 +56,57 @@ export default function AdminAuth() {
 
     if (validUser) {
       localStorage.setItem("adminUser", JSON.stringify(validUser));
+      setLastLoginUsername(validUser.username);
+
+      const biometricConfig = await getBiometricConfig(validUser.username);
+      if (!biometricConfig.prompted) {
+        const wantsBiometric = window.confirm(
+          "¿Desea colocar huella digital para este usuario?"
+        );
+
+        if (wantsBiometric) {
+          try {
+            const isSupported = isBiometricSupported();
+            if (!isSupported) {
+              alert("Este celular o navegador no soporta huella digital.");
+            } else {
+              await configureBiometricNextSlot(validUser.username);
+              alert("Huella digital configurada correctamente.");
+            }
+          } catch (biometricError) {
+            alert(
+              biometricError?.message ||
+                "No se pudo configurar la huella digital."
+            );
+          }
+        }
+
+        await markBiometricPrompted(validUser.username);
+      }
+
       router.push("/home");
     } else {
       setAuthError("Usuario o contraseña incorrectos.");
+    }
+  };
+
+  const handleAuthWithFingerprint = async () => {
+    setAuthError(null);
+    if (!username) {
+      setAuthError("Ingresá tu usuario para autenticar con huella.");
+      return;
+    }
+
+    try {
+      setLoadingBiometric(true);
+      const validUser = await authenticateBiometricLogin(username);
+      localStorage.setItem("adminUser", JSON.stringify(validUser));
+      setLastLoginUsername(validUser.username);
+      router.push("/home");
+    } catch (biometricError) {
+      setAuthError(biometricError?.message || "No se pudo iniciar con huella.");
+    } finally {
+      setLoadingBiometric(false);
     }
   };
 
@@ -105,6 +186,17 @@ export default function AdminAuth() {
           >
             {loading ? "Ingresando..." : "INGRESAR"}
           </button>
+          {biometricReady && (
+            <button
+              type="button"
+              onClick={handleAuthWithFingerprint}
+              disabled={loadingBiometric}
+              className="w-full border border-verdefluor text-verdefluor font-semibold py-2 rounded-full hover:bg-verdefluor/10 transition flex items-center justify-center gap-2"
+            >
+              <Fingerprint size={16} />
+              {loadingBiometric ? "Verificando huella..." : "Ingresar con huella"}
+            </button>
+          )}
         </form>
       </div>
     </div>
