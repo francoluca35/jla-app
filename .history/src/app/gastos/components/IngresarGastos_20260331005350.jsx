@@ -23,12 +23,9 @@ const IngresarGastos = () => {
     lugar: "",
     precio: "",
   });
-  const [modoSueldo, setModoSueldo] = useState("normal");
   const [empleado, setEmpleado] = useState("");
   const [diasDeTrabajo, setDiasDeTrabajo] = useState([]);
-  const [sueldoMetodoPago, setSueldoMetodoPago] = useState("efectivo");
-  const [sueldoEfectivo, setSueldoEfectivo] = useState("");
-  const [sueldoTransferencia, setSueldoTransferencia] = useState("");
+  const [tiposDePago, setTiposDePago] = useState([]);
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [fechaCompra, setFechaCompra] = useState(getTodayDateInput());
   const [compraVaria, setCompraVaria] = useState(false);
@@ -43,6 +40,14 @@ const IngresarGastos = () => {
   const toggleDiaTrabajo = (dia) => {
     setDiasDeTrabajo((prev) =>
       prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]
+    );
+  };
+
+  const toggleTipoDePago = (tipoPago) => {
+    setTiposDePago((prev) =>
+      prev.includes(tipoPago)
+        ? prev.filter((item) => item !== tipoPago)
+        : [...prev, tipoPago]
     );
   };
 
@@ -80,29 +85,12 @@ const IngresarGastos = () => {
     let gasto;
 
     if (tipo === "sueldos") {
-      const esAmbos = sueldoMetodoPago === "ambos";
-      const montoEfectivo = Number(sueldoEfectivo) || 0;
-      const montoTransferencia = Number(sueldoTransferencia) || 0;
-      const totalSueldo = esAmbos
-        ? montoEfectivo + montoTransferencia
-        : parseFloat(formData.precio) || 0;
-
       gasto = {
         tipo,
-        subtipo: modoSueldo,
         empleado,
-        diasDeTrabajo: modoSueldo === "aguinaldo" ? [] : diasDeTrabajo,
-        descripcion: modoSueldo === "aguinaldo" ? "Pago de aguinaldo" : formData.descripcion.trim(),
-        tipodepago: esAmbos ? ["efectivo", "transferencia"] : [sueldoMetodoPago],
-        metodoPago: sueldoMetodoPago,
-        efectivo: esAmbos ? montoEfectivo : sueldoMetodoPago === "efectivo" ? totalSueldo : 0,
-        transferencia:
-          esAmbos
-            ? montoTransferencia
-            : sueldoMetodoPago === "transferencia"
-              ? totalSueldo
-              : 0,
-        precio: totalSueldo,
+        diasDeTrabajo,
+        tipodepago: tiposDePago,
+        precio: parseFloat(formData.precio),
         fecha: new Date(),
       };
     } else {
@@ -246,30 +234,6 @@ const IngresarGastos = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {tipo === "sueldos" ? (
             <>
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Tipo de pago de sueldo</p>
-                <div className="flex gap-2">
-                  {[
-                    { id: "normal", label: "Sueldo normal" },
-                    { id: "aguinaldo", label: "Aguinaldo" },
-                  ].map((opcion) => (
-                    <button
-                      key={opcion.id}
-                      type="button"
-                      onClick={() => setModoSueldo(opcion.id)}
-                      className={clsx(
-                        "flex-1 py-2 rounded-lg text-sm font-medium border transition-colors",
-                        modoSueldo === opcion.id
-                          ? "bg-verdefluor text-black border-verdefluor"
-                          : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                      )}
-                    >
-                      {opcion.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-1 block">Empleado</span>
                 <input
@@ -282,116 +246,64 @@ const IngresarGastos = () => {
                 />
               </label>
 
-              {modoSueldo === "normal" && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Dias de trabajo</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"].map((dia) => (
-                      <button
-                        key={dia}
-                        type="button"
-                        onClick={() => toggleDiaTrabajo(dia)}
-                        className={clsx(
-                          "px-4 py-2 rounded-lg text-sm font-medium border transition-colors",
-                          diasDeTrabajo.includes(dia)
-                            ? "bg-verdefluor text-black border-verdefluor"
-                            : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        {dia}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Forma de pago</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">Dias de trabajo</p>
                 <div className="flex flex-wrap gap-2">
-                  {["efectivo", "transferencia", "ambos"].map((tipoPago) => (
+                  {["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"].map((dia) => (
                     <button
-                      key={tipoPago}
+                      key={dia}
                       type="button"
-                      onClick={() => setSueldoMetodoPago(tipoPago)}
+                      onClick={() => toggleDiaTrabajo(dia)}
                       className={clsx(
                         "px-4 py-2 rounded-lg text-sm font-medium border transition-colors",
-                        sueldoMetodoPago === tipoPago
+                        diasDeTrabajo.includes(dia)
                           ? "bg-verdefluor text-black border-verdefluor"
                           : "border-gray-300 text-gray-600 hover:bg-gray-50"
                       )}
                     >
-                      {tipoPago.charAt(0).toUpperCase() + tipoPago.slice(1)}
+                      {dia}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {sueldoMetodoPago === "ambos" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className="block">
-                    <span className="text-sm font-medium text-gray-700 mb-1 block">Efectivo</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={sueldoEfectivo}
-                      onChange={(e) => setSueldoEfectivo(e.target.value)}
-                      required
-                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm font-medium text-gray-700 mb-1 block">Transferencia</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={sueldoTransferencia}
-                      onChange={(e) => setSueldoTransferencia(e.target.value)}
-                      required
-                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
-                    />
-                  </label>
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Forma de pago</p>
+                <div className="flex flex-wrap gap-2">
+                  {["efectivo", "transferencia"].map((tipoPago) => (
+                    <label
+                      key={tipoPago}
+                      className={clsx(
+                        "cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors",
+                        tiposDePago.includes(tipoPago)
+                          ? "bg-verdefluor text-black border-verdefluor"
+                          : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={tiposDePago.includes(tipoPago)}
+                        onChange={() => toggleTipoDePago(tipoPago)}
+                        className="hidden"
+                      />
+                      {tipoPago.charAt(0).toUpperCase() + tipoPago.slice(1)}
+                    </label>
+                  ))}
                 </div>
-              )}
+              </div>
 
-              {sueldoMetodoPago !== "ambos" && (
-                <label className="block">
-                  <span className="text-sm font-medium text-gray-700 mb-1 block">Importe a pagar</span>
-                  <input
-                    type="number"
-                    name="precio"
-                    value={formData.precio}
-                    onChange={handleChange}
-                    required
-                    placeholder="Monto en pesos"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
-                  />
-                </label>
-              )}
-
-              {sueldoMetodoPago === "ambos" && (
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
-                  Total a pagar:{" "}
-                  <strong>${((Number(sueldoEfectivo) || 0) + (Number(sueldoTransferencia) || 0)).toFixed(2)}</strong>
-                </div>
-              )}
-
-              {modoSueldo === "normal" && (
-                <label className="block">
-                  <span className="text-sm font-medium text-gray-700 mb-1 block">
-                    Descripcion / justificativo (opcional)
-                  </span>
-                  <textarea
-                    name="descripcion"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    rows={3}
-                    placeholder="Ej: Se pago menos por inasistencia, adelanto previo o acuerdo parcial."
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 resize-y min-h-[90px]"
-                  />
-                </label>
-              )}
+              <label className="block">
+                <span className="text-sm font-medium text-gray-700 mb-1 block">Importe a pagar</span>
+                <input
+                  type="number"
+                  name="precio"
+                  value={formData.precio}
+                  onChange={handleChange}
+                  required
+                  placeholder="Monto en pesos"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900"
+                />
+              </label>
             </>
           ) : (
             <>

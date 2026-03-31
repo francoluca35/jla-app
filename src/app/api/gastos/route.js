@@ -75,7 +75,71 @@ export async function GET(req) {
 
     const gastos = await collection.find(query).toArray();
 
-    return NextResponse.json(gastos);
+    // Compatibilidad: incluir gastos de MP derivados de presupuestos (aunque no exista
+    // el registro físico en "gastos"), para que siempre se vean en historial.
+    const clientesCollection = db.collection("clientes");
+    const presupuestos = await clientesCollection
+      .find({ problemType: "presupuesto" })
+      .toArray();
+
+    const existingMpIds = new Set(
+      gastos
+        .filter((g) => g?.tipo === "materiaPrimaPresupuesto" && g?.presupuestoClienteId)
+        .map((g) => String(g.presupuestoClienteId))
+    );
+
+    const extraDesdePresupuesto = presupuestos
+      .map((c) => {
+        const presupuestoId = String(c._id);
+        if (existingMpIds.has(presupuestoId)) return null;
+
+        const totalMP = Number(
+          c?.presupuestoGanancia?.totalMateriaPrima ??
+            (Array.isArray(c?.materiaPrimaDetalle)
+              ? c.materiaPrimaDetalle.reduce((acc, item) => {
+                  const precio = Number(item?.precio) || 0;
+                  const cantidad = Number(item?.cantidad);
+                  const qty = Number.isFinite(cantidad) && cantidad > 0 ? cantidad : 1;
+                  return acc + precio * qty;
+                }, 0)
+              : 0)
+        );
+
+        if (!Number.isFinite(totalMP) || totalMP <= 0) return null;
+
+        return {
+          _id: `virtual-${presupuestoId}`,
+          tipo: "materiaPrimaPresupuesto",
+          cliente: c?.clientName || "",
+          sucursal: c?.branch || "",
+          fecha: c?.date ? new Date(c.date) : new Date(),
+          precio: totalMP,
+          montoMateriaPrima: totalMP,
+          gastoTotal: totalMP,
+          descripcion: `Materia prima presupuesto - ${c?.clientName || "cliente"}`,
+          presupuestoClienteId: c._id,
+          virtual: true,
+          materiaPrimaDetalle: Array.isArray(c?.materiaPrimaDetalle)
+            ? c.materiaPrimaDetalle
+            : [],
+        };
+      })
+      .filter(Boolean)
+      .filter((g) => {
+        if (tipo && g.tipo !== tipo) return false;
+        const precioNum = Number(g.precio) || 0;
+        if (precioNum < min || precioNum > max) return false;
+        if (fecha) {
+          const start = new Date(fecha);
+          const end = new Date(fecha);
+          end.setHours(23, 59, 59, 999);
+          const f = new Date(g.fecha);
+          if (f < start || f > end) return false;
+        }
+        return true;
+      });
+
+    return NextResponse.json([...gastos, ...extraDesdePresupuesto]);
   } catch (error) {
     console.error("Error al obtener gastos:", error);
     return NextResponse.json(

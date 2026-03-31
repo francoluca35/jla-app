@@ -8,6 +8,7 @@ const TIPOS_VALIDOS = [
   "camaras de fermentacion",
   "articulo de acero inox",
 ];
+const METODOS_PAGO_VALIDOS = ["efectivo", "transferencia"];
 
 export async function POST(req) {
   try {
@@ -17,8 +18,11 @@ export async function POST(req) {
     const precioUnidad = Number(data?.precioUnidad);
     const nombreProducto = String(data?.nombreProducto || "").trim();
     const vendidoA = String(data?.vendidoA || "").trim();
+    const nombreLugar = String(data?.nombreLugar || "").trim();
     const direccionLugar = String(data?.direccionLugar || "").trim();
+    const telefonoCliente = String(data?.telefonoCliente || "").trim();
     const tipoVenta = String(data?.tipoVenta || "").trim().toLowerCase();
+    const metodoPago = String(data?.metodoPago || "").trim().toLowerCase();
 
     if (!TIPOS_VALIDOS.includes(tipoVenta)) {
       return NextResponse.json({ error: "Tipo de venta inválido." }, { status: 400 });
@@ -27,10 +31,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "El nombre del producto es obligatorio." }, { status: 400 });
     }
     if (!vendidoA) {
-      return NextResponse.json({ error: "Indicá a quién se lo vendiste." }, { status: 400 });
+      return NextResponse.json({ error: "El nombre de cliente es obligatorio." }, { status: 400 });
     }
     if (!direccionLugar) {
       return NextResponse.json({ error: "La dirección del lugar es obligatoria." }, { status: 400 });
+    }
+    if (!telefonoCliente) {
+      return NextResponse.json({ error: "El teléfono del cliente es obligatorio." }, { status: 400 });
     }
     if (!Number.isFinite(cantidad) || cantidad <= 0) {
       return NextResponse.json({ error: "La cantidad debe ser mayor a 0." }, { status: 400 });
@@ -41,19 +48,25 @@ export async function POST(req) {
     if (!data?.fechaVenta) {
       return NextResponse.json({ error: "La fecha de venta es obligatoria." }, { status: 400 });
     }
+    if (!METODOS_PAGO_VALIDOS.includes(metodoPago)) {
+      return NextResponse.json({ error: "El método de pago es inválido." }, { status: 400 });
+    }
 
     const venta = {
       tipoVenta,
       nombreProducto,
       vendidoA,
+      nombreLugar,
+      telefonoCliente,
       direccionLugar,
       cantidad,
       precioUnidad,
+      metodoPago,
       total: Number.isFinite(Number(data?.total))
         ? Number(data.total)
         : Number((cantidad * precioUnidad).toFixed(2)),
       sena: Boolean(data?.sena),
-      ventaDesdeStock: Boolean(data?.ventaDesdeStock),
+      ventaDesdeStock: true,
       fechaVenta: data.fechaVenta,
       createdAt: data?.createdAt ? new Date(data.createdAt) : new Date(),
     };

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Caviar Dreams";
+  src: url("/font/CaviarDreams.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

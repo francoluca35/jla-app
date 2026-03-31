@@ -153,54 +153,114 @@ function TabsIngresos() {
         )}
       </div>
 
-      <div className="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-gray-700 text-sm font-semibold">
-              {(modoEliminar || modoEditar) && <th className="p-3 text-left w-10">✓</th>}
-              <th className="p-3 text-left">Cliente</th>
-              <th className="p-3 text-left">Sucursal</th>
-              <th className="p-3 text-left">Tipo</th>
-              <th className="p-3 text-left">Pago</th>
-              <th className="p-3 text-left">Monto</th>
-              <th className="p-3 text-left">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {datos.map((item, index) => (
-              <tr key={item._id || index} className={`text-sm text-gray-800 border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
-                {(modoEliminar || modoEditar) && (
-                  <td className="p-3">
-                    <input
-                      type="checkbox"
-                      checked={seleccionados.includes(item._id)}
-                      onChange={() => toggleSeleccionado(item._id)}
-                      className="rounded border-gray-300"
-                    />
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="hidden lg:block">
+          <table className="w-full text-sm table-fixed">
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-50 text-gray-700 font-semibold">
+                {(modoEliminar || modoEditar) && <th className="p-2 lg:p-3 text-left w-10">✓</th>}
+                <th className="p-2 lg:p-3 text-left min-w-0 w-[18%]">Cliente</th>
+                <th className="p-2 lg:p-3 text-left min-w-0 w-[12%]">Sucursal</th>
+                <th className="p-2 lg:p-3 text-left w-[11%] min-w-0">Fecha</th>
+                <th className="p-2 lg:p-3 text-left min-w-0 w-[12%]">Tipo</th>
+                <th className="p-2 lg:p-3 text-left min-w-0 w-[12%]">Pago</th>
+                <th className="p-2 lg:p-3 text-right min-w-0 w-[12%]">Monto final</th>
+                <th className="p-2 lg:p-3 text-left min-w-0">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {datos.map((item, index) => (
+                <tr key={item._id || index} className={`text-gray-800 border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                  {(modoEliminar || modoEditar) && (
+                    <td className="p-2 lg:p-3 align-middle">
+                      <input
+                        type="checkbox"
+                        checked={seleccionados.includes(item._id)}
+                        onChange={() => toggleSeleccionado(item._id)}
+                        className="rounded border-gray-300"
+                      />
+                    </td>
+                  )}
+                  <td className="p-2 lg:p-3 min-w-0 break-words">{item.clientName}</td>
+                  <td className="p-2 lg:p-3 min-w-0 truncate" title={item.branch || ""}>
+                    {item.branch}
                   </td>
-                )}
-                <td className="p-3">{item.clientName}</td>
-                <td className="p-3">{item.branch}</td>
-                <td className="p-3">{item.problemType}</td>
-                <td className="p-3">{item.paymentOption || "-"}</td>
-                <td className="p-3 font-medium">${item.amount}</td>
-                <td className="p-3">
-                  {["arreglo", "presupuesto"].includes(item.problemType) ? (
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${item.estado === "terminado" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-800"}`}>
-                      {item.estado || "-"}
-                    </span>
-                  ) : "-"}
+                  <td className="p-2 lg:p-3 whitespace-nowrap text-xs">{item.date ? new Date(item.date).toLocaleDateString("es-AR") : "-"}</td>
+                  <td className="p-2 lg:p-3 min-w-0 truncate">{item.tipoIngreso || item.problemType}</td>
+                  <td className="p-2 lg:p-3 min-w-0 truncate">{item.paymentOption || "-"}</td>
+                  <td className="p-2 lg:p-3 font-medium text-right tabular-nums">${item.montoFinal ?? item.amount}</td>
+                  <td className="p-2 lg:p-3 min-w-0">
+                    {["arreglo", "presupuesto"].includes(item.problemType) ? (
+                      <span className={`inline-block max-w-full px-2 py-1 rounded text-xs font-medium ${item.estado === "terminado" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-800"}`}>
+                        {item.problemType === "presupuesto" && item.estado !== "terminado"
+                          ? "en fabricacion"
+                          : item.estado || "-"}
+                      </span>
+                    ) : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-100 font-semibold text-gray-900 text-sm">
+                <td className="p-2 lg:p-3" colSpan={modoEliminar || modoEditar ? 7 : 6}>
+                  Total
+                </td>
+                <td className="p-2 lg:p-3 text-right tabular-nums">
+                  ${filtro === "todos" ? calcularTotalCombinado() : calcularTotal()}
                 </td>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="bg-gray-100 font-semibold text-gray-900 text-sm">
-              <td className="p-3" colSpan={modoEliminar || modoEditar ? 6 : 5}>Total</td>
-              <td className="p-3">${filtro === "todos" ? calcularTotalCombinado() : calcularTotal()}</td>
-            </tr>
-          </tfoot>
-        </table>
+            </tfoot>
+          </table>
+        </div>
+
+        <ul className="lg:hidden divide-y divide-gray-100">
+          {datos.map((item, index) => (
+            <li
+              key={item._id || index}
+              className={`p-4 space-y-2 text-sm ${index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+            >
+              {(modoEliminar || modoEditar) && (
+                <label className="flex items-center gap-2 text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={seleccionados.includes(item._id)}
+                    onChange={() => toggleSeleccionado(item._id)}
+                    className="rounded border-gray-300"
+                  />
+                  <span className="text-xs">Seleccionar</span>
+                </label>
+              )}
+              <div className="flex justify-between gap-2 items-start">
+                <p className="font-semibold text-gray-900 break-words min-w-0">{item.clientName}</p>
+                <span className="text-xs text-gray-500 shrink-0 whitespace-nowrap">
+                  {item.date ? new Date(item.date).toLocaleDateString("es-AR") : "-"}
+                </span>
+              </div>
+              <p className="text-xs text-gray-600">Sucursal: {item.branch || "—"}</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
+                <span>Tipo: {item.tipoIngreso || item.problemType}</span>
+                <span>Pago: {item.paymentOption || "—"}</span>
+              </div>
+              <div className="flex justify-between items-center gap-2 pt-1">
+                <span className="font-bold text-gray-900 tabular-nums">${item.montoFinal ?? item.amount}</span>
+                {["arreglo", "presupuesto"].includes(item.problemType) ? (
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${item.estado === "terminado" ? "bg-gray-200 text-gray-700" : "bg-amber-100 text-amber-800"}`}>
+                    {item.problemType === "presupuesto" && item.estado !== "terminado"
+                      ? "en fabricacion"
+                      : item.estado || "-"}
+                  </span>
+                ) : (
+                  <span className="text-gray-400 text-xs">—</span>
+                )}
+              </div>
+            </li>
+          ))}
+          <li className="p-4 bg-gray-100 font-semibold text-gray-900 text-sm flex justify-between gap-2">
+            <span>Total</span>
+            <span className="tabular-nums">${filtro === "todos" ? calcularTotalCombinado() : calcularTotal()}</span>
+          </li>
+        </ul>
       </div>
 
       {editando && (

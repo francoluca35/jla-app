@@ -126,6 +126,41 @@ function estadoLabel(c) {
   return "En curso";
 }
 
+/** Líneas de sertec que corresponden a seña (se cierran al terminar la producción). */
+function esLineaSenaSertec(item) {
+  const tipo = String(item?.tipo || "").toLowerCase().trim();
+  return tipo === "seña" || tipo.startsWith("seña ");
+}
+
+/**
+ * Al pasar un presupuesto a terminado: anula líneas de seña en pagos y deja de mostrar modalidad seña en ingresos.
+ */
+function aplicarCierreTerminadoPresupuesto(cliente) {
+  const ft = cliente.fechaTerminado || new Date().toISOString().split("T")[0];
+  const sertecPrev = Array.isArray(cliente.sertec) ? cliente.sertec : [];
+  const sertec = sertecPrev.map((item) =>
+    esLineaSenaSertec(item) ? { ...item, anulada: true } : item
+  );
+  const next = {
+    ...cliente,
+    estado: "terminado",
+    fechaTerminado: ft,
+    sertec,
+  };
+  if (String(cliente.paymentOption || "").trim().toLowerCase() === "seña") {
+    next.paymentOption = "pago total";
+  }
+  if (cliente.presupuestoGanancia && typeof cliente.presupuestoGanancia === "object") {
+    next.presupuestoGanancia = {
+      ...cliente.presupuestoGanancia,
+      modalidadPago: "pago_total",
+    };
+  }
+  next.pagoIngreso = next.paymentOption || "";
+  next.estadoIngreso = "terminado";
+  return next;
+}
+
 function DetailSection({ icon: Icon, title, children, accent = "slate" }) {
   const ring =
     accent === "emerald"
@@ -235,7 +270,16 @@ export default function HistoryClient() {
   };
 
   const handleGuardarCambios = async () => {
-    await editarCliente(editedClient);
+    let payload = editedClient;
+    if (
+      editedClient?.problemType === "presupuesto" &&
+      editedClient?.estado === "terminado" &&
+      (detailClient?.estado !== "terminado" ||
+        String(editedClient?.paymentOption || "").trim().toLowerCase() === "seña")
+    ) {
+      payload = aplicarCierreTerminadoPresupuesto(editedClient);
+    }
+    await editarCliente(payload);
     setIsEditing(false);
     setDetailClient(null);
     setEditedClient(null);
@@ -261,11 +305,7 @@ export default function HistoryClient() {
       ),
     };
 
-    await editarCliente({
-      ...detailClient,
-      estado: "terminado",
-      fechaTerminado: new Date().toISOString().split("T")[0],
-    });
+    await editarCliente(actualizado);
 
     setDetailClient(actualizado);
     refetch();
@@ -400,43 +440,66 @@ export default function HistoryClient() {
                 Sin ítems registrados.
               </p>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-slate-50 text-black text-left text-xs font-semibold uppercase tracking-wide">
-                      <th className="px-3 py-2.5">Ítem</th>
-                      <th className="px-3 py-2.5">Cant.</th>
-                      <th className="px-3 py-2.5">Unidad</th>
-                      <th className="px-3 py-2.5 text-right">P. unit.</th>
-                      <th className="px-3 py-2.5 text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {itemsMP.map((row, idx) => (
-                      <tr key={idx} className="bg-white hover:bg-slate-50/50 transition-colors">
-                        <td className="px-3 py-2.5 font-medium text-black">{row.nombre || "—"}</td>
-                        <td className="px-3 py-2.5 tabular-nums text-black">{cantidadItemMP(row)}</td>
-                        <td className="px-3 py-2.5 text-black">{labelUnidadMP(row.unidad)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-black">
-                          {formatMoneda(row.precio)}
+              <div className="rounded-xl border border-slate-200 overflow-hidden">
+                <div className="hidden sm:block">
+                  <table className="w-full text-sm table-fixed">
+                    <thead>
+                      <tr className="bg-slate-50 text-black text-left text-xs font-semibold uppercase tracking-wide">
+                        <th className="px-2 sm:px-3 py-2.5 w-[28%]">Ítem</th>
+                        <th className="px-2 sm:px-3 py-2.5 w-12">Cant.</th>
+                        <th className="px-2 sm:px-3 py-2.5 w-14">Unidad</th>
+                        <th className="px-2 sm:px-3 py-2.5 text-right w-[18%]">P. unit.</th>
+                        <th className="px-2 sm:px-3 py-2.5 text-right w-[18%]">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {itemsMP.map((row, idx) => (
+                        <tr key={idx} className="bg-white hover:bg-slate-50/50 transition-colors">
+                          <td className="px-2 sm:px-3 py-2.5 font-medium text-black break-words">{row.nombre || "—"}</td>
+                          <td className="px-2 sm:px-3 py-2.5 tabular-nums text-black">{cantidadItemMP(row)}</td>
+                          <td className="px-2 sm:px-3 py-2.5 text-black">{labelUnidadMP(row.unidad)}</td>
+                          <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-black">
+                            {formatMoneda(row.precio)}
+                          </td>
+                          <td className="px-2 sm:px-3 py-2.5 text-right font-semibold tabular-nums text-black">
+                            {formatMoneda(subtotalItemMP(row))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-amber-50/90 border-t border-amber-100">
+                        <td colSpan={4} className="px-2 sm:px-3 py-3 text-right text-sm font-semibold text-black">
+                          Total materia prima
                         </td>
-                        <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-black">
-                          {formatMoneda(subtotalItemMP(row))}
+                        <td className="px-2 sm:px-3 py-3 text-right text-sm font-bold tabular-nums text-black">
+                          {formatMoneda(totalMP)}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="bg-amber-50/90 border-t border-amber-100">
-                      <td colSpan={4} className="px-3 py-3 text-right text-sm font-semibold text-black">
-                        Total materia prima
-                      </td>
-                      <td className="px-3 py-3 text-right text-sm font-bold tabular-nums text-black">
-                        {formatMoneda(totalMP)}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                    </tfoot>
+                  </table>
+                </div>
+                <ul className="sm:hidden divide-y divide-slate-100 bg-white">
+                  {itemsMP.map((row, idx) => (
+                    <li key={idx} className="px-3 py-3 space-y-1.5">
+                      <p className="font-medium text-black text-sm">{row.nombre || "—"}</p>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-black">
+                        <span className="text-slate-500">Cant.</span>
+                        <span className="tabular-nums text-right">{cantidadItemMP(row)}</span>
+                        <span className="text-slate-500">Unidad</span>
+                        <span className="text-right">{labelUnidadMP(row.unidad)}</span>
+                        <span className="text-slate-500">P. unit.</span>
+                        <span className="tabular-nums text-right">{formatMoneda(row.precio)}</span>
+                        <span className="text-slate-500 font-semibold">Subtotal</span>
+                        <span className="tabular-nums text-right font-semibold">{formatMoneda(subtotalItemMP(row))}</span>
+                      </div>
+                    </li>
+                  ))}
+                  <li className="px-3 py-3 bg-amber-50/90 border-t border-amber-100 flex justify-between gap-2 text-sm font-semibold text-black">
+                    <span>Total materia prima</span>
+                    <span className="tabular-nums font-bold">{formatMoneda(totalMP)}</span>
+                  </li>
+                </ul>
               </div>
             )}
           </DetailSection>
@@ -661,8 +724,8 @@ export default function HistoryClient() {
           </div>
         ) : (
           <>
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full min-w-[980px] text-sm">
+            <div className="hidden lg:block">
+              <table className="w-full text-sm table-fixed">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     <th className="px-4 py-3 w-12" />
@@ -735,14 +798,18 @@ export default function HistoryClient() {
                               )}
                             </span>
                           </td>
-                          <td className="px-3 py-3 font-semibold text-black max-w-[180px]">
+                          <td className="px-3 py-3 font-semibold text-black min-w-0 w-[18%]">
                             <span className="truncate block" title={cliente.clientName}>
                               {cliente.clientName}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-black">{cliente.branch?.trim() || "—"}</td>
-                          <td className="px-3 py-3">{celdaFechaTabla(cliente)}</td>
-                          <td className="px-3 py-3 text-black max-w-[240px]">
+                          <td className="px-3 py-3 text-black min-w-0 w-[12%]">
+                            <span className="truncate block" title={cliente.branch?.trim() || ""}>
+                              {cliente.branch?.trim() || "—"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 min-w-0 w-[14%] whitespace-nowrap text-xs sm:text-sm">{celdaFechaTabla(cliente)}</td>
+                          <td className="px-3 py-3 text-black min-w-0 w-[20%]">
                             <span className="truncate block" title={fabrica}>
                               {fabrica}
                             </span>
@@ -867,16 +934,13 @@ export default function HistoryClient() {
                                             type="button"
                                             onClick={async () => {
                                               const ft = new Date().toISOString().split("T")[0];
-                                              await editarCliente({
-                                                ...detailClient,
-                                                estado: "terminado",
-                                                fechaTerminado: ft,
-                                              });
-                                              setDetailClient({
-                                                ...detailClient,
-                                                estado: "terminado",
-                                                fechaTerminado: ft,
-                                              });
+                                              const base = { ...detailClient, fechaTerminado: ft, estado: "terminado" };
+                                              const actualizado =
+                                                detailClient.problemType === "presupuesto"
+                                                  ? aplicarCierreTerminadoPresupuesto(base)
+                                                  : base;
+                                              await editarCliente(actualizado);
+                                              setDetailClient(actualizado);
                                               refetch();
                                             }}
                                             className="inline-flex items-center justify-center gap-2 flex-1 min-w-[160px] rounded-xl bg-verdefluor hover:bg-verdefluort text-black font-semibold py-3 px-4 border border-slate-900/10 shadow-sm"
@@ -908,7 +972,7 @@ export default function HistoryClient() {
               </table>
             </div>
 
-            <div className="md:hidden p-3 space-y-3">
+            <div className="lg:hidden p-3 space-y-3">
               {filteredClientes.map((cliente, index) => {
                 const id = cliente._id != null ? String(cliente._id) : `idx-${index}`;
                 const open = detailId != null && cliente._id != null && String(cliente._id) === detailId;

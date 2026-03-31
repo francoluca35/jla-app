@@ -16,21 +16,6 @@ function formatMoneda(value) {
   }).format(value);
 }
 
-/** Saldo con signo explícito (+ / −) delante del símbolo $ */
-function formatBalanceConSigno(value) {
-  if (value == null || isNaN(value)) return "—";
-  const n = Number(value);
-  const formatted = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(n));
-  if (n > 0) return `+${formatted}`;
-  if (n < 0) return `-${formatted}`;
-  return formatted;
-}
-
 function startOfMonth(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
@@ -188,7 +173,7 @@ export default function EquilibrioPanel() {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               Ganancias ({periodo})
             </span>
-            <span className="font-bold text-green-500 tabular-nums">+ {formatMoneda(resumen.ganancias)}</span>
+            <span className="font-bold text-gray-900 tabular-nums">{formatMoneda(resumen.ganancias)}</span>
           </div>
           <div className="flex items-center justify-between rounded-lg border border-rose-100 bg-rose-50/40 px-3 py-2">
             <span className="font-medium text-gray-800 flex items-center gap-2">
@@ -200,7 +185,7 @@ export default function EquilibrioPanel() {
           <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 mt-3">
             <span className="font-semibold text-gray-900">Balance</span>
             <span className={`font-bold tabular-nums ${balanceTextClass(resumen.ganancias, resumen.perdidas)}`}>
-              {formatBalanceConSigno(resumen.balance)}
+              {formatMoneda(resumen.balance)}
             </span>
           </div>
         </div>

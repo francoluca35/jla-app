@@ -1,9 +1,98 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useGastos } from "@/hooks/UseGastos";
 import Swal from "sweetalert2";
+
+const formatMoneda = (value) =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
+
+const labelTipo = (tipo) => {
+  if (tipo === "stockear") return "Stockear";
+  if (tipo === "gastoVario") return "Gastos Varios";
+  if (tipo === "sueldos") return "Sueldos";
+  if (tipo === "materiaPrimaPresupuesto") return "Materia prima presupuesto";
+  return tipo || "-";
+};
+
+/** Filas de materiales / MP: tolera distintas formas de guardado (Mongo, presupuesto, registros viejos). */
+function extractMateriasRows(gasto) {
+  if (!gasto || typeof gasto !== "object") return [];
+  const sources = [
+    gasto.items,
+    gasto.Items,
+    gasto.materiaPrimaDetalle,
+    gasto.materiaPrimaItems,
+    gasto.detalles,
+  ];
+  let raw = [];
+  for (const s of sources) {
+    if (Array.isArray(s) && s.length > 0) {
+      raw = s;
+      break;
+    }
+  }
+  if (!raw.length) return [];
+
+  return raw
+    .map((row) => {
+      if (!row || typeof row !== "object") return null;
+      const material = String(
+        row.material ?? row.nombre ?? row.producto ?? row.nombreProducto ?? ""
+      ).trim();
+      const cantidad = Number(row.cantidad ?? row.qty ?? row.quantity ?? 0);
+      const unidad = String(row.unidad ?? row.unit ?? "").trim();
+      const precio = Number(row.precio ?? row.precioUnitario ?? row.precioUnit ?? 0);
+      const subtotal = Number(
+        row.subtotal ??
+          (Number.isFinite(cantidad) && cantidad > 0 ? cantidad * precio : precio)
+      );
+      return {
+        material: material || "Sin nombre",
+        cantidad: Number.isFinite(cantidad) ? cantidad : 0,
+        unidad,
+        precio: Number.isFinite(precio) ? precio : 0,
+        subtotal: Number.isFinite(subtotal) ? subtotal : 0,
+      };
+    })
+    .filter(Boolean);
+}
+
+function MateriasCompradasTable({ rows }) {
+  if (!rows?.length) return null;
+  return (
+    <div className="rounded-xl border border-gray-200 overflow-hidden">
+      <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 font-semibold text-gray-800">
+        Materias primas / materiales comprados
+      </div>
+      <div className="divide-y divide-gray-100">
+        {rows.map((item, idx) => (
+          <div
+            key={`${item.material}-${idx}`}
+            className="px-3 py-2.5 grid grid-cols-1 sm:grid-cols-12 gap-2 text-sm items-start"
+          >
+            <p className="font-medium text-gray-900 sm:col-span-5">{item.material}</p>
+            <p className="text-gray-600 sm:col-span-3 tabular-nums">
+              {item.cantidad > 0 ? `${item.cantidad} ${item.unidad || ""}`.trim() : "—"}
+            </p>
+            <p className="text-gray-700 sm:col-span-2 sm:text-right tabular-nums">
+              {item.precio > 0 ? `${formatMoneda(item.precio)} c/u` : "—"}
+            </p>
+            <p className="font-semibold text-gray-900 sm:col-span-2 sm:text-right tabular-nums">
+              {formatMoneda(item.subtotal)}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const TabsGasto = () => {
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
@@ -97,6 +186,11 @@ const TabsGasto = () => {
     }
   };
 
+  const materiasRowsModal = useMemo(
+    () => (gastoSeleccionado ? extractMateriasRows(gastoSeleccionado) : []),
+    [gastoSeleccionado]
+  );
+
   const handleGuardar = async () => {
     const payload = {
       ...edited,
@@ -138,6 +232,8 @@ const TabsGasto = () => {
             onChange={(e) => setTipoSeleccionado(e.target.value)}
           >
             <option value="">Todos los tipos</option>
+            <option value="materiaPrimaPresupuesto">Materia prima (presupuesto)</option>
+            <option value="stockear">Stockear</option>
             <option value="gastoVario">Gastos Varios</option>
             <option value="sueldos">Sueldos</option>
           </select>
@@ -248,6 +344,17 @@ const TabsGasto = () => {
                           Días: {gasto.diasDeTrabajo?.join(", ") || "-"}
                         </p>
                       </>
+                    ) : gasto.tipo === "materiaPrimaPresupuesto" ? (
+                      <>
+                        <p className="font-semibold text-gray-900">Cliente: {gasto.cliente || "-"}</p>
+                        <p className="text-sm text-gray-600">
+                          Sucursal: {gasto.sucursal || "-"} · Tipo: Materia prima presupuesto
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Monto MP: ${Number(gasto.montoMateriaPrima || gasto.precio || 0)} · Gasto total: $
+                          {Number(gasto.gastoTotal || gasto.precio || 0)}
+                        </p>
+                      </>
                     ) : (
                       <>
                         <p className="font-semibold text-gray-900">{gasto.descripcion}</p>
@@ -265,7 +372,7 @@ const TabsGasto = () => {
       {/* Modal de detalle y edición */}
       {gastoSeleccionado && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white text-gray-900 p-6 rounded-xl w-full max-w-md relative border border-gray-200 shadow-xl">
+          <div className="bg-white text-gray-900 p-6 rounded-2xl w-full max-w-2xl relative border border-gray-200 shadow-xl max-h-[90vh] overflow-y-auto">
             <button
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl leading-none"
               onClick={() => {
@@ -280,51 +387,92 @@ const TabsGasto = () => {
             {!isEditing ? (
               <>
                 {gastoSeleccionado.tipo === "sueldos" ? (
-                  <>
-                    <p>
-                      <strong>Tipo:</strong> Sueldos
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <p className="sm:col-span-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                      <strong>Tipo:</strong> {labelTipo(gastoSeleccionado.tipo)}
                     </p>
-                    <p>
-                      <strong>Empleado:</strong> {gastoSeleccionado.empleado}
+                    <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                      <strong>Empleado:</strong> {gastoSeleccionado.empleado || "-"}
                     </p>
-                    <p>
-                      <strong>Días de trabajo:</strong>{" "}
-                      {gastoSeleccionado.diasDeTrabajo?.join(", ") || "-"}
+                    <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                      <strong>Forma de pago:</strong> {gastoSeleccionado.tipodepago?.join(" + ") || "-"}
                     </p>
-                    <p>
-                      <strong>Forma de pago:</strong>{" "}
-                      {gastoSeleccionado.tipodepago?.join(" + ") || "-"}
+                    <p className="sm:col-span-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                      <strong>Días de trabajo:</strong> {gastoSeleccionado.diasDeTrabajo?.join(", ") || "-"}
                     </p>
-                    <p>
-                      <strong>Importe:</strong> ${gastoSeleccionado.precio}
+                    {gastoSeleccionado.descripcion && (
+                      <p className="sm:col-span-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2 whitespace-pre-wrap">
+                        <strong>Descripción:</strong> {gastoSeleccionado.descripcion}
+                      </p>
+                    )}
+                    <p className="sm:col-span-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+                      <strong>Importe:</strong> {formatMoneda(gastoSeleccionado.precio)}
                     </p>
-                  </>
+                  </div>
+                ) : gastoSeleccionado.tipo === "materiaPrimaPresupuesto" ? (
+                  <div className="space-y-3 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                        <strong>Cliente:</strong> {gastoSeleccionado.cliente || "-"}
+                      </p>
+                      <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                        <strong>Sucursal:</strong> {gastoSeleccionado.sucursal || "-"}
+                      </p>
+                      <p className="sm:col-span-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                        <strong>Tipo:</strong> {labelTipo(gastoSeleccionado.tipo)}
+                      </p>
+                      <p className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+                        <strong>Monto MP:</strong>{" "}
+                        {formatMoneda(gastoSeleccionado.montoMateriaPrima || gastoSeleccionado.precio || 0)}
+                      </p>
+                      <p className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+                        <strong>Gasto total:</strong>{" "}
+                        {formatMoneda(gastoSeleccionado.gastoTotal || gastoSeleccionado.precio || 0)}
+                      </p>
+                    </div>
+                    <MateriasCompradasTable rows={materiasRowsModal} />
+                    {!materiasRowsModal.length && (
+                      <p className="text-xs text-gray-500 rounded-lg border border-dashed border-gray-200 px-3 py-2">
+                        No hay detalle por ítem en este registro (solo total de materia prima).
+                      </p>
+                    )}
+                  </div>
                 ) : (
-                  <>
-                    <p>
-                      <strong>Tipo:</strong> {gastoSeleccionado.tipo}
-                    </p>
-                    <p>
-                      <strong>Descripción:</strong>{" "}
-                      {gastoSeleccionado.descripcion}
-                    </p>
-                    <p>
-                      <strong>Lugar:</strong> {gastoSeleccionado.lugar}
-                    </p>
-                    <p>
-                      <strong>Precio:</strong> ${gastoSeleccionado.precio}
-                    </p>
-                  </>
+                  <div className="space-y-3 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                        <strong>Tipo:</strong> {labelTipo(gastoSeleccionado.tipo)}
+                      </p>
+                      <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                        <strong>Lugar:</strong> {gastoSeleccionado.lugar || "-"}
+                      </p>
+                      <p className="sm:col-span-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2 whitespace-pre-wrap">
+                        <strong>Descripción:</strong> {gastoSeleccionado.descripcion || "-"}
+                      </p>
+                    </div>
+
+                    <MateriasCompradasTable rows={materiasRowsModal} />
+                    {!materiasRowsModal.length && (
+                      <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        No hay líneas de materiales guardadas en este gasto. Si es un registro viejo (antes del
+                        detalle por ítem), solo verás descripción y total.
+                      </p>
+                    )}
+
+                    <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+                      <strong>Total del gasto:</strong> {formatMoneda(gastoSeleccionado.precio)}
+                    </div>
+                  </div>
                 )}
-                <p>
-                  <strong>Fecha:</strong>{" "}
-                  {new Date(gastoSeleccionado.fecha).toLocaleDateString(
-                    "es-AR"
-                  )}
-                </p>
-                <p>
-                  <strong>ID:</strong> {gastoSeleccionado._id}
-                </p>
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                    <strong>Fecha:</strong>{" "}
+                    {new Date(gastoSeleccionado.fecha).toLocaleDateString("es-AR")}
+                  </p>
+                  <p className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2 break-all">
+                    <strong>ID:</strong> {gastoSeleccionado._id}
+                  </p>
+                </div>
 
                 <button
                   className="mt-4 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900"
