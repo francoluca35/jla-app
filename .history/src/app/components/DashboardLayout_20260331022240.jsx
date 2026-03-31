@@ -24,8 +24,8 @@ import {
 const NAV = [
   { label: "Inicio", path: "/home", icon: LayoutDashboard },
   { label: "Agenda de Clientes", path: "/agendaclient", icon: CalendarPlus },
-  { label: "Ventas pactadas", path: "/ventas-pactadas", icon: ShoppingCart },
   { label: "Ingreso de Gastos", path: "/gastos", icon: PiggyBank },
+  { label: "Ventas pactadas", path: "/ventas-pactadas", icon: ShoppingCart },
   { label: "Historial Clientes", path: "/hclientes", icon: Users },
   { label: "Historial de Gastos", path: "/hgastos", icon: ReceiptText },
   { label: "Historial de Ingresos", path: "/hingresos", icon: ChartNoAxesCombined },

@@ -24,7 +24,7 @@ export default function GananciasPanel() {
     let sTecnico = 0;
     let presupuestoNeto = 0;
     let presupuestoDirecto = 0;
-    let ventasPactadas = 0;
+    let ventasStock = 0;
 
     if (Array.isArray(clientes)) {
       for (const c of clientes) {
@@ -34,19 +34,18 @@ export default function GananciasPanel() {
           sTecnico += monto;
         }
 
-        if (
-          c.problemType === "presupuesto" &&
-          String(c.paymentOption || "").trim().toLowerCase() === "seña" &&
-          c.estado !== "terminado" &&
-          c.presupuestoGanancia
-        ) {
+        if (c.problemType === "presupuesto" && c.paymentOption === "seña" && c.presupuestoGanancia) {
           if (c.presupuestoGanancia.materiaPrimaEstado === "calculado") {
             presupuestoNeto += Number(c.presupuestoGanancia.gananciaNeta ?? 0);
           }
         }
 
-        // Presupuesto cerrado: siempre suma el total del trabajo (incluye seña legacy o "pago total").
-        if (c.problemType === "presupuesto" && c.estado === "terminado") {
+        if (
+          c.problemType === "presupuesto" &&
+          c.estado === "terminado" &&
+          c.paymentOption &&
+          c.paymentOption !== "seña"
+        ) {
           presupuestoDirecto += monto;
         }
       }
@@ -54,17 +53,19 @@ export default function GananciasPanel() {
 
     if (Array.isArray(ventas)) {
       for (const v of ventas) {
-        ventasPactadas += Number(v.total ?? 0);
+        if (v.ventaDesdeStock) {
+          ventasStock += Number(v.total ?? 0);
+        }
       }
     }
 
-    const total = sTecnico + presupuestoNeto + presupuestoDirecto + ventasPactadas;
+    const total = sTecnico + presupuestoNeto + presupuestoDirecto + ventasStock;
 
     return {
       sTecnico,
       presupuestoNeto,
       presupuestoDirecto,
-      ventasPactadas,
+      ventasStock,
       total,
     };
   }, [clientes, ventas]);
@@ -85,8 +86,8 @@ export default function GananciasPanel() {
       hint: "Seña (neto) + pago total terminado",
     },
     {
-      label: "Ventas pactadas",
-      value: resumen.ventasPactadas,
+      label: "Ventas desde stock",
+      value: resumen.ventasStock,
       hint: "100% del total de la venta",
     },
   ];
@@ -98,42 +99,31 @@ export default function GananciasPanel() {
           Ganancias
         </h2>
       </div>
-      <div className="rounded-xl border border-gray-200 overflow-hidden">
-        <div className="hidden sm:block">
-          <table className="w-full text-sm">
-            <thead className="bg-emerald-50/70 text-gray-700">
-              <tr>
-                <th className="px-3 py-2.5 text-left font-semibold">Concepto</th>
-                <th className="px-3 py-2.5 text-left font-semibold">Detalle</th>
-                <th className="px-3 py-2.5 text-right font-semibold">Monto</th>
+      <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <table className="w-full text-sm">
+          <thead className="bg-emerald-50/70 text-gray-700">
+            <tr>
+              <th className="px-3 py-2.5 text-left font-semibold">Concepto</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Detalle</th>
+              <th className="px-3 py-2.5 text-right font-semibold">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filas.map((f) => (
+              <tr key={f.label} className="border-t border-gray-100">
+                <td className="px-3 py-2.5 font-medium text-gray-800">{f.label}</td>
+                <td className="px-3 py-2.5 text-gray-500">{f.hint}</td>
+                <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
+                  {formatMoneda(f.value)}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filas.map((f) => (
-                <tr key={f.label} className="border-t border-gray-100">
-                  <td className="px-3 py-2.5 font-medium text-gray-800">{f.label}</td>
-                  <td className="px-3 py-2.5 text-gray-500">{f.hint}</td>
-                  <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
-                    {formatMoneda(f.value)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <ul className="sm:hidden divide-y divide-gray-100 bg-white">
-          {filas.map((f) => (
-            <li key={f.label} className="px-3 py-3 space-y-1">
-              <p className="font-medium text-gray-800 text-sm">{f.label}</p>
-              <p className="text-xs text-gray-500">{f.hint}</p>
-              <p className="text-right font-bold text-gray-900 tabular-nums">{formatMoneda(f.value)}</p>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </tbody>
+        </table>
       </div>
       <div className="mt-4 pt-4 border-t border-emerald-100 flex items-center justify-between gap-2">
         <span className="font-semibold text-gray-900">Total ganancias</span>
-        <span className="text-lg font-bold text-green-500 tabular-nums">{formatMoneda(resumen.total)}</span>
+        <span className="text-lg font-bold text-green-700 tabular-nums">{formatMoneda(resumen.total)}</span>
       </div>
     </div>
   );

@@ -9,18 +9,10 @@ import ClientesPeriodoPanel from "./component/ClientesPeriodoPanel";
 import TrabajosEnCurso from "./component/TrabajosEnCurso";
 import { LineChart, PieChart, TrendingDown, Users, Wrench } from "lucide-react";
 
-function diaSemanaLargoEs() {
-  const raw = new Date().toLocaleDateString("es-AR", { weekday: "long" });
-  return raw.charAt(0).toUpperCase() + raw.slice(1);
-}
-
 export default function Home() {
-  const diaSemana = diaSemanaLargoEs();
-
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
-   
 
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
           <div>

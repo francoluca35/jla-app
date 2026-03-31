@@ -24,11 +24,11 @@ import {
 const NAV = [
   { label: "Inicio", path: "/home", icon: LayoutDashboard },
   { label: "Agenda de Clientes", path: "/agendaclient", icon: CalendarPlus },
-  { label: "Ventas pactadas", path: "/ventas-pactadas", icon: ShoppingCart },
   { label: "Ingreso de Gastos", path: "/gastos", icon: PiggyBank },
   { label: "Historial Clientes", path: "/hclientes", icon: Users },
   { label: "Historial de Gastos", path: "/hgastos", icon: ReceiptText },
   { label: "Historial de Ingresos", path: "/hingresos", icon: ChartNoAxesCombined },
+  { label: "Ventas pactadas", path: "/ventas-pactadas", icon: ShoppingCart },
   { label: "Historial de ventas", path: "/hventas", icon: FileText },
   { label: "Informes Semanales", path: "/excel", icon: FileSpreadsheet },
 ];
@@ -201,8 +201,8 @@ export default function DashboardLayout({ children }) {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h2 className="font-caviar text-gray-800 font-medium tracking-wide text-lg truncate flex-1 min-w-0">
-            Hola, {usuario.username} 👋
+          <h2 className="text-gray-800 font-medium text-lg truncate flex-1 min-w-0">
+            Hola, {usuario.username} {diaSemana} 👋
           </h2>
           <div className="hidden md:block relative w-72">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 inset-y-0 my-auto pointer-events-none" />

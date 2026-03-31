@@ -70,38 +70,27 @@ export default function PerdidasPanel() {
           Pérdidas
         </h2>
       </div>
-      <div className="rounded-xl border border-gray-200 overflow-hidden">
-        <div className="hidden sm:block">
-          <table className="w-full text-sm">
-            <thead className="bg-rose-50/70 text-gray-700">
-              <tr>
-                <th className="px-3 py-2.5 text-left font-semibold">Concepto</th>
-                <th className="px-3 py-2.5 text-left font-semibold">Detalle</th>
-                <th className="px-3 py-2.5 text-right font-semibold">Monto</th>
+      <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <table className="w-full text-sm">
+          <thead className="bg-rose-50/70 text-gray-700">
+            <tr>
+              <th className="px-3 py-2.5 text-left font-semibold">Concepto</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Detalle</th>
+              <th className="px-3 py-2.5 text-right font-semibold">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filasMostrar.map((f) => (
+              <tr key={f.label} className="border-t border-gray-100">
+                <td className="px-3 py-2.5 font-medium text-gray-800">{f.label}</td>
+                <td className="px-3 py-2.5 text-gray-500">{f.hint}</td>
+                <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
+                  {formatMoneda(f.value)}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filasMostrar.map((f) => (
-                <tr key={f.label} className="border-t border-gray-100">
-                  <td className="px-3 py-2.5 font-medium text-gray-800">{f.label}</td>
-                  <td className="px-3 py-2.5 text-gray-500">{f.hint}</td>
-                  <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
-                    {formatMoneda(f.value)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <ul className="sm:hidden divide-y divide-gray-100 bg-white">
-          {filasMostrar.map((f) => (
-            <li key={f.label} className="px-3 py-3 space-y-1">
-              <p className="font-medium text-gray-800 text-sm">{f.label}</p>
-              <p className="text-xs text-gray-500">{f.hint}</p>
-              <p className="text-right font-bold text-gray-900 tabular-nums">{formatMoneda(f.value)}</p>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </tbody>
+        </table>
       </div>
       <div className="mt-4 pt-4 border-t border-rose-100 flex items-center justify-between gap-2">
         <span className="font-semibold text-gray-900">Total pérdidas</span>

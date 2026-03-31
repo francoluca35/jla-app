@@ -235,7 +235,8 @@ export default function FormClient() {
       efectivo: stPaymentMethod === "ambos" ? Number(stEfectivo) || 0 : 0,
       transferencia: stPaymentMethod === "ambos" ? Number(stTransferencia) || 0 : 0,
       description: desc || stDescripcion.trim(),
-      estado: "en curso",
+      estado: "terminado",
+      fechaTerminado: new Date().toISOString().split("T")[0],
       sertec,
     };
 
@@ -403,20 +404,22 @@ export default function FormClient() {
             <label className="block md:col-span-2">
               <span className="text-sm font-medium text-gray-700">Nombre del cliente</span>
               <div className="relative mt-1">
-                <input
-                  value={stNombre}
-                  onChange={(e) => setStNombre(e.target.value)}
-                  required
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-black"
-                  placeholder="Nombre o razón social"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowList((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-gray-800 px-2 py-1 rounded-lg border border-gray-200 bg-white"
-                >
-                  {showList ? "Cerrar" : "Lista"}
-                </button>
+                <div className="flex items-center gap-2 w-full rounded-xl border border-gray-300 bg-white px-2">
+                  <input
+                    value={stNombre}
+                    onChange={(e) => setStNombre(e.target.value)}
+                    required
+                    className="flex-1 bg-transparent px-2 py-3 text-black outline-none"
+                    placeholder="Nombre o razón social"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowList((v) => !v)}
+                    className="inline-flex items-center justify-center min-w-[56px] h-8 text-xs text-gray-500 hover:text-gray-800 px-2 rounded-lg border border-gray-200 bg-white"
+                  >
+                    {showList ? "Cerrar" : "Lista"}
+                  </button>
+                </div>
                 {showList && clientList.length > 0 && (
                   <ul className="absolute z-20 mt-1 max-h-40 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg text-sm">
                     {clientList.map((name, i) => (
@@ -574,20 +577,22 @@ export default function FormClient() {
           <label className="block md:col-span-2">
             <span className="text-sm font-medium text-gray-700">Nombre del cliente</span>
             <div className="relative mt-1">
-              <input
-                value={prNombre}
-                onChange={(e) => setPrNombre(e.target.value)}
-                required
-                className="w-full rounded-xl border border-gray-300 px-4 py-3"
-                placeholder="Cliente"
-              />
-              <button
-                type="button"
-                onClick={() => setShowList((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 px-2 py-1 rounded-lg border border-gray-200 bg-white"
-              >
-                {showList ? "Cerrar" : "Lista"}
-              </button>
+              <div className="flex items-center gap-2 w-full rounded-xl border border-gray-300 bg-white px-2">
+                <input
+                  value={prNombre}
+                  onChange={(e) => setPrNombre(e.target.value)}
+                  required
+                  className="flex-1 bg-transparent px-2 py-3 outline-none"
+                  placeholder="Cliente"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowList((v) => !v)}
+                  className="inline-flex items-center justify-center min-w-[56px] h-8 text-xs text-gray-500 hover:text-gray-800 px-2 rounded-lg border border-gray-200 bg-white"
+                >
+                  {showList ? "Cerrar" : "Lista"}
+                </button>
+              </div>
               {showList && clientList.length > 0 && (
                 <ul className="absolute z-20 mt-1 max-h-40 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg text-sm">
                   {clientList.map((name, i) => (

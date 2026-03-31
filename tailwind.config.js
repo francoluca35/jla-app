@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}", "./pages/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        caviar: ['"Caviar Dreams"', "system-ui", "sans-serif"],
+      },
       colors: {
         verdefluor: "#10db00",
         verdefluort: "#00a002",

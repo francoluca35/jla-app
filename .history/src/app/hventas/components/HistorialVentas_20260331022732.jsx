@@ -19,15 +19,6 @@ function formatFecha(fecha) {
   return d.toLocaleDateString("es-AR");
 }
 
-function blobToDataUrl(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
 export default function HistorialVentas() {
   const { ventas, loading, error } = useVentas();
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
@@ -47,144 +38,30 @@ export default function HistorialVentas() {
 
   const generarComprobante = async (venta) => {
     const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 14;
-    let y = 16;
+    const doc = new jsPDF();
+    const y0 = 20;
 
-    const watermarkUrl = `${window.location.origin}/Assets/logo.jpg`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent("https://www.jlatecnicos.com/")}`;
+    doc.setFontSize(16);
+    doc.text("Comprobante de venta", 14, y0);
+    doc.setFontSize(11);
 
-    try {
-      const [logoBlob, qrBlob] = await Promise.all([
-        fetch(watermarkUrl).then((r) => r.blob()),
-        fetch(qrUrl).then((r) => r.blob()),
-      ]);
+    const lineas = [
+      `Fecha: ${formatFecha(venta.fechaVenta)}`,
+      `Tipo de venta: ${venta.tipoVenta || "-"}`,
+      `Producto: ${venta.nombreProducto || "-"}`,
+      `Cliente: ${venta.vendidoA || "-"}`,
+      `Direccion: ${venta.direccionLugar || "-"}`,
+      `Cantidad: ${venta.cantidad || 0}`,
+      `Precio por unidad: ${formatMoneda(venta.precioUnidad)}`,
+      `Total: ${formatMoneda(venta.total)}`,
+      `Metodo de pago: ${venta.metodoPago || "-"}`,
+      `Sena: ${venta.sena ? "Si" : "No"}`,
+      `Venta desde stock: ${venta.ventaDesdeStock ? "Si" : "No"}`,
+    ];
 
-      const [logoDataUrl, qrDataUrl] = await Promise.all([
-        blobToDataUrl(logoBlob),
-        blobToDataUrl(qrBlob),
-      ]);
-
-      if (doc.GState) {
-        doc.saveGraphicsState();
-        doc.setGState(new doc.GState({ opacity: 0.08 }));
-        doc.addImage(logoDataUrl, "JPEG", 35, 80, 140, 140, undefined, "FAST");
-        doc.restoreGraphicsState();
-      } else {
-        doc.addImage(logoDataUrl, "JPEG", 152, 12, 42, 42, undefined, "FAST");
-      }
-
-      doc.setDrawColor(180, 180, 180);
-      doc.setLineWidth(0.2);
-      doc.line(margin, y + 12, pageWidth - margin, y + 12);
-
-      doc.setTextColor(20, 20, 20);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(20);
-      doc.text("Recibo", pageWidth / 2, y + 6, { align: "center" });
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text(`Fecha: ${formatFecha(venta.fechaVenta)}`, pageWidth - margin, y + 6, { align: "right" });
-      y += 20;
-
-      const aviso =
-        "Este documento es solo para corroborar que se entrego el producto con su comprobante.";
-      const avisoSplit = doc.splitTextToSize(aviso, pageWidth - margin * 2);
-      doc.setFontSize(10);
-      doc.text(avisoSplit, margin, y);
-      y += avisoSplit.length * 4.8 + 4;
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.text("Datos de JLA", margin, y);
-      y += 5;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text("Empresa: JLA Tecnicos", margin, y);
-      y += 4.8;
-      doc.text("Telefono: +54 11-3153-6316", margin, y);
-      y += 4.8;
-      doc.text("Email: consultas@jlatecnicos.com.ar", margin, y);
-      y += 8;
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.text("Datos del cliente", margin, y);
-      y += 5;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      const lineasCliente = [
-        ["Nombre de cliente", venta.vendidoA],
-        ["Nombre del lugar", venta.nombreLugar],
-        ["Direccion", venta.direccionLugar],
-        ["Telefono", venta.telefonoCliente],
-        ["Producto", venta.nombreProducto],
-      ];
-      lineasCliente.forEach(([etiqueta, valor]) => {
-        if (!String(valor || "").trim()) return;
-        doc.text(`${etiqueta}: ${String(valor).trim()}`, margin, y);
-        y += 4.8;
-      });
-      y += 3.2;
-
-      const tableX = margin;
-      const tableW = pageWidth - margin * 2;
-      const colW = [35, 42, 69, 30];
-      const rowH = 8;
-      const headers = ["Detalle", "Producto", "Descripcion", "Importe"];
-      const values = [
-        "Entrega de producto",
-        String(venta.nombreProducto || "-"),
-        `Tipo: ${venta.tipoVenta || "-"} | Metodo: ${venta.metodoPago || "-"} | Cantidad: ${Number(venta.cantidad || 0)}`,
-        formatMoneda(venta.total),
-      ];
-
-      doc.setDrawColor(120, 120, 120);
-      doc.setLineWidth(0.2);
-      doc.rect(tableX, y, tableW, rowH);
-      let x = tableX;
-      headers.forEach((h, i) => {
-        if (i > 0) doc.line(x, y, x, y + rowH);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9.5);
-        doc.text(h, x + 1.8, y + 5.3);
-        x += colW[i];
-      });
-
-      y += rowH;
-      const descSplit = doc.splitTextToSize(values[2], colW[2] - 3.6);
-      const bodyH = Math.max(12, descSplit.length * 4.6 + 3);
-      doc.rect(tableX, y, tableW, bodyH);
-
-      x = tableX;
-      colW.forEach((w, i) => {
-        if (i > 0) doc.line(x, y, x, y + bodyH);
-        x += w;
-      });
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9.5);
-      doc.text(values[0], tableX + 1.8, y + 5.2);
-      doc.text(values[1], tableX + colW[0] + 1.8, y + 5.2);
-      doc.text(descSplit, tableX + colW[0] + colW[1] + 1.8, y + 5.2);
-      doc.setFont("helvetica", "bold");
-      doc.text(values[3], tableX + tableW - 1.8, y + 5.2, { align: "right" });
-
-      y += bodyH + 10;
-      doc.addImage(qrDataUrl, "PNG", (pageWidth - 40) / 2, y, 40, 40, undefined, "FAST");
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text("Escaneame para visitar: https://www.jlatecnicos.com/", pageWidth / 2, y + 45, { align: "center" });
-    } catch {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
-      doc.text("Recibo", pageWidth / 2, 24, { align: "center" });
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text("No se pudo cargar logo/QR. Intentá nuevamente con internet.", margin, 34);
-    }
+    lineas.forEach((linea, index) => {
+      doc.text(linea, 14, y0 + 12 + index * 8);
+    });
 
     const nombre = `comprobante-venta-${(venta._id || "sin-id").toString()}.pdf`;
     doc.save(nombre);
@@ -329,18 +206,8 @@ export default function HistorialVentas() {
                   <p className="text-sm font-semibold text-gray-900 break-words">{formatFecha(ventaSeleccionada.fechaVenta)}</p>
                 </div>
                 <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5">
-                  <p className="text-[11px] uppercase tracking-wide text-gray-500">Nombre de cliente</p>
+                  <p className="text-[11px] uppercase tracking-wide text-gray-500">Cliente</p>
                   <p className="text-sm font-semibold text-gray-900 break-words">{ventaSeleccionada.vendidoA || "-"}</p>
-                </div>
-                {String(ventaSeleccionada.nombreLugar || "").trim() && (
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5">
-                    <p className="text-[11px] uppercase tracking-wide text-gray-500">Nombre del lugar</p>
-                    <p className="text-sm font-semibold text-gray-900 break-words">{ventaSeleccionada.nombreLugar}</p>
-                  </div>
-                )}
-                <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5">
-                  <p className="text-[11px] uppercase tracking-wide text-gray-500">Teléfono cliente</p>
-                  <p className="text-sm font-semibold text-gray-900 break-words">{ventaSeleccionada.telefonoCliente || "-"}</p>
                 </div>
                 <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 sm:col-span-2">
                   <p className="text-[11px] uppercase tracking-wide text-gray-500">Producto</p>
@@ -372,7 +239,7 @@ export default function HistorialVentas() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border bg-violet-50 text-green-700 border-violet-200 capitalize">
+                <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border bg-violet-500 text-violet-700 border-violet-200 capitalize">
                   Pago: {ventaSeleccionada.metodoPago || "-"}
                 </span>
                 <span

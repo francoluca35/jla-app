@@ -95,45 +95,63 @@ export default function ClientesPeriodoPanel() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200">
-        <table className="w-full text-sm">
-          <thead className="bg-blue-50/60 text-gray-700">
-            <tr>
-              <th className="px-3 py-2.5 text-left font-semibold">Tipo</th>
-              <th className="px-3 py-2.5 text-left font-semibold">Descripción</th>
-              <th className="px-3 py-2.5 text-right font-semibold">Cantidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-t border-gray-100">
-              <td className="px-3 py-2.5 font-medium text-gray-800">Servicio técnico</td>
-              <td className="px-3 py-2.5 text-gray-500">Clientes con tipo arreglo</td>
-              <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
-                {resumen.servicioTecnico}
-              </td>
-            </tr>
-            <tr className="border-t border-gray-100">
-              <td className="px-3 py-2.5 font-medium text-gray-800">Presupuesto / venta</td>
-              <td className="px-3 py-2.5 text-gray-500">Presupuestos + ventas registradas</td>
-              <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
-                {resumen.presupuestoVenta}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr className="border-t border-gray-200 bg-gray-50/70">
-              <td colSpan={2} className="px-3 py-2.5 font-semibold text-gray-900">
-                Total período
-              </td>
-              <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
-                {resumen.total}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+      <div className="rounded-xl border border-gray-200 overflow-hidden">
+        <div className="hidden sm:block">
+          <table className="w-full text-sm">
+            <thead className="bg-blue-50/60 text-gray-700">
+              <tr>
+                <th className="px-3 py-2.5 text-left font-semibold">Tipo</th>
+                <th className="px-3 py-2.5 text-left font-semibold">Descripción</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-gray-100">
+                <td className="px-3 py-2.5 font-medium text-gray-800">Servicio técnico</td>
+                <td className="px-3 py-2.5 text-gray-500">Clientes con tipo arreglo</td>
+                <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
+                  {resumen.servicioTecnico}
+                </td>
+              </tr>
+              <tr className="border-t border-gray-100">
+                <td className="px-3 py-2.5 font-medium text-gray-800">Presupuesto / venta</td>
+                <td className="px-3 py-2.5 text-gray-500">Presupuestos + ventas registradas</td>
+                <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
+                  {resumen.presupuestoVenta}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-gray-200 bg-gray-50/70">
+                <td colSpan={2} className="px-3 py-2.5 font-semibold text-gray-900">
+                  Total período
+                </td>
+                <td className="px-3 py-2.5 text-right font-bold text-gray-900 tabular-nums">
+                  {resumen.total}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <ul className="sm:hidden divide-y divide-gray-100 bg-white">
+          <li className="px-3 py-3 space-y-1">
+            <p className="font-medium text-gray-800 text-sm">Servicio técnico</p>
+            <p className="text-xs text-gray-500">Clientes con tipo arreglo</p>
+            <p className="text-right font-bold text-gray-900 tabular-nums">{resumen.servicioTecnico}</p>
+          </li>
+          <li className="px-3 py-3 space-y-1">
+            <p className="font-medium text-gray-800 text-sm">Presupuesto / venta</p>
+            <p className="text-xs text-gray-500">Presupuestos + ventas registradas</p>
+            <p className="text-right font-bold text-gray-900 tabular-nums">{resumen.presupuestoVenta}</p>
+          </li>
+          <li className="px-3 py-3 flex justify-between gap-2 font-semibold text-gray-900 bg-gray-50/70 border-t border-gray-200">
+            <span>Total período</span>
+            <span className="tabular-nums font-bold">{resumen.total}</span>
+          </li>
+        </ul>
       </div>
 
-      <p className="mt-3 text-xs text-gray-500 flex items-center gap-1.5">
+      <p className="mt-3 text-xs text-black flex items-center gap-1.5">
         <CalendarDays className="w-3.5 h-3.5" />
         {periodo === "mensual" ? "Mes en curso" : "Año en curso"}
       </p>
