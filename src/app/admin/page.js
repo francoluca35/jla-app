@@ -24,10 +24,43 @@ export default function AdminAuth() {
   const [showPassword, setShowPassword] = useState(false);
   const [biometricReady, setBiometricReady] = useState(false);
   const [loadingBiometric, setLoadingBiometric] = useState(false);
+  const [showInstallCard, setShowInstallCard] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isIosInstallHint, setIsIosInstallHint] = useState(false);
 
   useEffect(() => {
     const lastUser = getLastLoginUsername();
     if (lastUser) setUsername(lastUser);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isMobileOrTablet()) return;
+
+    const isStandalone =
+      window.matchMedia?.("(display-mode: standalone)")?.matches ||
+      window.navigator.standalone === true;
+    if (isStandalone) return;
+
+    const userAgent = navigator.userAgent || "";
+    const isiOS = /iPhone|iPad|iPod/i.test(userAgent);
+
+    const onBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      setDeferredPrompt(event);
+      setShowInstallCard(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+
+    if (isiOS) {
+      setIsIosInstallHint(true);
+      setShowInstallCard(true);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+    };
   }, []);
 
   useEffect(() => {
@@ -110,6 +143,14 @@ export default function AdminAuth() {
     }
   };
 
+  const handleInstallApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+    setShowInstallCard(false);
+  };
+
   return (
     <div
       className="min-h-screen bg-cover bg-center flex justify-center items-center"
@@ -118,6 +159,36 @@ export default function AdminAuth() {
       }}
     >
       <div className="backdrop-blur-md bg-gradient-to-br from-[#4b1e5a]/60 to-[#1c1c3c]/60 p-8 rounded-3xl w-96 shadow-xl text-white">
+        {showInstallCard && (
+          <div className="mb-5 rounded-xl border border-verdefluor/40 bg-black/25 p-3">
+            <p className="text-sm font-semibold text-verdefluor">
+              Instalá la app en tu celular
+            </p>
+            <p className="mt-1 text-xs text-white/80">
+              {isIosInstallHint
+                ? "En iPhone/iPad: tocá Compartir y luego 'Agregar a pantalla de inicio'."
+                : "Para un acceso más rápido, instalá la app en este dispositivo."}
+            </p>
+            <div className="mt-2 flex gap-2">
+              {!isIosInstallHint && deferredPrompt && (
+                <button
+                  type="button"
+                  onClick={handleInstallApp}
+                  className="rounded-lg bg-verdefluor px-3 py-1.5 text-xs font-semibold text-black hover:bg-verdefluort transition"
+                >
+                  Descargar app
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowInstallCard(false)}
+                className="rounded-lg border border-white/30 px-3 py-1.5 text-xs hover:bg-white/10 transition"
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex justify-center mb-6">
           <div className="w-36 h-36 rounded-full overflow-hidden shadow-lg">
             <img
