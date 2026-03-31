@@ -612,7 +612,7 @@ export default function HistoryClient() {
       <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/80 px-5 py-6 sm:px-8 sm:py-7 mb-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-verdefluor text-black shadow-md shrink-0">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-black shadow-md shrink-0">
               <User className="w-6 h-6" strokeWidth={2} />
             </span>
             <div>
@@ -653,263 +653,45 @@ export default function HistoryClient() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        {filteredClientes.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <PackageOpen className="w-12 h-12 text-black mx-auto mb-3" strokeWidth={1.5} />
-            <p className="text-black font-medium">No hay registros con este filtro.</p>
-            <p className="text-black text-sm mt-1">Probá con &quot;Todos&quot;.</p>
-          </div>
-        ) : (
-          <>
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full min-w-[980px] text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="px-4 py-3 w-12" />
-                    <th className="px-3 py-3 text-left font-bold text-black uppercase tracking-wider text-xs">
-                      <span className="inline-flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5" strokeWidth={2} />
-                        Nombre
-                      </span>
-                    </th>
-                    <th className="px-3 py-3 text-left font-bold text-black uppercase tracking-wider text-xs">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
-                        Sucursal
-                      </span>
-                    </th>
-                    <th className="px-3 py-3 text-left font-bold text-black uppercase tracking-wider text-xs">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" strokeWidth={2} />
-                        Fecha
-                      </span>
-                    </th>
-                    <th className="px-3 py-3 text-left font-bold text-black uppercase tracking-wider text-xs">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Factory className="w-3.5 h-3.5" strokeWidth={2} />
-                        Qué se fabrica
-                      </span>
-                    </th>
-                    <th className="px-3 py-3 text-left font-bold text-black uppercase tracking-wider text-xs">
-                      <span className="inline-flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
-                        Estado
-                      </span>
-                    </th>
-                    <th className="px-3 py-3 text-center font-bold text-black uppercase tracking-wider text-xs">
-                      <span className="inline-flex items-center gap-1">
-                        <Package className="w-3.5 h-3.5" strokeWidth={2} />
-                        MP
-                      </span>
-                    </th>
-                    <th className="px-3 py-3 text-center font-bold text-black uppercase tracking-wider text-xs">
-                      Detalle
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredClientes.map((cliente, index) => {
-                    const id = cliente._id != null ? String(cliente._id) : `idx-${index}`;
-                    const open = detailId != null && cliente._id != null && String(cliente._id) === detailId;
-                    const mp = tieneMateriaPrima(cliente);
-                    const fabrica = labelQueSeFabrica(cliente);
-                    const esST = cliente.problemType === "arreglo";
-                    const terminado = cliente.problemType === "arreglo" || cliente.estado === "terminado";
-
-                    return (
-                      <React.Fragment key={id}>
-                        <tr className={`${open ? "bg-slate-50" : index % 2 === 0 ? "bg-white" : "bg-slate-50/40"} hover:bg-slate-50/90 border-b border-slate-100`}>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
-                                esST
-                                  ? "bg-violet-50 border-violet-100 text-black"
-                                  : "bg-emerald-50 border-emerald-100 text-black"
-                              }`}
-                              title={esST ? "Servicio técnico" : "Presupuesto"}
-                            >
-                              {esST ? (
-                                <Wrench className="w-4 h-4" strokeWidth={2} />
-                              ) : (
-                                <FileText className="w-4 h-4" strokeWidth={2} />
-                              )}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3 font-semibold text-black max-w-[180px]">
-                            <span className="truncate block" title={cliente.clientName}>
-                              {cliente.clientName}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3 text-black">{cliente.branch?.trim() || "—"}</td>
-                          <td className="px-3 py-3">{celdaFechaTabla(cliente)}</td>
-                          <td className="px-3 py-3 text-black max-w-[240px]">
-                            <span className="truncate block" title={fabrica}>
-                              {fabrica}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3">
-                            <span
-                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                terminado
-                                  ? "bg-slate-100 text-black"
-                                  : "bg-amber-50 text-black border border-amber-200"
-                              }`}
-                            >
-                              {terminado ? (
-                                <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
-                              ) : (
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                              )}
-                              {estadoLabel(cliente)}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3 text-center">
-                            {cliente.problemType === "presupuesto" ? (
-                              <span
-                                className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold ${
-                                  mp
-                                    ? "bg-emerald-100 text-black"
-                                    : "bg-slate-100 text-black"
-                                }`}
-                              >
-                                {mp ? <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} /> : <Minus className="w-3.5 h-3.5 opacity-50" strokeWidth={2} />}
-                                {mp ? "Sí" : "No"}
-                              </span>
-                            ) : (
-                              <span className="text-black text-lg font-light">·</span>
-                            )}
-                          </td>
-                          <td className="px-3 py-3 text-center">
-                            <button
-                              type="button"
-                              aria-expanded={open}
-                              aria-label={open ? "Cerrar detalle" : "Ver detalle"}
-                              onClick={() => toggleDetalle(cliente)}
-                              className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
-                                open
-                                  ? "bg-slate-900 text-white border-slate-900 shadow-md"
-                                  : "bg-white text-black border-slate-200 hover:border-verdefluor"
-                              }`}
-                            >
-                              <ChevronDown
-                                className={`w-5 h-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-                                strokeWidth={2}
-                              />
-                            </button>
-                          </td>
-                        </tr>
-                        {open && (
-                          <tr>
-                            <td colSpan={8} className="p-0 border-b border-slate-200">
-                              <div className="px-4 sm:px-5 py-6 bg-gradient-to-b from-slate-50 to-slate-100/80">
-                                <div className="max-w-3xl mx-auto space-y-5">
-                                  <div className="flex items-center justify-between gap-3 flex-wrap">
-                                    <h2 className="text-base font-bold text-black flex items-center gap-2">
-                                      <ClipboardList className="w-5 h-5 text-black" strokeWidth={2} />
-                                      Detalle del registro
-                                    </h2>
-                                    <span className="text-xs font-medium text-black uppercase tracking-wide">
-                                      ID interno · {String(detailClient._id || "").slice(-8)}
-                                    </span>
-                                  </div>
-                                  <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-                                    {renderDetalleCompleto()}
-                                  </div>
-                                  <div className="flex flex-col sm:flex-row flex-wrap gap-2">
-                                    {isEditing ? (
-                                      <>
-                                        <button
-                                          type="button"
-                                          onClick={handleGuardarCambios}
-                                          className="inline-flex items-center justify-center gap-2 flex-1 min-w-[140px] rounded-xl bg-verdefluor hover:bg-verdefluort text-black font-semibold py-3 px-4 border border-slate-900/10 shadow-sm transition-colors"
-                                        >
-                                          <Save className="w-4 h-4" strokeWidth={2} />
-                                          Guardar
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setIsEditing(false);
-                                            setEditedClient(null);
-                                          }}
-                                          className="inline-flex items-center justify-center gap-2 flex-1 min-w-[140px] rounded-xl bg-white border border-slate-200 text-black font-semibold py-3 px-4 hover:bg-slate-50 transition-colors"
-                                        >
-                                          <X className="w-4 h-4" strokeWidth={2} />
-                                          Cancelar
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setIsEditing(true);
-                                            setEditedClient({
-                                              ...detailClient,
-                                              sertec: [...(detailClient.sertec || [])],
-                                            });
-                                          }}
-                                          className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-slate-900 text-white font-semibold py-3 px-4 hover:bg-slate-800 transition-colors"
-                                        >
-                                          <Pencil className="w-4 h-4" strokeWidth={2} />
-                                          Editar
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleEliminar(detailClient._id)}
-                                          className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-white border border-red-200 text-black font-semibold py-3 px-4 hover:bg-red-50 transition-colors"
-                                        >
-                                          <Trash2 className="w-4 h-4" strokeWidth={2} />
-                                          Eliminar
-                                        </button>
-                                        {detailClient.estado !== "terminado" && (
-                                          <button
-                                            type="button"
-                                            onClick={async () => {
-                                              const ft = new Date().toISOString().split("T")[0];
-                                              await editarCliente({
-                                                ...detailClient,
-                                                estado: "terminado",
-                                                fechaTerminado: ft,
-                                              });
-                                              setDetailClient({
-                                                ...detailClient,
-                                                estado: "terminado",
-                                                fechaTerminado: ft,
-                                              });
-                                              refetch();
-                                            }}
-                                            className="inline-flex items-center justify-center gap-2 flex-1 min-w-[160px] rounded-xl bg-verdefluor hover:bg-verdefluort text-black font-semibold py-3 px-4 border border-slate-900/10 shadow-sm"
-                                          >
-                                            <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
-                                            Marcar terminado
-                                          </button>
-                                        )}
-                                      </>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={cerrarDetalle}
-                                      className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-white border border-slate-200 text-black font-semibold py-3 px-4 hover:bg-slate-50"
-                                    >
-                                      <ChevronDown className="w-4 h-4 rotate-180" strokeWidth={2} />
-                                      Cerrar
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
+        <div className="overflow-x-auto">
+          <div className="min-w-[920px]">
+            <div className="grid grid-cols-[auto_minmax(7rem,1fr)_minmax(5rem,0.75fr)_minmax(7.5rem,0.85fr)_minmax(9rem,1.1fr)_minmax(5.5rem,0.65fr)_5.5rem_3rem] gap-0 items-center px-3 sm:px-4 py-3 bg-slate-50 border-b border-slate-200">
+              <div className="w-8" aria-hidden />
+              <div className="flex items-center gap-2 text-xs font-bold text-black uppercase tracking-wider">
+                <User className="w-3.5 h-3.5" strokeWidth={2} />
+                Nombre
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-black uppercase tracking-wider">
+                <Building2 className="w-3.5 h-3.5" strokeWidth={2} />
+                Sucursal
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-black uppercase tracking-wider">
+                <Calendar className="w-3.5 h-3.5" strokeWidth={2} />
+                Fecha
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-black uppercase tracking-wider min-w-0">
+                <Factory className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                Qué se fabrica
+              </div>
+              <div className="flex items-center gap-2 text-xs font-bold text-black uppercase tracking-wider">
+                <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                Estado
+              </div>
+              <div className="flex items-center justify-center gap-1 text-xs font-bold text-black uppercase tracking-wider">
+                <Package className="w-3.5 h-3.5" strokeWidth={2} />
+                MP
+              </div>
+              <div className="sr-only">Detalle</div>
             </div>
 
-            <div className="md:hidden p-3 space-y-3">
-              {filteredClientes.map((cliente, index) => {
+            {filteredClientes.length === 0 ? (
+              <div className="px-6 py-16 text-center">
+                <PackageOpen className="w-12 h-12 text-black mx-auto mb-3" strokeWidth={1.5} />
+                <p className="text-black font-medium">No hay registros con este filtro.</p>
+                <p className="text-black text-sm mt-1">Probá con &quot;Todos&quot;.</p>
+              </div>
+            ) : (
+              filteredClientes.map((cliente, index) => {
                 const id = cliente._id != null ? String(cliente._id) : `idx-${index}`;
                 const open = detailId != null && cliente._id != null && String(cliente._id) === detailId;
                 const mp = tieneMateriaPrima(cliente);
@@ -918,117 +700,205 @@ export default function HistoryClient() {
                 const terminado = cliente.problemType === "arreglo" || cliente.estado === "terminado";
 
                 return (
-                  <div key={id} className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                    <div className={`p-3 space-y-2 ${index % 2 === 0 ? "bg-white" : "bg-slate-50/40"}`}>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-2 min-w-0">
+                  <div key={id} className="border-b border-slate-100 last:border-0">
+                    <div
+                      className={`grid grid-cols-[auto_minmax(7rem,1fr)_minmax(5rem,0.75fr)_minmax(7.5rem,0.85fr)_minmax(9rem,1.1fr)_minmax(5.5rem,0.65fr)_5.5rem_3rem] gap-0 items-center px-3 sm:px-4 py-3 transition-colors ${
+                        open ? "bg-slate-50" : index % 2 === 0 ? "bg-white" : "bg-slate-50/40"
+                      } hover:bg-slate-50/90`}
+                    >
+                      <div className="flex justify-center pr-1">
+                        <span
+                          className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
+                            esST
+                              ? "bg-violet-50 border-violet-100 text-black"
+                              : "bg-emerald-50 border-emerald-100 text-black"
+                          }`}
+                          title={esST ? "Servicio técnico" : "Presupuesto"}
+                        >
+                          {esST ? (
+                            <Wrench className="w-4 h-4" strokeWidth={2} />
+                          ) : (
+                            <FileText className="w-4 h-4" strokeWidth={2} />
+                          )}
+                        </span>
+                      </div>
+                      <div className="font-semibold text-black text-sm min-w-0 pr-2">
+                        <span className="truncate block" title={cliente.clientName}>
+                          {cliente.clientName}
+                        </span>
+                      </div>
+                      <div className="text-sm text-black truncate" title={cliente.branch || ""}>
+                        {cliente.branch?.trim() || "—"}
+                      </div>
+                      <div className="text-sm">{celdaFechaTabla(cliente)}</div>
+                      <div className="text-sm text-black min-w-0 pr-1">
+                        <span className="truncate block" title={fabrica}>
+                          {fabrica}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            terminado
+                              ? "bg-slate-100 text-black"
+                              : "bg-amber-50 text-black border border-amber-200"
+                          }`}
+                        >
+                          {terminado ? (
+                            <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                          ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          )}
+                          {estadoLabel(cliente)}
+                        </span>
+                      </div>
+                      <div className="flex justify-center">
+                        {cliente.problemType === "presupuesto" ? (
                           <span
-                            className={`flex h-8 w-8 items-center justify-center rounded-lg border shrink-0 ${
-                              esST ? "bg-violet-50 border-violet-100" : "bg-emerald-50 border-emerald-100"
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold ${
+                              mp
+                                ? "bg-emerald-100 text-black"
+                                : "bg-slate-100 text-black"
                             }`}
+                            title={mp ? "Con materia prima" : "Sin materia prima"}
                           >
-                            {esST ? <Wrench className="w-4 h-4" strokeWidth={2} /> : <FileText className="w-4 h-4" strokeWidth={2} />}
+                            {mp ? (
+                              <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                            ) : (
+                              <Minus className="w-3.5 h-3.5 opacity-50" strokeWidth={2} />
+                            )}
+                            {mp ? "Sí" : "No"}
                           </span>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-black truncate">{cliente.clientName}</p>
-                            <p className="text-xs text-black">{cliente.branch?.trim() || "—"}</p>
-                          </div>
-                        </div>
+                        ) : (
+                          <span className="text-black text-lg font-light">·</span>
+                        )}
+                      </div>
+                      <div className="flex justify-center">
                         <button
                           type="button"
                           aria-expanded={open}
+                          aria-label={open ? "Cerrar detalle" : "Ver detalle"}
                           onClick={() => toggleDetalle(cliente)}
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border ${
-                            open ? "bg-slate-900 text-white border-slate-900" : "bg-white text-black border-slate-200"
+                          className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
+                            open
+                              ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                              : "bg-white text-black border-slate-200 hover:border-verdefluor hover:text-black"
                           }`}
                         >
-                          <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} strokeWidth={2} />
+                          <ChevronDown
+                            className={`w-5 h-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+                            strokeWidth={2}
+                          />
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <p className="font-semibold text-black uppercase">Fecha</p>
-                          <div className="text-black">{celdaFechaTabla(cliente)}</div>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-black uppercase">Estado</p>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 mt-1 ${terminado ? "bg-slate-100" : "bg-amber-50 border border-amber-200"}`}>
-                            {estadoLabel(cliente)}
-                          </span>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="font-semibold text-black uppercase">Qué se fabrica</p>
-                          <p className="text-black truncate">{fabrica}</p>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-black uppercase">Materia prima</p>
-                          <p className="text-black">{cliente.problemType === "presupuesto" ? (mp ? "Sí" : "No") : "—"}</p>
-                        </div>
-                      </div>
                     </div>
+
                     {open && (
-                      <div className="px-3 py-4 bg-slate-50 border-t border-slate-200">
-                        <div className="rounded-xl border border-slate-200 bg-white p-3">
-                          {renderDetalleCompleto()}
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {isEditing ? (
-                            <>
-                              <button
-                                type="button"
-                                onClick={handleGuardarCambios}
-                                className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-verdefluor text-black font-semibold py-2.5 px-3"
-                              >
-                                <Save className="w-4 h-4" strokeWidth={2} />
-                                Guardar
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setIsEditing(false);
-                                  setEditedClient(null);
-                                }}
-                                className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-white border border-slate-200 text-black font-semibold py-2.5 px-3"
-                              >
-                                <X className="w-4 h-4" strokeWidth={2} />
-                                Cancelar
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setIsEditing(true);
-                                  setEditedClient({
-                                    ...detailClient,
-                                    sertec: [...(detailClient.sertec || [])],
-                                  });
-                                }}
-                                className="inline-flex items-center justify-center gap-2 flex-1 min-w-[100px] rounded-xl bg-slate-900 text-white font-semibold py-2.5 px-3"
-                              >
-                                <Pencil className="w-4 h-4" strokeWidth={2} />
-                                Editar
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleEliminar(detailClient._id)}
-                                className="inline-flex items-center justify-center gap-2 flex-1 min-w-[100px] rounded-xl bg-white border border-red-200 text-black font-semibold py-2.5 px-3"
-                              >
-                                <Trash2 className="w-4 h-4" strokeWidth={2} />
-                                Eliminar
-                              </button>
-                            </>
-                          )}
+                      <div className="px-3 sm:px-5 py-6 bg-gradient-to-b from-slate-50 to-slate-100/80 border-t border-slate-200">
+                        <div className="max-w-3xl mx-auto space-y-5">
+                          <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <h2 className="text-base font-bold text-black flex items-center gap-2">
+                              <ClipboardList className="w-5 h-5 text-black" strokeWidth={2} />
+                              Detalle del registro
+                            </h2>
+                            <span className="text-xs font-medium text-black uppercase tracking-wide">
+                              ID interno · {String(detailClient._id || "").slice(-8)}
+                            </span>
+                          </div>
+                          <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+                            {renderDetalleCompleto()}
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+                            {isEditing ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={handleGuardarCambios}
+                                  className="inline-flex items-center justify-center gap-2 flex-1 min-w-[140px] rounded-xl bg-verdefluor hover:bg-verdefluort text-black font-semibold py-3 px-4 border border-slate-900/10 shadow-sm transition-colors"
+                                >
+                                  <Save className="w-4 h-4" strokeWidth={2} />
+                                  Guardar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setIsEditing(false);
+                                    setEditedClient(null);
+                                  }}
+                                  className="inline-flex items-center justify-center gap-2 flex-1 min-w-[140px] rounded-xl bg-white border border-slate-200 text-black font-semibold py-3 px-4 hover:bg-slate-50 transition-colors"
+                                >
+                                  <X className="w-4 h-4" strokeWidth={2} />
+                                  Cancelar
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setIsEditing(true);
+                                    setEditedClient({
+                                      ...detailClient,
+                                      sertec: [...(detailClient.sertec || [])],
+                                    });
+                                  }}
+                                  className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-slate-900 text-white font-semibold py-3 px-4 hover:bg-slate-800 transition-colors"
+                                >
+                                  <Pencil className="w-4 h-4" strokeWidth={2} />
+                                  Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleEliminar(detailClient._id)}
+                                  className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-white border border-red-200 text-black font-semibold py-3 px-4 hover:bg-red-50 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" strokeWidth={2} />
+                                  Eliminar
+                                </button>
+                                {detailClient.estado !== "terminado" && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      const ft = new Date().toISOString().split("T")[0];
+                                      await editarCliente({
+                                        ...detailClient,
+                                        estado: "terminado",
+                                        fechaTerminado: ft,
+                                      });
+                                      setDetailClient({
+                                        ...detailClient,
+                                        estado: "terminado",
+                                        fechaTerminado: ft,
+                                      });
+                                      refetch();
+                                    }}
+                                    className="inline-flex items-center justify-center gap-2 flex-1 min-w-[160px] rounded-xl bg-verdefluor hover:bg-verdefluort text-black font-semibold py-3 px-4 border border-slate-900/10 shadow-sm"
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
+                                    Marcar terminado
+                                  </button>
+                                )}
+                              </>
+                            )}
+                            <button
+                              type="button"
+                              onClick={cerrarDetalle}
+                              className="inline-flex items-center justify-center gap-2 flex-1 min-w-[120px] rounded-xl bg-white border border-slate-200 text-black font-semibold py-3 px-4 hover:bg-slate-50"
+                            >
+                              <ChevronDown className="w-4 h-4 rotate-180" strokeWidth={2} />
+                              Cerrar
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
                 );
-              })}
-            </div>
-          </>
-        )}
+              })
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
