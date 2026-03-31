@@ -12,7 +12,11 @@ import {
 
 export default function ConfiguracionesPage() {
   const [username, setUsername] = useState("");
-  const [biometricConfig, setBiometricConfig] = useState(getBiometricConfig(""));
+  const [biometricConfig, setBiometricConfig] = useState({
+    prompted: false,
+    slots: [false, false, false],
+    credentialIds: [],
+  });
   const [reseteandoMetricos, setReseteandoMetricos] = useState(false);
   const [borrandoBiometricos, setBorrandoBiometricos] = useState(false);
 
