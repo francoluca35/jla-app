@@ -138,7 +138,6 @@ const TabsGasto = () => {
             onChange={(e) => setTipoSeleccionado(e.target.value)}
           >
             <option value="">Todos los tipos</option>
-            <option value="materiaPrima">Materia Prima</option>
             <option value="gastoVario">Gastos Varios</option>
             <option value="sueldos">Sueldos</option>
           </select>

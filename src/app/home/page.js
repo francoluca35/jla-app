@@ -2,60 +2,99 @@
 
 import React, { Suspense } from "react";
 import DashboardLayout from "../components/DashboardLayout";
-import DashboardStats from "./component/DashboardStats";
+import GananciasPanel from "./component/GananciasPanel";
+import PerdidasPanel from "./component/PerdidasPanel";
+import EquilibrioPanel from "./component/EquilibrioPanel";
+import ClientesPeriodoPanel from "./component/ClientesPeriodoPanel";
 import TrabajosEnCurso from "./component/TrabajosEnCurso";
-import { LayoutDashboard, BarChart3, Wrench } from "lucide-react";
+import { LineChart, PieChart, TrendingDown, Users, Wrench } from "lucide-react";
 
 export default function Home() {
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto px-2 sm:px-0">
-        <header className="text-center mb-10 animate-fade-in-up">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-verdefluor/15 text-verdefluor mb-4 transition-transform duration-300 hover:scale-105">
-            <LayoutDashboard className="w-8 h-8" />
+      <div className="max-w-7xl mx-auto">
+        <header className="bg-white border border-gray-200 rounded-2xl px-4 sm:px-6 py-4 mb-6 shadow-sm">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Panel principal</h1>
+            <p className="text-gray-500 mt-1 text-sm">
+              Panel principal de métricas y seguimiento operativo
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-            Dashboard
-          </h1>
-          <p className="text-gray-500 mt-2 text-sm sm:text-base max-w-md mx-auto">
-            Vista de métricas, clientes y trabajos en curso
-          </p>
         </header>
 
-        <section className="mb-10 animate-fade-in-up-delay-1 opacity-0">
-          <h2 className="flex items-center justify-center gap-2 text-gray-700 font-semibold text-sm mb-5">
-            <BarChart3 className="w-4 h-4 text-verdefluor" />
-            Métricas
+        <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h2 className="flex items-center gap-2 text-gray-700 font-semibold text-sm mb-4">
+              <LineChart className="w-4 h-4 text-emerald-600" />
+              Ganancias
+            </h2>
+            <Suspense
+              fallback={
+                <div className="h-48 bg-gray-100 animate-pulse rounded-2xl" />
+              }
+            >
+              <GananciasPanel />
+            </Suspense>
+          </div>
+          <div>
+            <h2 className="flex items-center gap-2 text-gray-700 font-semibold text-sm mb-4">
+              <TrendingDown className="w-4 h-4 text-rose-600" />
+              Pérdidas
+            </h2>
+            <Suspense
+              fallback={
+                <div className="h-48 bg-gray-100 animate-pulse rounded-2xl" />
+              }
+            >
+              <PerdidasPanel />
+            </Suspense>
+          </div>
+        </section>
+
+        <section className="mb-6">
+          <h2 className="flex items-center gap-2 text-gray-700 font-semibold text-sm mb-4">
+            <PieChart className="w-4 h-4 text-blue-600" />
+            Equilibrio
           </h2>
           <Suspense
             fallback={
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-36 bg-gray-200/80 animate-pulse rounded-2xl"
-                  />
-                ))}
-              </div>
+              <div className="h-64 bg-gray-100 animate-pulse rounded-2xl" />
             }
           >
-            <DashboardStats />
+            <EquilibrioPanel />
           </Suspense>
         </section>
 
-        <section className="animate-fade-in-up-delay-2 opacity-0">
-          <h2 className="flex items-center justify-center gap-2 text-gray-700 font-semibold text-sm mb-5">
-            <Wrench className="w-4 h-4 text-verdefluor" />
-            Trabajos en curso
+        <section className="mb-6">
+          <h2 className="flex items-center gap-2 text-gray-700 font-semibold text-sm mb-4">
+            <Users className="w-4 h-4 text-blue-600" />
+            Clientes
           </h2>
           <Suspense
             fallback={
-              <div className="max-w-3xl mx-auto bg-white border border-gray-200 rounded-2xl p-6 h-52 animate-pulse" />
+              <div className="h-48 bg-gray-100 animate-pulse rounded-2xl" />
             }
           >
-            <TrabajosEnCurso />
+            <ClientesPeriodoPanel />
           </Suspense>
         </section>
+
+        <section className="grid grid-cols-1 gap-6">
+          <div>
+            <h2 className="flex items-center gap-2 text-gray-700 font-semibold text-sm mb-4">
+              <Wrench className="w-4 h-4 text-blue-600" />
+              Trabajos en curso
+            </h2>
+            <Suspense
+              fallback={
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 h-64 animate-pulse" />
+              }
+            >
+              <TrabajosEnCurso />
+            </Suspense>
+          </div>
+        </section>
+
       </div>
     </DashboardLayout>
   );

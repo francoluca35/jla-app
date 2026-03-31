@@ -24,6 +24,7 @@
     "file-saver": "^2.0.5",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.487.0",
     "mercadopago": "^2.4.0",
     "mongodb": "^6.15.0",

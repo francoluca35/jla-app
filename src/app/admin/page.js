@@ -41,7 +41,7 @@ export default function AdminAuth() {
           <div className="w-36 h-36 rounded-full overflow-hidden shadow-lg">
             <img
               src="/Assets/logo.jpg"
-              alt="Login Logo"
+              alt="Logo de inicio de sesión"
               className="w-full h-full object-cover"
             />
           </div>
@@ -58,33 +58,33 @@ export default function AdminAuth() {
         )}
 
         <form onSubmit={handleAuth} className="space-y-6 w-full">
-          {/* Email */}
+          {/* Usuario */}
           <div className="relative">
             <input
               type="text"
-              placeholder="Email"
+              placeholder="Usuario"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
               required
             />
             <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
-              Email
+              Usuario
             </label>
           </div>
 
-          {/* Password */}
+          {/* Contraseña */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="peer w-full bg-transparent border-b-2 border-white/30 text-white px-2 pt-5 pb-2 focus:outline-none focus:border-verdefluor placeholder-transparent"
               required
             />
             <label className="absolute left-2 top-0 text-white/50 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-focus:top-2 peer-focus:text-sm peer-focus:text-verdefluor">
-              Password
+              Contraseña
             </label>
             <button
               type="button"
@@ -97,13 +97,13 @@ export default function AdminAuth() {
             </button>
           </div>
 
-          {/* Login with password */}
+          {/* Iniciar sesión con contraseña */}
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-gradient-to-r from-green-500 to-green-800 text-white font-semibold py-2 rounded-full shadow hover:opacity-90 transition"
           >
-            {loading ? "Ingresando..." : "LOGIN"}
+            {loading ? "Ingresando..." : "INGRESAR"}
           </button>
         </form>
       </div>

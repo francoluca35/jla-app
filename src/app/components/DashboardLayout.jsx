@@ -11,10 +11,14 @@ import {
   ReceiptText,
   ChartNoAxesCombined,
   FileSpreadsheet,
+  ShoppingCart,
+  FileText,
   LogOut,
+  Trash2,
   KeyRound,
   Menu,
   X,
+  Search,
 } from "lucide-react";
 
 const NAV = [
@@ -24,6 +28,8 @@ const NAV = [
   { label: "Historial Clientes", path: "/hclientes", icon: Users },
   { label: "Historial de Gastos", path: "/hgastos", icon: ReceiptText },
   { label: "Historial de Ingresos", path: "/hingresos", icon: ChartNoAxesCombined },
+  { label: "Ventas pactadas", path: "/ventas-pactadas", icon: ShoppingCart },
+  { label: "Historial de ventas", path: "/hventas", icon: FileText },
   { label: "Informes Semanales", path: "/excel", icon: FileSpreadsheet },
 ];
 
@@ -32,6 +38,7 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const [usuario, setUsuario] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [reseteando, setReseteando] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("adminUser");
@@ -46,6 +53,39 @@ export default function DashboardLayout({ children }) {
   const handleLogout = () => {
     localStorage.removeItem("adminUser");
     router.push("/admin");
+  };
+
+  const handleResetDatos = async () => {
+    const aviso = window.confirm(
+      "Se borrarán TODOS los datos métricos y operativos (clientes, gastos y ventas). El usuario y contraseña se mantienen. ¿Querés continuar?"
+    );
+    if (!aviso) return;
+
+    const palabra = window.prompt(
+      'Para confirmar, escribí exactamente: BORRAR TODO'
+    );
+    if (palabra !== "BORRAR TODO") return;
+
+    try {
+      setReseteando(true);
+      const response = await fetch("/api/reset-datos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmacion: palabra }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || "No se pudo reiniciar los datos.");
+      }
+
+      alert("Datos reiniciados correctamente. Ahora la app está en cero.");
+      window.location.reload();
+    } catch (error) {
+      alert(error.message || "Error al reiniciar datos.");
+    } finally {
+      setReseteando(false);
+    }
   };
 
   if (!usuario) {
@@ -110,6 +150,14 @@ export default function DashboardLayout({ children }) {
           <LogOut className="w-5 h-5 flex-shrink-0" />
           Cerrar sesión
         </button>
+        <button
+          onClick={handleResetDatos}
+          disabled={reseteando}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-amber-200 hover:bg-amber-500/20 hover:text-amber-100 transition-colors disabled:opacity-60"
+        >
+          <Trash2 className="w-5 h-5 flex-shrink-0" />
+          {reseteando ? "Borrando datos..." : "Borrar datos métricos"}
+        </button>
       </div>
     </div>
   );
@@ -156,6 +204,14 @@ export default function DashboardLayout({ children }) {
           <h2 className="text-gray-800 font-medium text-lg truncate flex-1 min-w-0">
             Hola, {usuario.username}
           </h2>
+          <div className="hidden md:block relative w-72">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 inset-y-0 my-auto pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Buscar..."
+              className="w-full rounded-xl border border-gray-300 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-verdefluor focus:border-verdefluor"
+            />
+          </div>
           <img
             src="/Assets/logo.jpg"
             alt=""

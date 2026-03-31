@@ -1,10 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import useAddGasto from "@/hooks/useAddGasto";
+import useClientes from "@/hooks/useClient";
 import clsx from "clsx";
 
 const IngresarGastos = () => {
-  const [tipo, setTipo] = useState("gastoVario");
+  const { clientes } = useClientes();
+  const [tipo, setTipo] = useState("materiaPrima");
+  const [presupuestoClienteId, setPresupuestoClienteId] = useState("");
+  const [confirmarClienteId, setConfirmarClienteId] = useState("");
+  const [confirmando, setConfirmando] = useState(false);
   const [formData, setFormData] = useState({
     descripcion: "",
     lugar: "",
@@ -16,6 +21,49 @@ const IngresarGastos = () => {
 
   const fechaActual = new Date().toLocaleString();
   const { addGasto, loading, error, success } = useAddGasto();
+
+  const presupuestosConSena = useMemo(() => {
+    if (!Array.isArray(clientes)) return [];
+    return clientes.filter(
+      (c) =>
+        c.problemType === "presupuesto" &&
+        c.paymentOption === "seña" &&
+        c.presupuestoGanancia
+    );
+  }, [clientes]);
+
+  const presupuestosPendientes = useMemo(
+    () =>
+      presupuestosConSena.filter(
+        (c) => c.presupuestoGanancia?.materiaPrimaEstado === "pendiente"
+      ),
+    [presupuestosConSena]
+  );
+
+  const handleConfirmarMateriaPrima = async () => {
+    if (!confirmarClienteId) {
+      alert("Seleccioná un presupuesto pendiente.");
+      return;
+    }
+    try {
+      setConfirmando(true);
+      const res = await fetch("/api/ganancias/confirmar-presupuesto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clienteId: confirmarClienteId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "No se pudo confirmar.");
+      alert(
+        `Cálculo confirmado. Materia prima: $${data.totalMateriaPrima?.toLocaleString?.("es-AR") ?? data.totalMateriaPrima}. Ganancia neta: $${data.gananciaNeta?.toLocaleString?.("es-AR") ?? data.gananciaNeta}.`
+      );
+      window.location.reload();
+    } catch (err) {
+      alert(err.message || "Error al confirmar.");
+    } finally {
+      setConfirmando(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -54,6 +102,9 @@ const IngresarGastos = () => {
         precio: parseFloat(formData.precio),
         tipodepago: tiposDePago,
         fecha: new Date(),
+        ...(tipo === "materiaPrima" && presupuestoClienteId
+          ? { presupuestoClienteId }
+          : {}),
       };
     }
 
@@ -70,11 +121,11 @@ const IngresarGastos = () => {
     <div className="max-w-xl mx-auto">
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Ingreso de Gastos</h1>
-        <p className="text-gray-500 mt-1 text-sm">Registrar gastos varios o sueldos</p>
+        <p className="text-gray-500 mt-1 text-sm">Registrar materia prima, gastos varios o sueldos</p>
       </header>
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
         <div className="flex gap-2 mb-6">
-          {["gastoVario", "sueldos"].map((t) => (
+          {["materiaPrima", "gastoVario", "sueldos"].map((t) => (
             <button
               key={t}
               onClick={() => setTipo(t)}
@@ -85,7 +136,11 @@ const IngresarGastos = () => {
                   : "border-gray-300 text-gray-700 hover:bg-gray-50"
               )}
             >
-              {t === "gastoVario" ? "Gastos Varios" : "Sueldos"}
+              {t === "materiaPrima"
+                ? "Materia Prima"
+                : t === "gastoVario"
+                ? "Gastos Varios"
+                : "Sueldos"}
             </button>
           ))}
         </div>
@@ -166,8 +221,105 @@ const IngresarGastos = () => {
             </>
           ) : (
             <>
+              {tipo === "materiaPrima" && (
+                <>
+                  <label className="block">
+                    <span className="text-sm font-medium text-gray-700 mb-1 block">
+                      Presupuesto (materia prima a descontar)
+                    </span>
+                    <select
+                      value={presupuestoClienteId}
+                      onChange={(e) => setPresupuestoClienteId(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 bg-white"
+                    >
+                      <option value="">Sin vincular (compra general)</option>
+                      {presupuestosConSena.map((c) => {
+                        const id = String(c._id);
+                        const pendiente =
+                          c.presupuestoGanancia?.materiaPrimaEstado === "pendiente";
+                        return (
+                          <option key={id} value={id} disabled={!pendiente}>
+                            {pendiente ? "[Pendiente MP]" : "[MP calculada]"}{" "}
+                            {c.clientName}
+                            {c.branch ? ` — ${c.branch}` : ""} ($
+                            {Number(
+                              c.presupuestoGanancia?.totalPresupuesto ?? c.totalTrabajo ?? 0
+                            ).toLocaleString("es-AR")}
+                            )
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Pendiente: aún no confirmaste el cálculo. Calculada: ya confirmaste; no podés seguir
+                      vinculando gastos a ese presupuesto.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {presupuestosConSena.map((c) => {
+                        const id = String(c._id);
+                        const pendiente =
+                          c.presupuestoGanancia?.materiaPrimaEstado === "pendiente";
+                        return (
+                          <span
+                            key={id}
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                              pendiente
+                                ? "bg-red-100 text-red-800 border border-red-200"
+                                : "bg-emerald-100 text-emerald-900 border border-emerald-200"
+                            }`}
+                          >
+                            <span
+                              className={`h-2 w-2 rounded-full ${pendiente ? "bg-red-500" : "bg-emerald-500"}`}
+                            />
+                            {c.clientName}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </label>
+
+                  <div className="rounded-lg border border-dashed border-gray-300 p-4 bg-gray-50/80">
+                    <p className="text-sm font-medium text-gray-800 mb-2">
+                      Confirmar cálculo de materia prima
+                    </p>
+                    <p className="text-xs text-gray-600 mb-3">
+                      Cuando registraste todos los gastos de MP para un presupuesto, seleccioná el
+                      cliente y confirmá para fijar la ganancia neta (presupuesto − suma de MP).
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                      <select
+                        value={confirmarClienteId}
+                        onChange={(e) => setConfirmarClienteId(e.target.value)}
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
+                      >
+                        <option value="">Elegir presupuesto pendiente…</option>
+                        {presupuestosPendientes.map((c) => {
+                          const id = String(c._id);
+                          return (
+                            <option key={id} value={id}>
+                              {c.clientName}
+                              {c.branch ? ` — ${c.branch}` : ""}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={handleConfirmarMateriaPrima}
+                        disabled={confirmando || !confirmarClienteId}
+                        className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 disabled:opacity-60"
+                      >
+                        {confirmando ? "Confirmando…" : "Confirmar cálculo"}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+
               <label className="block">
-                <span className="text-sm font-medium text-gray-700 mb-1 block">Descripción</span>
+                <span className="text-sm font-medium text-gray-700 mb-1 block">
+                  {tipo === "materiaPrima" ? "Materia prima" : "Descripción"}
+                </span>
                 <input
                   type="text"
                   name="descripcion"
@@ -225,7 +377,9 @@ const IngresarGastos = () => {
             </>
           )}
 
-          <p className="text-xs text-gray-500">Fecha y hora: {fechaActual}</p>
+          <p className="text-xs text-gray-500">
+            Fecha y hora: {fechaActual}
+          </p>
 
           <button
             type="submit"
